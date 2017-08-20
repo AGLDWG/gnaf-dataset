@@ -1,0 +1,21 @@
+{
+  "_comment": [
+    "For every class in the provenance DB, we will have the following model views:",
+    "   default     -- any one of the provided views for the class, chosen as the default - usually the igsn",
+    "   alternates  -- a list of all available views and formats",
+    "   gnaf  -- the gnaf-specific view based on the GNAF Ontology",
+    ""],
+  "http://reference.data.gov.au/def/ont/gnaf#Address": {
+    "renderer": "Address",
+    "default": "gnaf",
+    "alternates": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json", "application/json"],
+    "dc": ["text/html", "text/xml", "text/turtle", "application/rdf+xml"],
+    "gnaf": ["text/html", "text/xml", "text/turtle", "application/rdf+xml", "text/xml"]
+  },
+  "http://purl.org/linked-data/registry#Register":{
+    "renderer": "RegisterRenderer",
+    "default": "reg",
+    "alternates": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json", "application/json"],
+    "reg": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json"]
+  }
+}
