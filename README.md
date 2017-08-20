@@ -1,5 +1,5 @@
 # GNAF LDAPI test
-A Linked Data API for GA's samples.
+A Linked Data API for PSMA's G-NAF.
 
 
 ## About
