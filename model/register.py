@@ -1,11 +1,9 @@
 from .renderer import Renderer
 from flask import Response, render_template
 from rdflib import Graph, URIRef, RDF, RDFS, XSD, Namespace, Literal
-from ldapi.ldapi import LDAPI
-from lxml import etree
-import requests
-from io import StringIO, BytesIO
-import config
+from _ldapi.ldapi import LDAPI
+import _config as config
+import psycopg2
 
 
 class RegisterRenderer(Renderer):
@@ -20,7 +18,7 @@ class RegisterRenderer(Renderer):
         self.page = page
         self.last_page_no = last_page_no
 
-        self._get_details_from_oracle_api(page, per_page)
+        self._get_data_from_db(page, per_page)
 
     def render(self, view, mimetype, extra_headers=None):
         if view == 'reg':
@@ -49,50 +47,24 @@ class RegisterRenderer(Renderer):
         else:
             return Response('The requested model model is not valid for this class', status=400, mimetype='text/plain')
 
-    def _get_details_from_file(self, file_path=None, xml_content=None):
-        """
-        Populates this instance with data from an XML file.
-
-        :param xml: XML according to GA's Oracle XML API from the Samples DB
-        :return: None
-        """
-        if file_path is not None:
-            xml = open(file_path, 'rb')
-        elif xml_content is not None:
-            xml = BytesIO(xml_content)
-        else:
-            raise ValueError('You must specify either a file path or file XML contents')
-
-        for event, elem in etree.iterparse(xml):
-            if elem.tag == "IGSN":
-                self.register.append(elem.text)
-
-    def validate_xml(self, xml):
-        parser = etree.XMLParser(dtd_validation=False)
-
+    def _get_data_from_db(self, page, per_page):
         try:
-            etree.fromstring(xml, parser)
-            return True
-        except Exception:
-            print('not valid xml')
-            return False
-
-    def _get_details_from_oracle_api(self, page, per_page):
-        """
-        Populates this instance with data from the Oracle Samples table API
-
-        :param page: the page number of the total resultset from the Samples Set API
-        :return: None
-        """
-        #os.environ['NO_PROXY'] = 'ga.gov.au'
-        r = requests.get(config.XML_API_URL_SAMPLESET.format(page, per_page), timeout=3)
-        xml = r.content
-
-        if self.validate_xml(xml):
-            self._get_details_from_file(xml_content=xml)
-            return True
-        else:
-            return False
+            connect_str = "host='{}' dbname='{}' user='{}' password='{}'"\
+                .format(
+                    config.DB_HOST,
+                    config.DB_DBNAME,
+                    config.DB_USR,
+                    config.DB_PWD
+                )
+            conn = psycopg2.connect(connect_str)
+            cursor = conn.cursor()
+            # get just IDs, ordered, from the address_detail table, paginated by class init args
+            cursor.execute('SELECT address_detail_pid FROM gnaf.address_detail ORDER BY address_detail_pid LIMIT 100;')
+            rows = cursor.fetchall()
+            print(rows)
+        except Exception as e:
+            print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
+            print(e)
 
     def _make_reg_graph(self, model_view):
         self.g = Graph()
@@ -110,7 +82,7 @@ class RegisterRenderer(Renderer):
 
             register_uri = URIRef(self.request.base_url)
             self.g.add((register_uri, RDF.type, REG.Register))
-            self.g.add((register_uri, RDFS.label, Literal('Samples Register', datatype=XSD.string)))
+            self.g.add((register_uri, RDFS.label, Literal('Address Register', datatype=XSD.string)))
 
             page_uri_str = self.request.base_url
             if self.per_page is not None:
@@ -143,5 +115,5 @@ class RegisterRenderer(Renderer):
             for item in self.register:
                 item_uri = URIRef(self.request.base_url + item)
                 self.g.add((item_uri, RDF.type, URIRef(self.uri)))
-                self.g.add((item_uri, RDFS.label, Literal('Sample igsn:' + item, datatype=XSD.string)))
+                self.g.add((item_uri, RDFS.label, Literal('Address ID:' + item, datatype=XSD.string)))
                 self.g.add((item_uri, REG.register, page_uri))

@@ -13,3 +13,9 @@ def index():
         'page_index.html'
     )
 
+
+@pages.route('/api')
+def api():
+    return render_template(
+        'page_api.html'
+    )

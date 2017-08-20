@@ -193,7 +193,7 @@ class LDAPI:
         cache = SimpleCache()
         cvf = cache.get('classes_views_formats')
         if cvf is None:
-            cvf = json.load(open(join(dirname(__file__), 'classes_views_formats.json')))
+            cvf = json.load(open(join(dirname(dirname(__file__)), 'controller', 'classes_views_formats.json')))
             # times out never (i.e. on app startup/shutdown)
             cache.set('classes_views_formats', cvf)
         return cvf
