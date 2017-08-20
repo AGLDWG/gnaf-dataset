@@ -1,10 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Address</title>
-</head>
-<body>
-    <h1>Address {{ address_id }}</h1>
-</body>
-</html>
+{% extends "template_layout.html" %}
+
+{% block content %}
+    <h1>Address</h1>
+    {{ view_html|safe }}
+
+    <h2>Other views</h2>
+    <p>Other model views of a Address are listed in the <a href="{{ url_for('model_classes.address', address_id=address_id) }}?_view=alternates">Alternates View</a>.</p>
+
+    <h2>Citation</h2>
+    <p>If you wish to cite this Address as you would a publication, please use the following format:</p>
+    <code style="display:block; margin: 0 5em 0 5em;">
+        COMING!
+    </code>
+
+{% endblock %}
