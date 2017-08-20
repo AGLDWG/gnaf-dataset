@@ -17,7 +17,7 @@ def addresses():
 
     :return: LDAPI views of the Address register
     """
-    # lists the views and mimetypes available for a Survey Register (a generic Register)
+    # lists the views and mimetypes available for an Address Register (a generic Register)
     views_mimetypes = LDAPI.get_classes_views_formats() \
         .get('http://purl.org/linked-data/registry#Register')
 
@@ -64,14 +64,14 @@ def addresses():
             # if this isn't the first page, add a link to "prev"
             if page != 1:
                 links.append('<{}?per_page={}&page={}>; rel="prev"'.format(
-                    config.BASE_URI_ADDRESS,
+                    config.URI_ADDRESS_INSTANCE_BASE,
                     per_page,
                     (page - 1)
                 ))
 
             # add a link to "next" and "last"
             try:
-                no_of_objects = 9200  # TODO: implement a survey count Oracle XML API
+                no_of_objects = 9200  # TODO replace this magic number
                 last_page_no = int(round(no_of_objects / per_page, 0)) + 1  # same as math.ceil()
 
                 # if we've gotten the last page value successfully, we can choke if someone enters a larger value

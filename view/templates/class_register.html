@@ -9,12 +9,12 @@
     <p><a href="{{ request.url }}">html</a> | <a href="{{ request.url }}?_format=text/turtle">rdf/turtle</a></p>
     {% endif %}
     <h3>Pagination</h3>
-    <p>To paginate these Surveys, use the query string arguments 'page' for the page number and 'per_page' for the number of surveys per page. HTTP <code>Link</code> headers of <code>first</code>, <code>prev</code>, <code>next</code> &amp; <code>last</code> are given to indicate URIs to the first, a previous, a next and the last page.</p>
+    <p>To paginate these Addresses, use the query string arguments 'page' for the page number and 'per_page' for the number of Addresses per page. HTTP <code>Link</code> headers of <code>first</code>, <code>prev</code>, <code>next</code> &amp; <code>last</code> are given to indicate URIs to the first, a previous, a next and the last page.</p>
     <p>Example: </p>
     <pre>
         http://example.com/?page=7&per_page=50
     </pre>
-    <p>Assuming 500 surveys, this request would result in a response with the following Link header:</p>
+    <p>Assuming 500 Addresses, this request would result in a response with the following Link header:</p>
     <pre>
         Link:   &lt;http://example.com/?per_page=50&gt; rel="first",
                 &lt;http://example.com/?per_page=50&page=6&gt; rel="prev",
@@ -28,7 +28,7 @@
     <h3>Instances</h3>
     <ul>
     {% for instance in register %}
-        <li><a href="{{ url_for('model_classes.address', survey_id=instance) }}">{{ instance }}</a></li>
+        <li><a href="{{ url_for('model_classes.address', address_id=instance) }}">{{ instance }}</a></li>
     {% endfor %}
     </ul>
 {% endblock %}

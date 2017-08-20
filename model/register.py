@@ -38,8 +38,7 @@ class RegisterRenderer(Renderer):
                     render_template(
                         'class_register.html',
                         class_name=self.uri,
-                        register=self.register,
-                        system_url='http://54.66.133.7'
+                        register=self.register
                     ),
                     mimetype='text/html',
                     headers=extra_headers
@@ -59,9 +58,10 @@ class RegisterRenderer(Renderer):
             conn = psycopg2.connect(connect_str)
             cursor = conn.cursor()
             # get just IDs, ordered, from the address_detail table, paginated by class init args
-            cursor.execute('SELECT address_detail_pid FROM gnaf.address_detail ORDER BY address_detail_pid LIMIT 100;')
+            cursor.execute('SELECT address_detail_pid FROM gnaf.address_detail ORDER BY address_detail_pid LIMIT {} OFFSET {};'.format(per_page, (page - 1) * per_page))
             rows = cursor.fetchall()
-            print(rows)
+            for row in rows:
+                self.register.append(row[0])
         except Exception as e:
             print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
             print(e)
