@@ -4,6 +4,8 @@ from flask import Response, render_template
 from rdflib import Graph, URIRef, RDF, RDFS, XSD, OWL, Namespace, Literal, BNode
 import _config as config
 from _ldapi.ldapi import LDAPI
+import psycopg2
+from psycopg2 import sql
 
 
 class AddressRenderer(Renderer):
@@ -31,11 +33,44 @@ class AddressRenderer(Renderer):
             return Response('The requested model model is not valid for this class', status=400, mimetype='text/plain')
 
     def export_html(self, model_view='gnaf'):
-        print('me: ' + self.uri)
+        self.address_string = None
+        # make a human-readable address
+        s = sql.SQL('''SELECT 
+                    street_locality_pid, 
+                    locality_pid, 
+                    CAST(number_first AS text), 
+                    street_name, street_type_code, 
+                    locality_name, 
+                    state_abbreviation, 
+                    postcode 
+                FROM gnaf.address_view 
+                WHERE address_detail_pid = {}''')\
+            .format(sql.Literal(self.id))
+
+        try:
+            connect_str = "host='{}' dbname='{}' user='{}' password='{}'"\
+                .format(
+                    config.DB_HOST,
+                    config.DB_DBNAME,
+                    config.DB_USR,
+                    config.DB_PWD
+                )
+            conn = psycopg2.connect(connect_str)
+            cursor = conn.cursor()
+            # get just IDs, ordered, from the address_detail table, paginated by class init args
+            cursor.execute(s)
+            rows = cursor.fetchall()
+            for row in rows:
+                self.address_string = '{} {} {}, {}, {} {}'.format(row[2], row[3].title(), row[4].title(), row[5].title(),
+                                                              row[6], row[7])
+        except Exception as e:
+            print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
+            print(e)
         if model_view == 'gnaf':
             view_html = render_template(
                 'class_address_landingpage.html',
-                address_id=self.uri
+                address_id=self.uri,
+                address_string=self.address_string
             )
 
         # TODO: generalise this to the wrapper template using the view_html template from above within
