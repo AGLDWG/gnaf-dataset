@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <h1>Samples API</h1>
+    <h2>Alternates view of a <a href="{{ class_uri_encoded }}">{{ class_uri }}</a></h2>
+    {% if instance_uri %}
+        <h3>Instance <a href="{{ instance_uri_encoded }}">{{ instance_uri }}</a></h3>
+    {% endif %}
+    <table class="lined">
+    <tr><th>View</th><th>Formats</th><th>View Desc.</th><th>View Link</th></tr>
+    {% for v, fs in views_formats.items() %}
+        {% if v == 'default' %}
+            <tr><td>default</td><td><a href="{{ request.base_url }}?_view={{ fs }}">{{ fs }}</a></td><td></td><td></td></tr>
+        {% else %}
+            <tr>
+                <td><a href="{{ request.base_url }}?_view={{ v }}">{{ v }}</a></td>
+                <td>
+                {% for f in fs %}
+                <a href="{{ request.base_url }}?_view={{ v }}&_format={{ f }}">{{ f }}</a>
+                {% endfor %}
+                </td>
+                <td></td>
+                <td></td>
+            </tr>
+        {% endif %}
+    {% endfor %}
+    </table>
+
+
+{% endblock %}
