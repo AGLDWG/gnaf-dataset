@@ -49,7 +49,7 @@ def render_alternates_view(class_uri, class_uri_encoded, instance_uri, instance_
         default_title = views_formats['default']
 
         # the ApiResource is incorrectly assigned to the class URI
-        for view_name, formats in views_formats.iteritems():
+        for view_name, formats in views_formats.items():
             if view_name == 'alternates':
                 for f in formats:
                     g.add((alternates_view, URIRef('http://purl.org/dc/terms/format'), Literal(f, datatype=XSD.string)))

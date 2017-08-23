@@ -1,7 +1,7 @@
 {% extends "template_layout.html" %}
 
 {% block content %}
-    <h1>Address</h1>
+    <h1>Address {{ address_id }}</h1>
     {{ view_html|safe }}
 
     <h2>Other views</h2>
@@ -10,7 +10,7 @@
     <h2>Citation</h2>
     <p>If you wish to cite this Address as you would a publication, please use the following format:</p>
     <code style="display:block; margin: 0 5em 0 5em;">
-        COMING!
+        PSMA Australia Limited (2017). Address {{ address_id }}. Address object from the Geocoded National Address File (G-NAF), 2016. {{ address_uri }}
     </code>
 
 {% endblock %}
