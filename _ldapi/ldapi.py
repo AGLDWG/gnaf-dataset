@@ -55,6 +55,8 @@ class LDAPI:
             'application/rdf+json': '.json',
             'application/xml': '.xml',
             'text/xml': '.xml',
+            'text/nt': '.nt',
+            'text/n3': '.n3',
         }
 
         return file_extension[mimetype]
@@ -89,7 +91,7 @@ class LDAPI:
             else:
                 raise LdapiParameterError(
                     'The _view parameter is invalid. For this object, it must be one of {0}.'
-                    .format(', '.join(views_formats.iterkeys()))
+                    .format(', '.join(views_formats.keys()))
                 )
         else:
             # views_formats will give us the default model
@@ -103,12 +105,12 @@ class LDAPI:
         :return: model name (string) or False
         """
         if format is not None:
-            if format.replace(' ', '+') in views_formats[view]:
+            if format.replace(' ', '+') in views_formats.get(view)['mimetypes']:
                 return format.replace(' ', '+')
             else:
                 raise LdapiParameterError(
-                    'The _format parameter is invalid. For this model model, format should be one of {0}.'
-                        .format(', '.join(views_formats[view]))
+                    'The _format parameter is invalid. For this model view, format should be one of {0}.'
+                        .format(', '.join(views_formats.get(view)['mimetypes']))
                 )
         else:
             # HTML is default
@@ -201,3 +203,8 @@ class LDAPI:
 
 class LdapiParameterError(ValueError):
     pass
+
+
+if __name__ == '__main__':
+    vfs = LDAPI.get_classes_views_formats().get('http://reference.data.gov.au/def/ont/gnaf#Address')
+    print(LDAPI.get_valid_view_and_format('gnafx', 'text/html', vfs))

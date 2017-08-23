@@ -10,7 +10,7 @@ import urllib.parse as uparse
 model_classes = Blueprint('model_classes', __name__)
 
 
-@model_classes.route('/api/address/')
+@model_classes.route('/doc/address/')
 def addresses():
     """
     Register of all addresses
@@ -18,27 +18,28 @@ def addresses():
     :return: LDAPI views of the Address register
     """
     # lists the views and mimetypes available for an Address Register (a generic Register)
-    views_mimetypes = LDAPI.get_classes_views_formats() \
+    views_formats = LDAPI.get_classes_views_formats() \
         .get('http://purl.org/linked-data/registry#Register')
 
     try:
         view, mime_format = LDAPI.get_valid_view_and_format(
             request.args.get('_view'),
             request.args.get('_format'),
-            views_mimetypes
+            views_formats
         )
 
         # if alternates model, return this info from file
         class_uri = 'http://purl.org/linked-data/registry#Register'
 
         if view == 'alternates':
-            del views_mimetypes['renderer']
+            del views_formats['renderer']
+            print(views_formats)
             return render_alternates_view(
                 class_uri,
                 uparse.quote_plus(class_uri),
                 None,
                 None,
-                views_mimetypes,
+                views_formats,
                 request.args.get('_format')
             )
         else:
@@ -107,7 +108,7 @@ def addresses():
         return client_error_Response(e)
 
 
-@model_classes.route('/api/address/<string:address_id>')
+@model_classes.route('/doc/address/<string:address_id>')
 def address(address_id):
     """
     A single Address
@@ -117,8 +118,7 @@ def address(address_id):
     """
     # lists the views and formats available for class type C
     c = config.URI_ADDRESS_CLASS
-    views_formats = LDAPI.get_classes_views_formats() \
-        .get(c)
+    views_formats = LDAPI.get_classes_views_formats().get(c)
 
     try:
         view, mimetype = LDAPI.get_valid_view_and_format(

@@ -102,3 +102,6 @@ ENV/
 
 # PyCharm
 .idea/
+
+# Protege
+catalog-v001.xml
