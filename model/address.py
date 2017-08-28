@@ -33,17 +33,50 @@ class AddressRenderer(Renderer):
             address_string = None
             # make a human-readable address
             s = sql.SQL('''SELECT 
-                        street_locality_pid, 
-                        locality_pid, 
-                        CAST(number_first AS text), 
-                        street_name, 
-                        street_type_code, 
-                        locality_name, 
-                        state_abbreviation, 
-                        postcode 
-                    FROM gnaf.address_view 
-                    WHERE address_detail_pid = {}''') \
-                .format(sql.Literal(self.id))
+                        b.street_locality_pid, 
+                        b.locality_pid, 
+                        CAST(b.number_first AS text), 
+                        a.street_name, 
+                        a.street_type_code, 
+                        a.locality_name, 
+                        a.state_abbreviation, 
+                        b.postcode ,
+                        a.latitude,
+                        a.longitude,
+                        a.geocode_type,
+                        CAST(b.confidence AS text),
+                        CAST(b.date_created AS text),
+                        CAST(b.date_last_modified AS text),
+                        CAST(b.date_retired AS text),
+                        b.building_name,
+                        b.lot_number_prefix,
+                        b.lot_number,
+                        b.lot_number_suffix,
+                        b.flat_type_code,
+                        b.flat_number_prefix,
+                        CAST(b.flat_number AS text),
+                        b.flat_number_suffix,
+                        b.level_type_code,
+                        b.level_number_prefix,
+                        CAST(b.level_number AS text),
+                        b.level_number_suffix,
+                        b.number_first_prefix,
+                        b.number_first_suffix,
+                        b.number_last_prefix,
+                        CAST(b.number_last AS text),
+                        b.number_last_suffix,
+                        b.location_description,
+                        b.alias_principal,
+                        b.private_street,
+                        b.legal_parcel_id,
+                        b.address_site_pid,
+                        b.level_geocoded_code,
+                        b.property_pid,
+                        b.gnaf_property_pid,
+                        b.primary_secondary                        
+                    FROM {dbschema}.address_view a INNER JOIN {dbschema}.address_detail b ON a.address_detail_pid = b.address_detail_pid
+                    WHERE a.address_detail_pid = {id}''') \
+                .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
             try:
                 connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
@@ -59,15 +92,100 @@ class AddressRenderer(Renderer):
                 cursor.execute(s)
                 rows = cursor.fetchall()
                 for row in rows:
+                    street_locality_pid = row[0]
+                    locality_pid = row[1]
+                    street_number_1 = row[2]
+                    street_name = row[3].title()
+                    street_type = row[4].title()
+                    locality_name = row[5].title()
+                    state_territory = row[6]
+                    postcode = row[7]
+                    latitude = row[8]
+                    longitude = row[9]
+                    geocode_type = row[10].title()
+                    confidence = row[11]
+                    date_created = row[12]
+                    date_last_modified = row[13]
+                    date_retired = row[14]
+                    building_name = row[15]
+                    lot_number_prefix = row[16]
+                    lot_number = row[17]
+                    lot_number_suffix = row[18]
+                    flat_type_code = row[19]
+                    flat_number_prefix = row[20]
+                    flat_number = row[21]
+                    flat_number_suffix = row[22]
+                    level_type_code = row[23]
+                    level_number_prefix = row[24]
+                    level_number = row[25]
+                    level_number_suffix = row[26]
+                    number_first_prefix = row[27]
+                    number_first_suffix = row[28]
+                    number_last_prefix = row[29]
+                    number_last = row[30]
+                    number_last_suffix = row[31]
+                    location_description = row[32]
+                    alias_principal = row[33]
+                    private_street = row[34]
+                    legal_parcel_id = row[35]
+                    address_site_pid = row[36]
+                    level_geocoded_code = row[37]
+                    property_pid = row[38]
+                    gnaf_property_pid = row[39]
+                    primary_secondary = row[40]
+                    geometry_wkt = 'SRID=8311;POINT({} {})'.format(latitude, longitude)
                     address_string = '{} {} {}, {}, {} {}'\
-                        .format(row[2], row[3].title(), row[4].title(), row[5].title(), row[6], row[7])
+                        .format(street_number_1, street_name, street_type, locality_name, state_territory, postcode)
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
 
             view_html = render_template(
                 'class_address_gnaf.html',
-                address_string=address_string
+                address_string=address_string,
+                address_detail_pid=self.id,
+                street_number_1=street_number_1,
+                street_name=street_name,
+                street_type=street_type,
+                locality_name=locality_name,
+                state_territory=state_territory,
+                postcode=postcode,
+                latitude=latitude,
+                longitude=longitude,
+                geocode_type=geocode_type,
+                confidence=confidence,
+                geometry_wkt=geometry_wkt,
+                date_created=date_created,
+                date_last_modified=date_last_modified,
+                date_retired=date_retired,
+                building_name=building_name,
+                lot_number_prefix=lot_number_prefix,
+                lot_number=lot_number,
+                lot_number_suffix=lot_number_suffix,
+                flat_type_code=flat_type_code,
+                flat_number_prefix=flat_number_prefix,
+                flat_number=flat_number,
+                flat_number_suffix=flat_number_suffix,
+                level_type_code=level_type_code,
+                level_number_prefix=level_number_prefix,
+                level_number=level_number,
+                level_number_suffix=level_number_suffix,
+                number_first_prefix=number_first_prefix,
+                number_first_suffix=number_first_suffix,
+                number_last_prefix=number_last_prefix,
+                number_last=number_last,
+                number_last_suffix=number_last_suffix,
+                location_description=location_description,
+                alias_principal=alias_principal,
+                private_street=private_street,
+                legal_parcel_id=legal_parcel_id,
+                address_site_pid=address_site_pid,
+                level_geocoded_code=level_geocoded_code,
+                property_pid=property_pid,
+                gnaf_property_pid=gnaf_property_pid,
+                primary_secondary=primary_secondary,
+                street_locality_pid=street_locality_pid,
+                locality_pid=locality_pid
             )
 
         elif view == 'ISO19160':
@@ -87,9 +205,9 @@ class AddressRenderer(Renderer):
                          postcode,
                          longitude,
                          latitude
-                     FROM gnaf.address_view 
-                     WHERE address_detail_pid = {}''') \
-                .format(sql.Literal(self.id))
+                     FROM {dbschema}.address_view 
+                     WHERE address_detail_pid = {id}''') \
+                .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
             try:
                 connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
@@ -145,9 +263,9 @@ class AddressRenderer(Renderer):
                         postcode,
                         longitude,
                         latitude
-                    FROM gnaf.address_view 
-                    WHERE address_detail_pid = {}''') \
-                .format(sql.Literal(self.id))
+                    FROM {dbschema}.address_view 
+                    WHERE address_detail_pid = {id}''') \
+                .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
             try:
                 connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \

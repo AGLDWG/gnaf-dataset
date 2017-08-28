@@ -1,2 +1,48 @@
 <h2>G-NAF View</h2>
-<code>{{ address_string }}</code>
+<table>
+    <tr><th>Property</th><th>Value</th></tr>
+    <tr><td>Address Detail PID</td><td><code>{{ address_detail_pid }}</code></td></tr>
+    <tr><td>Building Name</td><td><code>{{ building_name }}</code></td></tr>
+    <tr><td>Lot Number Prefix</td><td><code>{{ lot_number_prefix }}</code></td></tr>
+    <tr><td>Lot Number</td><td><code>{{ lot_number }}</code></td></tr>
+    <tr><td>Lot Number Suffix</td><td><code>{{ lot_number_suffix }}</code></td></tr>
+    <tr><td>Flat Type Code</td><td><code>{{ flat_type_code }}</code></td></tr>
+    <tr><td>Flat Number Prefix</td><td><code>{{ flat_number_prefix }}</code></td></tr>
+    <tr><td>Flat Number</td><td><code>{{ flat_number }}</code></td></tr>
+    <tr><td>Flat Number Suffix</td><td><code>{{ flat_number_suffix }}</code></td></tr>
+    <tr><td>Level Type Code</td><td><code>{{ level_type_code }}</code></td></tr>
+    <tr><td>Level Number Prefix</td><td><code>{{ level_number_prefix }}</code></td></tr>
+    <tr><td>Level Number</td><td><code>{{ level_number }}</code></td></tr>
+    <tr><td>Level Number Suffix</td><td><code>{{ level_number_suffix }}</code></td></tr>
+    <tr><td>Number First Prefix</td><td>{{ number_first_prefix }}</td></tr>
+    <tr><td>Number First</td><td>{{ street_number_1 }}</td></tr>
+    <tr><td>Number First Suffix</td><td>{{ number_first_suffix }}</td></tr>
+    <tr><td>Number Last Prefix</td><td>{{ number_last_prefix }}</td></tr>
+    <tr><td>Number Last</td><td>{{ number_last }}</td></tr>
+    <tr><td>Number Last Suffix</td><td>{{ number_last_suffix }}</td></tr>
+    <tr><td>Street Locality PID</td><td><a href="/doc/street/{{ street_locality_pid }}?_view=gnaf">/doc/street/{{ street_locality_pid }}?_view=gnaf</a></td></tr>
+    <tr><td>Street Name</td><td>{{ street_name }}</td></tr>
+    <tr><td>Street Type</td><td>{{ street_type }}</td></tr>
+    <tr><td>Locality PID</td><td>{{ locality_pid }}</td></tr>
+    <tr><td>Locality Name</td><td>{{ locality_name }}</td></tr>
+    <tr><td>State/Territory</td><td>{{ state_territory }}</td></tr>
+    <tr><td>Postcode</td><td><code>{{ postcode }}</code></td></tr>
+    <tr><td>Location Description</td><td>{{ location_description }}</td></tr>
+    <tr><td>Alias Principal</td><td><code>{{ alias_principal }}</code></td></tr>
+    <tr><td>Private Street</td><td><code>{{ private_street }}</code></td></tr>
+    <tr><td>Legal Parcel ID</td><td><code>{{ legal_parcel_id }}</code></td></tr>
+    <tr><td>Address Site PID</td><td><code>{{ address_site_pid }}</code></td></tr>
+    <tr><td>Level Geocoded Code</td><td><code>{{ level_geocoded_code }}</code></td></tr>
+    <tr><td>Property PID</td><td><code>{{ property_pid }}</code></td></tr>
+    <tr><td>GNAF Property PID</td><td><code>{{ gnaf_property_pid }}</code></td></tr>
+    <tr><td>Primary Secondary</td><td><code>{{ primary_secondary }}</code></td></tr>
+    <tr><td>Confidence</td><td><code>{{ confidence }}</code></td></tr>
+    <tr><td>Date Created</td><td><code>{{ date_created }}</code></td></tr>
+    <tr><td>Date Last Modified</td><td><code>{{ date_last_modified }}</code></td></tr>
+    <tr><td>Date Retired</td><td><code>{{ date_retired }}</code></td></tr>
+    <tr><td>Default Geometry</td><td><code>{{ geometry_wkt }}</code></td></tr>
+    <tr><td>Default Latitude</td><td><code>{{ latitude }}</code></td></tr>
+    <tr><td>Default Longitude</td><td><code>{{ longitude }}</code></td></tr>
+    <tr><td>Default Geocode Type</td><td><code>{{ geocode_type }}</code></td></tr>
+    <tr><td>Address Line</td><td><code>{{ address_string }}</code></td></tr>
+</table>

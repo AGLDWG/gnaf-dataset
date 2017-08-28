@@ -6,7 +6,11 @@ DEBUG = True
 URI_ADDRESS_CLASS = 'http://reference.data.gov.au/def/ont/gnaf#Address'
 URI_ADDRESS_INSTANCE_BASE = 'http://transport.data.gov.au/id/address/'
 
+URI_STREET_CLASS = 'http://reference.data.gov.au/def/ont/gnaf#Street'
+URI_STREET_INSTANCE_BASE = 'http://transport.data.gov.au/id/street/'
+
 DB_HOST = 'localhost'
-DB_DBNAME = 'car587'
-DB_USR = 'gnaf'
-DB_PWD = 'gnafrocks'
+DB_DBNAME = 'linearint'
+DB_USR = 'josephabhayaratna'
+DB_PWD = ''
+DB_SCHEMA = 'gnaf'
