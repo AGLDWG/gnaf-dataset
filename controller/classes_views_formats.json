@@ -29,6 +29,30 @@
       "description": "ISO 19160-1:2015 Address"
     }
   },
+  "http://reference.data.gov.au/def/ont/gnaf#Street": {
+    "renderer": "StreetRenderer",
+    "default": "gnaf",
+    "alternates": {
+      "mimetypes": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json"],
+      "namespace": "http://www.w3.org/ns/ldp#Alternates",
+      "description": "The view listing all other views of this class of object"
+    },
+    "dct": {
+      "mimetypes": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json", "application/xml"],
+      "namespace": "http://purl.org/dc/terms/",
+      "description": "Dublin Core Terms from the Dublin Core Metadata Initiative"
+    },
+    "gnaf": {
+      "mimetypes": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json"],
+      "namespace": "http://reference.data.gov.au/def/ont/gnaf#",
+      "description": "The G-NAF ontology. An OWL2 ontology based on the data model of PSMA's G-NAF as of August, 2017"
+    },
+    "ISO19160": {
+      "mimetypes": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json"],
+      "namespace": "http://def.isotc211.org/iso19160/-1/2015/Address#",
+      "description": "ISO 19160-1:2015 Address"
+    }
+  },
   "http://purl.org/linked-data/registry#Register":{
     "renderer": "RegisterRenderer",
     "default": "reg",

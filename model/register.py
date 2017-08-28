@@ -4,6 +4,7 @@ from rdflib import Graph, URIRef, RDF, RDFS, XSD, Namespace, Literal
 from _ldapi.ldapi import LDAPI
 import _config as config
 import psycopg2
+from psycopg2 import sql
 
 
 class RegisterRenderer(Renderer):
@@ -58,7 +59,14 @@ class RegisterRenderer(Renderer):
             conn = psycopg2.connect(connect_str)
             cursor = conn.cursor()
             # get just IDs, ordered, from the address_detail table, paginated by class init args
-            cursor.execute('SELECT address_detail_pid FROM gnaf.address_detail ORDER BY address_detail_pid LIMIT {} OFFSET {};'.format(per_page, (page - 1) * per_page))
+            id_query = sql.SQL('''
+                SELECT address_detail_pid
+                FROM {dbschema}.address_detail
+                ORDER BY address_detail_pid
+                LIMIT {limit}
+                OFFSET {offset}
+                ''').format(dbschema=sql.Identifier(config.DB_SCHEMA), limit=sql.Literal(per_page), offset=sql.Literal((page - 1) * per_page))
+            cursor.execute(id_query)
             rows = cursor.fetchall()
             for row in rows:
                 self.register.append(row[0])
