@@ -9,6 +9,9 @@ URI_ADDRESS_INSTANCE_BASE = 'http://transport.data.gov.au/id/address/'
 URI_STREET_CLASS = 'http://reference.data.gov.au/def/ont/gnaf#Street'
 URI_STREET_INSTANCE_BASE = 'http://transport.data.gov.au/id/street/'
 
+URI_LOCALITY_CLASS = 'http://reference.data.gov.au/def/ont/gnaf#Locality'
+URI_LOCALITY_INSTANCE_BASE = 'http://transport.data.gov.au/id/locality/'
+
 DB_HOST = 'localhost'
 DB_DBNAME = 'linearint'
 DB_USR = 'josephabhayaratna'
