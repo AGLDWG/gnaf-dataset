@@ -1,0 +1,16 @@
+<h2>G-NAF View</h2>
+<table>
+    <tr><th>Property</th><th>Value</th></tr>
+    <tr><td>Address Site PID</td><td><code>{{ address_site_pid }}</code></td></tr>
+    <tr><td>Address Site Name</td><td><code>{{ address_site_name_name }}</code></td></tr>
+    <tr><td>Address Type</td><td><code>{{ address_type }}</code></td></tr>
+    <tr>
+        <td>Address Site Geocodes</td><td>
+            <ul>
+                {% for address_site_geocode_id in address_site_geocode_ids %}
+                    <li>{{ address_site_geocode_id }}</li>
+                {% endfor %}
+            </ul>
+        </td>
+    </tr>
+</table>

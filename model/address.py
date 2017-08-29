@@ -65,14 +65,11 @@ class AddressRenderer(Renderer):
                         b.number_last_prefix,
                         CAST(b.number_last AS text),
                         b.number_last_suffix,
-                        b.location_description,
                         b.alias_principal,
-                        b.private_street,
                         b.legal_parcel_id,
                         b.address_site_pid,
                         b.level_geocoded_code,
                         b.property_pid,
-                        b.gnaf_property_pid,
                         b.primary_secondary                        
                     FROM {dbschema}.address_view a INNER JOIN {dbschema}.address_detail b ON a.address_detail_pid = b.address_detail_pid
                     WHERE a.address_detail_pid = {id}''') \
@@ -124,15 +121,12 @@ class AddressRenderer(Renderer):
                     number_last_prefix = row[29]
                     number_last = row[30]
                     number_last_suffix = row[31]
-                    location_description = row[32]
-                    alias_principal = row[33]
-                    private_street = row[34]
-                    legal_parcel_id = row[35]
-                    address_site_pid = row[36]
-                    level_geocoded_code = row[37]
-                    property_pid = row[38]
-                    gnaf_property_pid = row[39]
-                    primary_secondary = row[40]
+                    alias_principal = row[32]
+                    legal_parcel_id = row[33]
+                    address_site_pid = row[34]
+                    level_geocoded_code = row[35]
+                    property_pid = row[36]
+                    primary_secondary = row[37]
                     geometry_wkt = 'SRID=8311;POINT({} {})'.format(latitude, longitude)
                     address_string = '{} {} {}, {}, {} {}'\
                         .format(street_number_1, street_name, street_type, locality_name, state_territory, postcode)
@@ -175,14 +169,11 @@ class AddressRenderer(Renderer):
                 number_last_prefix=number_last_prefix,
                 number_last=number_last,
                 number_last_suffix=number_last_suffix,
-                location_description=location_description,
                 alias_principal=alias_principal,
-                private_street=private_street,
                 legal_parcel_id=legal_parcel_id,
                 address_site_pid=address_site_pid,
                 level_geocoded_code=level_geocoded_code,
                 property_pid=property_pid,
-                gnaf_property_pid=gnaf_property_pid,
                 primary_secondary=primary_secondary,
                 street_locality_pid=street_locality_pid,
                 locality_pid=locality_pid
