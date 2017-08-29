@@ -9,6 +9,9 @@ URI_ADDRESS_INSTANCE_BASE = 'http://transport.data.gov.au/id/address/'
 URI_ADDRESS_SITE_CLASS = 'http://reference.data.gov.au/def/ont/gnaf#AddressSite'
 URI_ADDRESS_SITE_INSTANCE_BASE = 'http://transport.data.gov.au/id/addressSite/'
 
+URI_ADDRESS_SITE_GEOCODE_CLASS = 'http://reference.data.gov.au/def/ont/gnaf#AddressSite'
+URI_ADDRESS_SITE_GEOCODE_INSTANCE_BASE = 'http://transport.data.gov.au/id/addressSite/'
+
 URI_STREET_CLASS = 'http://reference.data.gov.au/def/ont/gnaf#Street'
 URI_STREET_INSTANCE_BASE = 'http://transport.data.gov.au/id/street/'
 
