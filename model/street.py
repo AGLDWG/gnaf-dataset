@@ -19,6 +19,7 @@ class StreetRenderer(Renderer):
         # super(StreetRenderer, self).__init__(id)
         self.id = id
         self.uri = config.URI_STREET_INSTANCE_BASE + id
+        self.street_locality_alias_pids = []
 
     def render(self, view, format):
         if format == 'text/html':
@@ -72,6 +73,32 @@ class StreetRenderer(Renderer):
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
 
+            # get a list of addressSiteGeocodeIds from the address_site_geocode table
+            s2 = sql.SQL('''SELECT 
+                        street_locality_alias_pid                
+                    FROM {dbschema}.street_locality_alias
+                    WHERE street_locality_pid = {id}''') \
+                .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
+
+            try:
+                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
+                    .format(
+                    config.DB_HOST,
+                    config.DB_DBNAME,
+                    config.DB_USR,
+                    config.DB_PWD
+                )
+                conn = psycopg2.connect(connect_str)
+                cursor = conn.cursor()
+                # get just IDs, ordered, from the address_detail table, paginated by class init args
+                cursor.execute(s2)
+                rows = cursor.fetchall()
+                for row in rows:
+                    self.street_locality_alias_pids.append(row[0])
+            except Exception as e:
+                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
+                print(e)
+
             view_html = render_template(
                 'class_street_gnaf.html',
                 street_string=street_string,
@@ -83,7 +110,8 @@ class StreetRenderer(Renderer):
                 longitude=longitude,
                 geocode_type=geocode_type,
                 geometry_wkt=geometry_wkt,
-                locality_pid=locality_pid
+                locality_pid=locality_pid,
+                street_locality_alias_ids=self.street_locality_alias_pids
             )
 
         elif view == 'ISO19160':

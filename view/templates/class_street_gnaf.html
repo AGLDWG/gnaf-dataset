@@ -9,4 +9,14 @@
     <tr><td>Default Longitude</td><td><code>{{ longitude }}</code></td></tr>
     <tr><td>Default Geocode Type</td><td><code>{{ geocode_type }}</code></td></tr>
     <tr><td>Street</td><td><code>{{ street_string }}</code></td></tr>
+    <tr>
+        <td>Street Locality Aliases</td><td>
+            <ul>
+                {% for street_locality_alias_id in street_locality_alias_ids %}
+                    <li><a href="{{ url_for('model_classes.streetLocalityAlias', street_locality_alias_id=street_locality_alias_id) }}">{{ url_for('model_classes.streetLocalityAlias', street_locality_alias_id=street_locality_alias_id) }}</a></li>
+                {% endfor %}
+            </ul>
+        </td>
+    </tr>
+
 </table>
