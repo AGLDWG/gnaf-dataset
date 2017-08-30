@@ -18,6 +18,9 @@ URI_STREET_INSTANCE_BASE = 'http://transport.data.gov.au/id/street/'
 URI_STREET_LOCALITY_ALIAS_CLASS = 'http://reference.data.gov.au/def/ont/gnaf#StreetLocalityAlias'
 URI_STREET_LOCALITY_ALIAS_INSTANCE_BASE = 'http://transport.data.gov.au/id/streetLocalityAlias/'
 
+URI_LOCALITY_ALIAS_CLASS = 'http://reference.data.gov.au/def/ont/gnaf#LocalityAlias'
+URI_LOCALITY_ALIAS_INSTANCE_BASE = 'http://transport.data.gov.au/id/localityAlias/'
+
 URI_LOCALITY_CLASS = 'http://reference.data.gov.au/def/ont/gnaf#Locality'
 URI_LOCALITY_INSTANCE_BASE = 'http://transport.data.gov.au/id/locality/'
 
