@@ -1,0 +1,16 @@
+{% extends "template_layout.html" %}
+
+{% block content %}
+    <h1>Locality Alias {{ locality_alias_id }}</h1>
+    {{ view_html|safe }}
+
+    <h2>Other views</h2>
+    <p>Other model views of a Locality Alias are listed in the <a href="{{ url_for('model_classes.localityAlias', locality_alias_id=locality_alias_id) }}?_view=alternates">Alternates View</a>.</p>
+
+    <h2>Citation</h2>
+    <p>If you wish to cite this Locality Alias as you would a publication, please use the following format:</p>
+    <code style="display:block; margin: 0 5em 0 5em;">
+        PSMA Australia Limited (2017). Locality Alias {{ street_locality_alias_id }}. Locality Alias object from the Geocoded National Address File (G-NAF), 2016. {{ locality_alias_uri }}
+    </code>
+
+{% endblock %}
