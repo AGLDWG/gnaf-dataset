@@ -42,4 +42,22 @@
     <tr><td>Default Longitude</td><td><code>{{ longitude }}</code></td></tr>
     <tr><td>Default Geocode Type</td><td><code>{{ geocode_type }}</code></td></tr>
     <tr><td>Address Line</td><td><code>{{ address_string }}</code></td></tr>
+    <tr>
+        <td>Principal Address</td><td>
+            <ul>
+                {% for principal_address_id in principal_address_ids %}
+                    <li><a href="{{ url_for('model_classes.address', address_id=principal_address_id) }}">{{ url_for('model_classes.address', address_id=principal_address_id) }}</a></li>
+                {% endfor %}
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>Alias Addresses</td><td>
+            <ul>
+                {% for alias_address_id in alias_address_ids %}
+                    <li><a href="{{ url_for('model_classes.address', address_id=alias_address_id) }}">{{ url_for('model_classes.address', address_id=alias_address_id) }}</a></li>
+                {% endfor %}
+            </ul>
+        </td>
+    </tr>
 </table>
