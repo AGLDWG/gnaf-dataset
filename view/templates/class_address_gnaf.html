@@ -1,7 +1,7 @@
 <h2>G-NAF View</h2>
 <table>
     <tr><th>Property</th><th>Value</th></tr>
-    <tr><td>Address Detail PID</td><td><code>{{ address_detail_pid }}</code></td></tr>
+    <tr><td>Address Line</td><td><code>{{ address_string }}</code></td></tr>
     <tr><td>Building Name</td><td><code>{{ building_name }}</code></td></tr>
     <tr><td>Lot Number Prefix</td><td><code>{{ lot_number_prefix }}</code></td></tr>
     <tr><td>Lot Number</td><td><code>{{ lot_number }}</code></td></tr>
@@ -14,22 +14,19 @@
     <tr><td>Level Number Prefix</td><td><code>{{ level_number_prefix }}</code></td></tr>
     <tr><td>Level Number</td><td><code>{{ level_number }}</code></td></tr>
     <tr><td>Level Number Suffix</td><td><code>{{ level_number_suffix }}</code></td></tr>
-    <tr><td>Number First Prefix</td><td>{{ number_first_prefix }}</td></tr>
-    <tr><td>Number First</td><td>{{ street_number_1 }}</td></tr>
-    <tr><td>Number First Suffix</td><td>{{ number_first_suffix }}</td></tr>
-    <tr><td>Number Last Prefix</td><td>{{ number_last_prefix }}</td></tr>
-    <tr><td>Number Last</td><td>{{ number_last }}</td></tr>
-    <tr><td>Number Last Suffix</td><td>{{ number_last_suffix }}</td></tr>
-    <tr><td>Street Locality PID</td><td><a href="{{ url_for('model_classes.street', street_id=street_locality_pid) }}">/doc/street/{{ street_locality_pid }}</a></td></tr>
-    <tr><td>Street Name</td><td>{{ street_name }}</td></tr>
-    <tr><td>Street Type</td><td>{{ street_type }}</td></tr>
-    <tr><td>Locality PID</td><td><a href="{{ url_for('model_classes.locality', locality_id=locality_pid) }}">/doc/locality/{{ locality_pid }}</a></td></tr>
-    <tr><td>Locality Name</td><td>{{ locality_name }}</td></tr>
-    <tr><td>State/Territory</td><td>{{ state_territory }}</td></tr>
+    <tr><td>Number First Prefix</td><td><code>{{ number_first_prefix }}</code></td></tr>
+    <tr><td>Number First</td><td><code>{{ street_number_1 }}</code></td></tr>
+    <tr><td>Number First Suffix</td><td><code>{{ number_first_suffix }}</code></td></tr>
+    <tr><td>Number Last Prefix</td><td><code>{{ number_last_prefix }}</code></td></tr>
+    <tr><td>Number Last</td><td><code>{{ number_last }}</code></td></tr>
+    <tr><td>Number Last Suffix</td><td><code>{{ number_last_suffix }}</code></td></tr>
+    <tr><td>Street Locality</td><td><code><a href="{{ url_for('model_classes.street', street_id=street_locality_pid) }}">{{ street_string }}</a></code></td></tr>
+    <tr><td>Locality</td><td><code><a href="{{ url_for('model_classes.locality', locality_id=locality_pid) }}">{{ locality_name }}</a></code></td></tr>
+    <tr><td>State/Territory</td><td><code>{{ state_territory }}</code></td></tr>
     <tr><td>Postcode</td><td><code>{{ postcode }}</code></td></tr>
     <tr><td>Alias Principal</td><td><code>{{ alias_principal }}</code></td></tr>
     <tr><td>Legal Parcel ID</td><td><code>{{ legal_parcel_id }}</code></td></tr>
-    <tr><td>Address Site PID</td><td><a href="{{ url_for('model_classes.addressSite', address_site_id=address_site_pid) }}">/doc/addressSite/{{ address_site_pid }}</a></td></tr>
+    <tr><td>Address Site PID</td><td><code><a href="{{ url_for('model_classes.addressSite', address_site_id=address_site_pid) }}">{{ address_site_pid }}</a></code></td></tr>
     <tr><td>Level Geocoded Code</td><td><code>{{ level_geocoded_code }}</code></td></tr>
     <tr><td>Property PID</td><td><code>{{ property_pid }}</code></td></tr>
     <tr><td>Primary Secondary</td><td><code>{{ primary_secondary }}</code></td></tr>
@@ -41,7 +38,6 @@
     <tr><td>Default Latitude</td><td><code>{{ latitude }}</code></td></tr>
     <tr><td>Default Longitude</td><td><code>{{ longitude }}</code></td></tr>
     <tr><td>Default Geocode Type</td><td><code>{{ geocode_type }}</code></td></tr>
-    <tr><td>Address Line</td><td><code>{{ address_string }}</code></td></tr>
     <tr>
         <td>Principal Address</td><td>
             <ul>
@@ -74,6 +70,24 @@
             <ul>
                 {% for secondary_address_id in secondary_address_ids %}
                     <li><a href="{{ url_for('model_classes.address', address_id=secondary_address_id) }}">{{ url_for('model_classes.address', address_id=secondary_address_id) }}</a></li>
+                {% endfor %}
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>Mesh Block 2011</td><td>
+            <ul>
+                {% for mesh_block_2011 in mesh_block_2011s %}
+                    <li><a href="{{ mesh_block_2011_uri%mesh_block_2011|urlencode }}">{{ mesh_block_2011 }}</a></li>
+                {% endfor %}
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>Mesh Block 2016</td><td>
+            <ul>
+                {% for mesh_block_2016 in mesh_block_2016s %}
+                    <li><a href="{{ mesh_block_2016_uri%mesh_block_2016|urlencode }}">{{ mesh_block_2016 }}</a></li>
                 {% endfor %}
             </ul>
         </td>
