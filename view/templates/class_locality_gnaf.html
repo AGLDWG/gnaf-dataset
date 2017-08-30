@@ -7,4 +7,22 @@
     <tr><td>Default Latitude</td><td><code>{{ latitude }}</code></td></tr>
     <tr><td>Default Longitude</td><td><code>{{ longitude }}</code></td></tr>
     <tr><td>Default Geocode Type</td><td><code>{{ geocode_type }}</code></td></tr>
+    <tr>
+        <td>Locality Aliases</td><td>
+            <ul>
+                {% for locality_alias_id in locality_alias_ids %}
+                    <li><a href="{{ url_for('model_classes.localityAlias', locality_alias_id=locality_alias_id) }}">{{ url_for('model_classes.localityAlias', locality_alias_id=locality_alias_id) }}</a></li>
+                {% endfor %}
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>Locality Neighbours</td><td>
+            <ul>
+                {% for locality_neighbour_id in locality_neighbour_ids %}
+                    <li><a href="{{ url_for('model_classes.locality', locality_id=locality_neighbour_id) }}">{{ url_for('model_classes.locality', locality_id=locality_neighbour_id) }}</a></li>
+                {% endfor %}
+            </ul>
+        </td>
+    </tr>
 </table>
