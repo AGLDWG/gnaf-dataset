@@ -26,6 +26,54 @@ class AddressRenderer(Renderer):
         self.mesh_block_2011s = []
         self.mesh_block_2016s = []
 
+    def formatAddress(self,
+                      level_type_code=None, level_number_prefix=None, level_number=None, level_number_suffix=None,
+                      flat_type_code=None, flat_number_prefix=None, flat_number=None, flat_number_suffix=None,
+                      number_first_prefix=None, number_first=None, number_first_suffix=None,
+                      number_last_prefix=None, number_last=None, number_last_suffix=None,
+                      building=None, lot_number_prefix=None, lot_number=None, lot_number_suffix=None,
+                      street_name=None, street_type=None, street_suffix_code=None,
+                      locality=None, state_territory=None, postcode=None):
+        street_string = '{}{}'.format(street_name, ' ' + street_type.title() if street_type != None else '')
+        address_string = ''
+        if locality == None:
+            address_string = street_string
+        else:
+            flatNum = '{}{}{}'.format(flat_number_prefix if flat_number_prefix != None else '',
+                                      flat_number if flat_number != None else '',
+                                      flat_number_suffix if flat_number_suffix != None else '')
+            levelNum = '{}{}{}'.format(level_number_prefix if level_number_prefix != None else '',
+                                       level_number if level_number != None else '',
+                                       level_number_suffix if level_number_suffix != None else '')
+            lotNum = '{}{}{}'.format(lot_number_prefix if lot_number_prefix != None else '',
+                                     lot_number if lot_number != None else '',
+                                     lot_number_suffix if lot_number_suffix != None else '')
+            num1 = '{}{}{}'.format(number_first_prefix if number_first_prefix != None else '',
+                                   number_first if number_first != None else '',
+                                   number_first_suffix if number_first_suffix != None else '')
+            num2 = '{}{}{}'.format(number_last_prefix if number_last_prefix != None else '',
+                                   number_last if number_last != None else '',
+                                   number_last_suffix if number_last_suffix != None else '')
+            if level_type_code != None:
+                address_string += level_type_code.title() + ' '
+            if levelNum != '':
+                address_string += levelNum + ' '
+            if flatNum != '':
+                address_string += '{flattype} {flatnum} '.format(flattype=flat_type_code.title(),
+                                                                 flatnum=flatNum) if flat_type_code != None else flatNum + ' '
+            if building != None:
+                address_string += building.title() + ' '
+            if num1 != '':
+                address_string += num1
+                if num2 != '':
+                    address_string += '-' + num2
+                address_string += ' '
+            else:
+                address_string += 'LOT {lotnum} '.format(lotnum=lotNum)
+            address_string += '{st}, {loc}, {state} {postcode}' \
+                .format(st=street_string, loc=locality, state=state_territory, postcode=postcode)
+        return address_string, street_string
+
     def render(self, view, format):
         if format == 'text/html':
             return self.export_html(view=view)
@@ -99,7 +147,7 @@ class AddressRenderer(Renderer):
                     locality_pid = row[1]
                     street_number_1 = row[2]
                     street_name = row[3].title()
-                    street_type = row[4].title()
+                    street_type = row[4]
                     locality_name = row[5].title()
                     state_territory = row[6]
                     postcode = row[7]
@@ -134,11 +182,19 @@ class AddressRenderer(Renderer):
                     property_pid = row[36]
                     primary_secondary = row[37]
                     geometry_wkt = 'SRID=8311;POINT({} {})'.format(latitude, longitude)
-                    address_string = '{} {} {}, {}, {} {}'\
-                        .format(street_number_1, street_name, street_type, locality_name, state_territory, postcode)
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
+
+            address_string, street_string = self.formatAddress(
+                level_type_code=level_type_code, level_number_prefix=level_number_prefix, level_number=level_number, level_number_suffix=level_number_suffix,
+                flat_type_code=flat_type_code, flat_number_prefix=flat_number_prefix, flat_number=flat_number, flat_number_suffix=flat_number_suffix,
+                number_first_prefix=number_first_prefix, number_first=street_number_1, number_first_suffix=number_first_suffix,
+                number_last_prefix=number_last_prefix, number_last=number_last, number_last_suffix=number_last_suffix,
+                building=building_name, lot_number_prefix=lot_number_prefix, lot_number=lot_number, lot_number_suffix=lot_number_suffix,
+                street_name=street_name, street_type=street_type,
+                locality=locality_name, state_territory=state_territory, postcode=postcode
+            )
 
             # get a list of aliasIds from the address_alias table
             s2 = sql.SQL('''SELECT 
@@ -248,6 +304,60 @@ class AddressRenderer(Renderer):
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
 
+            # get a list of mb2011s from the address_mesh_block_2011 and mb_2011 tables
+            s6 = sql.SQL('''SELECT 
+                        mb_2011_code,
+                        mb_match_code                
+                    FROM {dbschema}.address_mesh_block_2011_view
+                    WHERE address_detail_pid = {id}''') \
+                .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
+
+            try:
+                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
+                    .format(
+                    config.DB_HOST,
+                    config.DB_DBNAME,
+                    config.DB_USR,
+                    config.DB_PWD
+                )
+                conn = psycopg2.connect(connect_str)
+                cursor = conn.cursor()
+                # get just IDs, ordered, from the address_detail table, paginated by class init args
+                cursor.execute(s6)
+                rows = cursor.fetchall()
+                for row in rows:
+                    self.mesh_block_2011s.append(row[0])
+            except Exception as e:
+                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
+                print(e)
+
+            # get a list of mb2011s from the address_mesh_block_2016 and mb_2016 tables
+            s7 = sql.SQL('''SELECT 
+                        mb_2016_code,
+                        mb_match_code                
+                    FROM {dbschema}.address_mesh_block_2016_view
+                    WHERE address_detail_pid = {id}''') \
+                .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
+
+            try:
+                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
+                    .format(
+                    config.DB_HOST,
+                    config.DB_DBNAME,
+                    config.DB_USR,
+                    config.DB_PWD
+                )
+                conn = psycopg2.connect(connect_str)
+                cursor = conn.cursor()
+                # get just IDs, ordered, from the address_detail table, paginated by class init args
+                cursor.execute(s7)
+                rows = cursor.fetchall()
+                for row in rows:
+                    self.mesh_block_2016s.append(row[0])
+            except Exception as e:
+                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
+                print(e)
+
             view_html = render_template(
                 'class_address_gnaf.html',
                 address_string=address_string,
@@ -294,7 +404,12 @@ class AddressRenderer(Renderer):
                 alias_address_ids = self.alias_address_ids,
                 principal_address_ids = self.principal_address_ids,
                 secondary_address_ids = self.secondary_address_ids,
-                primary_address_ids = self.primary_address_ids
+                primary_address_ids = self.primary_address_ids,
+                mesh_block_2011_uri = config.URI_MB_2011_INSTANCE_BASE + '%s',
+                mesh_block_2011s = self.mesh_block_2011s,
+                mesh_block_2016_uri = config.URI_MB_2016_INSTANCE_BASE + '%s',
+                mesh_block_2016s = self.mesh_block_2016s,
+                street_string=street_string
             )
 
         elif view == 'ISO19160':
