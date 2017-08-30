@@ -194,6 +194,60 @@ class AddressRenderer(Renderer):
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
 
+            # get a list of secondaryIds from the primary_secondary table
+            s4 = sql.SQL('''SELECT 
+                        secondary_pid,
+                        ps_join_type_code                
+                    FROM {dbschema}.primary_secondary
+                    WHERE primary_pid = {id}''') \
+                .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
+
+            try:
+                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
+                    .format(
+                    config.DB_HOST,
+                    config.DB_DBNAME,
+                    config.DB_USR,
+                    config.DB_PWD
+                )
+                conn = psycopg2.connect(connect_str)
+                cursor = conn.cursor()
+                # get just IDs, ordered, from the address_detail table, paginated by class init args
+                cursor.execute(s4)
+                rows = cursor.fetchall()
+                for row in rows:
+                    self.secondary_address_ids.append(row[0])
+            except Exception as e:
+                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
+                print(e)
+
+            # get a list of primaryIds from the primary_secondary table
+            s5 = sql.SQL('''SELECT 
+                        primary_pid,
+                        ps_join_type_code                
+                    FROM {dbschema}.primary_secondary
+                    WHERE secondary_pid = {id}''') \
+                .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
+
+            try:
+                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
+                    .format(
+                    config.DB_HOST,
+                    config.DB_DBNAME,
+                    config.DB_USR,
+                    config.DB_PWD
+                )
+                conn = psycopg2.connect(connect_str)
+                cursor = conn.cursor()
+                # get just IDs, ordered, from the address_detail table, paginated by class init args
+                cursor.execute(s5)
+                rows = cursor.fetchall()
+                for row in rows:
+                    self.primary_address_ids.append(row[0])
+            except Exception as e:
+                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
+                print(e)
+
             view_html = render_template(
                 'class_address_gnaf.html',
                 address_string=address_string,
@@ -238,7 +292,9 @@ class AddressRenderer(Renderer):
                 street_locality_pid=street_locality_pid,
                 locality_pid=locality_pid,
                 alias_address_ids = self.alias_address_ids,
-                principal_address_ids = self.principal_address_ids
+                principal_address_ids = self.principal_address_ids,
+                secondary_address_ids = self.secondary_address_ids,
+                primary_address_ids = self.primary_address_ids
             )
 
         elif view == 'ISO19160':
