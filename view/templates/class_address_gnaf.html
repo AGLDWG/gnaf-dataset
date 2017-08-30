@@ -60,4 +60,22 @@
             </ul>
         </td>
     </tr>
+    <tr>
+        <td>Primary Address</td><td>
+            <ul>
+                {% for primary_address_id in primary_address_ids %}
+                    <li><a href="{{ url_for('model_classes.address', address_id=primary_address_id) }}">{{ url_for('model_classes.address', address_id=primary_address_id) }}</a></li>
+                {% endfor %}
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>Secondary Addresses</td><td>
+            <ul>
+                {% for secondary_address_id in secondary_address_ids %}
+                    <li><a href="{{ url_for('model_classes.address', address_id=secondary_address_id) }}">{{ url_for('model_classes.address', address_id=secondary_address_id) }}</a></li>
+                {% endfor %}
+            </ul>
+        </td>
+    </tr>
 </table>
