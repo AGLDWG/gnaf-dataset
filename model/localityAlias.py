@@ -35,7 +35,7 @@ class LocalityAliasRenderer(Renderer):
             s = sql.SQL('''SELECT 
                         locality_pid, 
                         locality_name                     
-                    FROM {dbschema}.ocality_alias
+                    FROM {dbschema}.locality_alias
                     WHERE locality_alias_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
@@ -75,7 +75,7 @@ class LocalityAliasRenderer(Renderer):
             s = sql.SQL('''SELECT 
                         locality_pid, 
                         locality_name                     
-                    FROM {dbschema}.ocality_alias
+                    FROM {dbschema}.locality_alias
                     WHERE locality_alias_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
@@ -123,7 +123,7 @@ class LocalityAliasRenderer(Renderer):
             s = sql.SQL('''SELECT 
                         locality_pid, 
                         locality_name                     
-                    FROM {dbschema}.ocality_alias
+                    FROM {dbschema}.locality_alias
                     WHERE locality_alias_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 

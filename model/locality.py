@@ -19,6 +19,8 @@ class LocalityRenderer(Renderer):
         # super(LocalityRenderer, self).__init__(id)
         self.id = id
         self.uri = config.URI_LOCALITY_INSTANCE_BASE + id
+        self.locality_alias_pids = []
+        self.locality_neighbour_pids = []
 
     def render(self, view, format):
         if format == 'text/html':
@@ -68,6 +70,58 @@ class LocalityRenderer(Renderer):
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
 
+            # get a list of localityAliasIds from the locality_alias table
+            s2 = sql.SQL('''SELECT 
+                        locality_alias_pid                
+                    FROM {dbschema}.locality_alias
+                    WHERE locality_pid = {id}''') \
+                .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
+
+            try:
+                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
+                    .format(
+                    config.DB_HOST,
+                    config.DB_DBNAME,
+                    config.DB_USR,
+                    config.DB_PWD
+                )
+                conn = psycopg2.connect(connect_str)
+                cursor = conn.cursor()
+                # get just IDs, ordered, from the address_detail table, paginated by class init args
+                cursor.execute(s2)
+                rows = cursor.fetchall()
+                for row in rows:
+                    self.locality_alias_pids.append(row[0])
+            except Exception as e:
+                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
+                print(e)
+
+            # get a list of localityNeighbourIds from the locality_alias table
+            s2 = sql.SQL('''SELECT 
+                        neighbour_locality_pid                
+                    FROM {dbschema}.locality_neighbour
+                    WHERE locality_pid = {id}''') \
+                .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
+
+            try:
+                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
+                    .format(
+                    config.DB_HOST,
+                    config.DB_DBNAME,
+                    config.DB_USR,
+                    config.DB_PWD
+                )
+                conn = psycopg2.connect(connect_str)
+                cursor = conn.cursor()
+                # get just IDs, ordered, from the address_detail table, paginated by class init args
+                cursor.execute(s2)
+                rows = cursor.fetchall()
+                for row in rows:
+                    self.locality_neighbour_pids.append(row[0])
+            except Exception as e:
+                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
+                print(e)
+
             view_html = render_template(
                 'class_locality_gnaf.html',
                 locality_name=locality_name,
@@ -76,7 +130,9 @@ class LocalityRenderer(Renderer):
                 geocode_type=geocode_type,
                 geometry_wkt=geometry_wkt,
                 locality_pid=locality_pid,
-                state_pid=state_pid
+                state_pid=state_pid,
+                locality_alias_ids = self.locality_alias_pids,
+                locality_neighbour_ids = self.locality_neighbour_pids
             )
 
         elif view == 'ISO19160':
