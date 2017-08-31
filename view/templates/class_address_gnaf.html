@@ -41,8 +41,8 @@
     <tr>
         <td>Principal Address</td><td>
             <ul>
-                {% for principal_address_id in principal_address_ids %}
-                    <li><a href="{{ url_for('model_classes.address', address_id=principal_address_id) }}">{{ url_for('model_classes.address', address_id=principal_address_id) }}</a></li>
+                {% for principal_address_id, principal_address in principal_addresses.items() %}
+                    <li><a href="{{ url_for('model_classes.address', address_id=principal_address_id) }}">{{ principal_address }}</a></li>
                 {% endfor %}
             </ul>
         </td>
@@ -50,8 +50,8 @@
     <tr>
         <td>Alias Addresses</td><td>
             <ul>
-                {% for alias_address_id in alias_address_ids %}
-                    <li><a href="{{ url_for('model_classes.address', address_id=alias_address_id) }}">{{ url_for('model_classes.address', address_id=alias_address_id) }}</a></li>
+                {% for alias_address_id, alias_address in alias_addresses.items() %}
+                    <li><a href="{{ url_for('model_classes.address', address_id=alias_address_id) }}">{{ alias_address }}</a></li>
                 {% endfor %}
             </ul>
         </td>
@@ -59,8 +59,8 @@
     <tr>
         <td>Primary Address</td><td>
             <ul>
-                {% for primary_address_id in primary_address_ids %}
-                    <li><a href="{{ url_for('model_classes.address', address_id=primary_address_id) }}">{{ url_for('model_classes.address', address_id=primary_address_id) }}</a></li>
+                {% for primary_address_id, primary_address in primary_addresses.items() %}
+                    <li><a href="{{ url_for('model_classes.address', address_id=primary_address_id) }}">{{ primary_address }}</a></li>
                 {% endfor %}
             </ul>
         </td>
@@ -68,8 +68,8 @@
     <tr>
         <td>Secondary Addresses</td><td>
             <ul>
-                {% for secondary_address_id in secondary_address_ids %}
-                    <li><a href="{{ url_for('model_classes.address', address_id=secondary_address_id) }}">{{ url_for('model_classes.address', address_id=secondary_address_id) }}</a></li>
+                {% for secondary_address_id, secondary_address in secondary_addresses.items() %}
+                    <li><a href="{{ url_for('model_classes.address', address_id=secondary_address_id) }}">{{ secondary_address }}</a></li>
                 {% endfor %}
             </ul>
         </td>
