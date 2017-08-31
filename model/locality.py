@@ -19,8 +19,8 @@ class LocalityRenderer(Renderer):
         # super(LocalityRenderer, self).__init__(id)
         self.id = id
         self.uri = config.URI_LOCALITY_INSTANCE_BASE + id
-        self.locality_alias_pids = []
-        self.locality_neighbour_pids = []
+        self.locality_aliases = dict()
+        self.locality_neighbours = dict()
 
     def render(self, view, format):
         if format == 'text/html':
@@ -59,7 +59,7 @@ class LocalityRenderer(Renderer):
                 cursor.execute(s)
                 rows = cursor.fetchall()
                 for row in rows:
-                    locality_name = row[0]
+                    locality_name = row[0].title()
                     latitude = row[1]
                     longitude = row[2]
                     geocode_type = row[3].title()
@@ -72,7 +72,8 @@ class LocalityRenderer(Renderer):
 
             # get a list of localityAliasIds from the locality_alias table
             s2 = sql.SQL('''SELECT 
-                        locality_alias_pid                
+                        locality_alias_pid,
+                        locality_name                
                     FROM {dbschema}.locality_alias
                     WHERE locality_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
@@ -91,16 +92,18 @@ class LocalityRenderer(Renderer):
                 cursor.execute(s2)
                 rows = cursor.fetchall()
                 for row in rows:
-                    self.locality_alias_pids.append(row[0])
+                    self.locality_aliases[row[0]] = row[1].title()
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
 
             # get a list of localityNeighbourIds from the locality_alias table
             s2 = sql.SQL('''SELECT 
-                        neighbour_locality_pid                
-                    FROM {dbschema}.locality_neighbour
-                    WHERE locality_pid = {id}''') \
+                        a.neighbour_locality_pid,
+                        b.locality_name                
+                    FROM {dbschema}.locality_neighbour a
+                      INNER JOIN {dbschema}.locality_view b ON a.neighbour_locality_pid = b.locality_pid
+                    WHERE a.locality_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
             try:
@@ -117,7 +120,7 @@ class LocalityRenderer(Renderer):
                 cursor.execute(s2)
                 rows = cursor.fetchall()
                 for row in rows:
-                    self.locality_neighbour_pids.append(row[0])
+                    self.locality_neighbours[row[0]] = row[1].title()
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
@@ -131,8 +134,8 @@ class LocalityRenderer(Renderer):
                 geometry_wkt=geometry_wkt,
                 locality_pid=locality_pid,
                 state_pid=state_pid,
-                locality_alias_ids = self.locality_alias_pids,
-                locality_neighbour_ids = self.locality_neighbour_pids
+                locality_aliases = self.locality_aliases,
+                locality_neighbours = self.locality_neighbours
             )
 
         elif view == 'ISO19160':
