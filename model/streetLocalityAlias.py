@@ -20,6 +20,12 @@ class StreetLocalityAliasRenderer(Renderer):
         self.id = id
         self.uri = config.URI_STREET_LOCALITY_ALIAS_INSTANCE_BASE + id
 
+    def formatStreet(self, street_name, street_suffix, street_type):
+        st = '{}{}{}'.format(street_name,
+                                              ' ' + street_type.title() if street_type != None else '',
+                                              ' ' + street_suffix.title() if street_suffix != None else '')
+        return st
+
     def render(self, view, format):
         if format == 'text/html':
             return self.export_html(view=view)
@@ -33,11 +39,15 @@ class StreetLocalityAliasRenderer(Renderer):
             address_string = None
             # make a human-readable address
             s = sql.SQL('''SELECT 
-                        street_locality_pid, 
-                        street_name,
-                        street_type_code,
-                        street_suffix_code                      
-                    FROM {dbschema}.street_locality_alias
+                        a.street_locality_pid, 
+                        a.street_name,
+                        a.street_type_code,
+                        a.street_suffix_code,
+                        b.street_name,
+                        b.street_type_code,
+                        b.street_suffix_code                    
+                    FROM {dbschema}.street_locality_alias a
+                      INNER JOIN {dbschema}.street_view b ON a.street_locality_pid = b.street_locality_pid
                     WHERE street_locality_alias_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
@@ -56,11 +66,14 @@ class StreetLocalityAliasRenderer(Renderer):
                 rows = cursor.fetchall()
                 for row in rows:
                     street_locality_pid = row[0]
-                    street_name = row[1]
-                    street_type = row[2].title()
+                    street_name = row[1].title()
+                    street_type = row[2].title() if not row[2] == None else row[2]
                     street_suffix = row[3].title() if not row[3] == None else row[3]
-                    street_string = '{} {} {}'\
-                        .format(street_name, street_type, street_suffix)
+                    alias_street_name = row[4].title()
+                    alias_street_type = row[5].title() if not row[5] == None else row[5]
+                    alias_street_suffix = row[6].title() if not row[6] == None else row[6]
+                    street_string = self.formatStreet(street_name=street_name, street_type=street_type, street_suffix=street_suffix)
+                    principal_string = self.formatStreet(street_name=alias_street_name, street_type=alias_street_type, street_suffix=alias_street_suffix)
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
@@ -72,6 +85,7 @@ class StreetLocalityAliasRenderer(Renderer):
                 street_type=street_type,
                 street_suffix=street_suffix,
                 street_string=street_string,
+                principal_string=principal_string,
                 street_locality_id=street_locality_pid
             )
 
