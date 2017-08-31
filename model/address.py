@@ -19,10 +19,10 @@ class AddressRenderer(Renderer):
         # super(AddressRenderer, self).__init__(id)
         self.id = id
         self.uri = config.URI_ADDRESS_INSTANCE_BASE + id
-        self.alias_address_ids = []
-        self.principal_address_ids = []
-        self.primary_address_ids = []
-        self.secondary_address_ids = []
+        self.alias_addresses = dict()
+        self.principal_addresses = dict()
+        self.primary_addresses = dict()
+        self.secondary_addresses = dict()
         self.mesh_block_2011s = []
         self.mesh_block_2016s = []
 
@@ -198,9 +198,44 @@ class AddressRenderer(Renderer):
 
             # get a list of aliasIds from the address_alias table
             s2 = sql.SQL('''SELECT 
-                        alias_pid,
-                        alias_type_code                
-                    FROM {dbschema}.address_alias
+                        b.street_locality_pid, 
+                        b.locality_pid, 
+                        CAST(b.number_first AS text), 
+                        a.street_name, 
+                        a.street_type_code, 
+                        a.locality_name, 
+                        a.state_abbreviation, 
+                        b.postcode ,
+                        a.latitude,
+                        a.longitude,
+                        a.geocode_type,
+                        CAST(b.confidence AS text),
+                        CAST(b.date_created AS text),
+                        CAST(b.date_last_modified AS text),
+                        CAST(b.date_retired AS text),
+                        b.building_name,
+                        b.lot_number_prefix,
+                        b.lot_number,
+                        b.lot_number_suffix,
+                        b.flat_type_code,
+                        b.flat_number_prefix,
+                        CAST(b.flat_number AS text),
+                        b.flat_number_suffix,
+                        b.level_type_code,
+                        b.level_number_prefix,
+                        CAST(b.level_number AS text),
+                        b.level_number_suffix,
+                        b.number_first_prefix,
+                        b.number_first_suffix,
+                        b.number_last_prefix,
+                        CAST(b.number_last AS text),
+                        b.number_last_suffix,
+                        c.alias_pid,
+                        c.alias_type_code                                        
+                    FROM 
+                        {dbschema}.address_alias c
+                          INNER JOIN {dbschema}.address_view a ON c.alias_pid = a.address_detail_pid
+                          INNER JOIN {dbschema}.address_detail b ON a.address_detail_pid = b.address_detail_pid
                     WHERE principal_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
@@ -218,16 +253,98 @@ class AddressRenderer(Renderer):
                 cursor.execute(s2)
                 rows = cursor.fetchall()
                 for row in rows:
-                    self.alias_address_ids.append(row[0])
+                    street_locality_pid = row[0]
+                    locality_pid = row[1]
+                    street_number_1 = row[2]
+                    street_name = row[3].title()
+                    street_type = row[4]
+                    locality_name = row[5].title()
+                    state_territory = row[6]
+                    postcode = row[7]
+                    latitude = row[8]
+                    longitude = row[9]
+                    geocode_type = row[10].title()
+                    confidence = row[11]
+                    date_created = row[12]
+                    date_last_modified = row[13]
+                    date_retired = row[14]
+                    building_name = row[15]
+                    lot_number_prefix = row[16]
+                    lot_number = row[17]
+                    lot_number_suffix = row[18]
+                    flat_type_code = row[19]
+                    flat_number_prefix = row[20]
+                    flat_number = row[21]
+                    flat_number_suffix = row[22]
+                    level_type_code = row[23]
+                    level_number_prefix = row[24]
+                    level_number = row[25]
+                    level_number_suffix = row[26]
+                    number_first_prefix = row[27]
+                    number_first_suffix = row[28]
+                    number_last_prefix = row[29]
+                    number_last = row[30]
+                    number_last_suffix = row[31]
+
+                    address_string, street_string = self.formatAddress(
+                        level_type_code=level_type_code, level_number_prefix=level_number_prefix,
+                        level_number=level_number, level_number_suffix=level_number_suffix,
+                        flat_type_code=flat_type_code, flat_number_prefix=flat_number_prefix, flat_number=flat_number,
+                        flat_number_suffix=flat_number_suffix,
+                        number_first_prefix=number_first_prefix, number_first=street_number_1,
+                        number_first_suffix=number_first_suffix,
+                        number_last_prefix=number_last_prefix, number_last=number_last,
+                        number_last_suffix=number_last_suffix,
+                        building=building_name, lot_number_prefix=lot_number_prefix, lot_number=lot_number,
+                        lot_number_suffix=lot_number_suffix,
+                        street_name=street_name, street_type=street_type,
+                        locality=locality_name, state_territory=state_territory, postcode=postcode
+                    )
+                    self.alias_addresses[row[32]] = address_string
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
 
             # get a list of principalIds from the address_alias table
             s3 = sql.SQL('''SELECT 
-                        principal_pid,
-                        alias_type_code                
-                    FROM {dbschema}.address_alias
+                        b.street_locality_pid, 
+                        b.locality_pid, 
+                        CAST(b.number_first AS text), 
+                        a.street_name, 
+                        a.street_type_code, 
+                        a.locality_name, 
+                        a.state_abbreviation, 
+                        b.postcode ,
+                        a.latitude,
+                        a.longitude,
+                        a.geocode_type,
+                        CAST(b.confidence AS text),
+                        CAST(b.date_created AS text),
+                        CAST(b.date_last_modified AS text),
+                        CAST(b.date_retired AS text),
+                        b.building_name,
+                        b.lot_number_prefix,
+                        b.lot_number,
+                        b.lot_number_suffix,
+                        b.flat_type_code,
+                        b.flat_number_prefix,
+                        CAST(b.flat_number AS text),
+                        b.flat_number_suffix,
+                        b.level_type_code,
+                        b.level_number_prefix,
+                        CAST(b.level_number AS text),
+                        b.level_number_suffix,
+                        b.number_first_prefix,
+                        b.number_first_suffix,
+                        b.number_last_prefix,
+                        CAST(b.number_last AS text),
+                        b.number_last_suffix,
+                        c.principal_pid,
+                        c.alias_type_code                                        
+                    FROM 
+                        {dbschema}.address_alias c
+                          INNER JOIN {dbschema}.address_view a ON c.principal_pid = a.address_detail_pid
+                          INNER JOIN {dbschema}.address_detail b ON a.address_detail_pid = b.address_detail_pid
                     WHERE alias_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
@@ -245,16 +362,98 @@ class AddressRenderer(Renderer):
                 cursor.execute(s3)
                 rows = cursor.fetchall()
                 for row in rows:
-                    self.principal_address_ids.append(row[0])
+                    street_locality_pid = row[0]
+                    locality_pid = row[1]
+                    street_number_1 = row[2]
+                    street_name = row[3].title()
+                    street_type = row[4]
+                    locality_name = row[5].title()
+                    state_territory = row[6]
+                    postcode = row[7]
+                    latitude = row[8]
+                    longitude = row[9]
+                    geocode_type = row[10].title()
+                    confidence = row[11]
+                    date_created = row[12]
+                    date_last_modified = row[13]
+                    date_retired = row[14]
+                    building_name = row[15]
+                    lot_number_prefix = row[16]
+                    lot_number = row[17]
+                    lot_number_suffix = row[18]
+                    flat_type_code = row[19]
+                    flat_number_prefix = row[20]
+                    flat_number = row[21]
+                    flat_number_suffix = row[22]
+                    level_type_code = row[23]
+                    level_number_prefix = row[24]
+                    level_number = row[25]
+                    level_number_suffix = row[26]
+                    number_first_prefix = row[27]
+                    number_first_suffix = row[28]
+                    number_last_prefix = row[29]
+                    number_last = row[30]
+                    number_last_suffix = row[31]
+
+                    address_string, street_string = self.formatAddress(
+                        level_type_code=level_type_code, level_number_prefix=level_number_prefix,
+                        level_number=level_number, level_number_suffix=level_number_suffix,
+                        flat_type_code=flat_type_code, flat_number_prefix=flat_number_prefix, flat_number=flat_number,
+                        flat_number_suffix=flat_number_suffix,
+                        number_first_prefix=number_first_prefix, number_first=street_number_1,
+                        number_first_suffix=number_first_suffix,
+                        number_last_prefix=number_last_prefix, number_last=number_last,
+                        number_last_suffix=number_last_suffix,
+                        building=building_name, lot_number_prefix=lot_number_prefix, lot_number=lot_number,
+                        lot_number_suffix=lot_number_suffix,
+                        street_name=street_name, street_type=street_type,
+                        locality=locality_name, state_territory=state_territory, postcode=postcode
+                    )
+                    self.principal_addresses[row[32]] = address_string
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
 
             # get a list of secondaryIds from the primary_secondary table
             s4 = sql.SQL('''SELECT 
-                        secondary_pid,
-                        ps_join_type_code                
-                    FROM {dbschema}.primary_secondary
+                        b.street_locality_pid, 
+                        b.locality_pid, 
+                        CAST(b.number_first AS text), 
+                        a.street_name, 
+                        a.street_type_code, 
+                        a.locality_name, 
+                        a.state_abbreviation, 
+                        b.postcode ,
+                        a.latitude,
+                        a.longitude,
+                        a.geocode_type,
+                        CAST(b.confidence AS text),
+                        CAST(b.date_created AS text),
+                        CAST(b.date_last_modified AS text),
+                        CAST(b.date_retired AS text),
+                        b.building_name,
+                        b.lot_number_prefix,
+                        b.lot_number,
+                        b.lot_number_suffix,
+                        b.flat_type_code,
+                        b.flat_number_prefix,
+                        CAST(b.flat_number AS text),
+                        b.flat_number_suffix,
+                        b.level_type_code,
+                        b.level_number_prefix,
+                        CAST(b.level_number AS text),
+                        b.level_number_suffix,
+                        b.number_first_prefix,
+                        b.number_first_suffix,
+                        b.number_last_prefix,
+                        CAST(b.number_last AS text),
+                        b.number_last_suffix,
+                        c.secondary_pid,
+                        c.ps_join_type_code                                        
+                    FROM 
+                        {dbschema}.primary_secondary c
+                          INNER JOIN {dbschema}.address_view a ON c.secondary_pid = a.address_detail_pid
+                          INNER JOIN {dbschema}.address_detail b ON a.address_detail_pid = b.address_detail_pid
                     WHERE primary_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
@@ -272,16 +471,98 @@ class AddressRenderer(Renderer):
                 cursor.execute(s4)
                 rows = cursor.fetchall()
                 for row in rows:
-                    self.secondary_address_ids.append(row[0])
+                    street_locality_pid = row[0]
+                    locality_pid = row[1]
+                    street_number_1 = row[2]
+                    street_name = row[3].title()
+                    street_type = row[4]
+                    locality_name = row[5].title()
+                    state_territory = row[6]
+                    postcode = row[7]
+                    latitude = row[8]
+                    longitude = row[9]
+                    geocode_type = row[10].title()
+                    confidence = row[11]
+                    date_created = row[12]
+                    date_last_modified = row[13]
+                    date_retired = row[14]
+                    building_name = row[15]
+                    lot_number_prefix = row[16]
+                    lot_number = row[17]
+                    lot_number_suffix = row[18]
+                    flat_type_code = row[19]
+                    flat_number_prefix = row[20]
+                    flat_number = row[21]
+                    flat_number_suffix = row[22]
+                    level_type_code = row[23]
+                    level_number_prefix = row[24]
+                    level_number = row[25]
+                    level_number_suffix = row[26]
+                    number_first_prefix = row[27]
+                    number_first_suffix = row[28]
+                    number_last_prefix = row[29]
+                    number_last = row[30]
+                    number_last_suffix = row[31]
+
+                    address_string, street_string = self.formatAddress(
+                        level_type_code=level_type_code, level_number_prefix=level_number_prefix,
+                        level_number=level_number, level_number_suffix=level_number_suffix,
+                        flat_type_code=flat_type_code, flat_number_prefix=flat_number_prefix, flat_number=flat_number,
+                        flat_number_suffix=flat_number_suffix,
+                        number_first_prefix=number_first_prefix, number_first=street_number_1,
+                        number_first_suffix=number_first_suffix,
+                        number_last_prefix=number_last_prefix, number_last=number_last,
+                        number_last_suffix=number_last_suffix,
+                        building=building_name, lot_number_prefix=lot_number_prefix, lot_number=lot_number,
+                        lot_number_suffix=lot_number_suffix,
+                        street_name=street_name, street_type=street_type,
+                        locality=locality_name, state_territory=state_territory, postcode=postcode
+                    )
+                    self.secondary_addresses[row[32]] = address_string
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
 
             # get a list of primaryIds from the primary_secondary table
             s5 = sql.SQL('''SELECT 
-                        primary_pid,
-                        ps_join_type_code                
-                    FROM {dbschema}.primary_secondary
+                        b.street_locality_pid, 
+                        b.locality_pid, 
+                        CAST(b.number_first AS text), 
+                        a.street_name, 
+                        a.street_type_code, 
+                        a.locality_name, 
+                        a.state_abbreviation, 
+                        b.postcode ,
+                        a.latitude,
+                        a.longitude,
+                        a.geocode_type,
+                        CAST(b.confidence AS text),
+                        CAST(b.date_created AS text),
+                        CAST(b.date_last_modified AS text),
+                        CAST(b.date_retired AS text),
+                        b.building_name,
+                        b.lot_number_prefix,
+                        b.lot_number,
+                        b.lot_number_suffix,
+                        b.flat_type_code,
+                        b.flat_number_prefix,
+                        CAST(b.flat_number AS text),
+                        b.flat_number_suffix,
+                        b.level_type_code,
+                        b.level_number_prefix,
+                        CAST(b.level_number AS text),
+                        b.level_number_suffix,
+                        b.number_first_prefix,
+                        b.number_first_suffix,
+                        b.number_last_prefix,
+                        CAST(b.number_last AS text),
+                        b.number_last_suffix,
+                        c.primary_pid,
+                        c.ps_join_type_code                                        
+                    FROM 
+                        {dbschema}.primary_secondary c
+                          INNER JOIN {dbschema}.address_view a ON c.primary_pid = a.address_detail_pid
+                          INNER JOIN {dbschema}.address_detail b ON a.address_detail_pid = b.address_detail_pid
                     WHERE secondary_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
@@ -299,7 +580,54 @@ class AddressRenderer(Renderer):
                 cursor.execute(s5)
                 rows = cursor.fetchall()
                 for row in rows:
-                    self.primary_address_ids.append(row[0])
+                    street_locality_pid = row[0]
+                    locality_pid = row[1]
+                    street_number_1 = row[2]
+                    street_name = row[3].title()
+                    street_type = row[4]
+                    locality_name = row[5].title()
+                    state_territory = row[6]
+                    postcode = row[7]
+                    latitude = row[8]
+                    longitude = row[9]
+                    geocode_type = row[10].title()
+                    confidence = row[11]
+                    date_created = row[12]
+                    date_last_modified = row[13]
+                    date_retired = row[14]
+                    building_name = row[15]
+                    lot_number_prefix = row[16]
+                    lot_number = row[17]
+                    lot_number_suffix = row[18]
+                    flat_type_code = row[19]
+                    flat_number_prefix = row[20]
+                    flat_number = row[21]
+                    flat_number_suffix = row[22]
+                    level_type_code = row[23]
+                    level_number_prefix = row[24]
+                    level_number = row[25]
+                    level_number_suffix = row[26]
+                    number_first_prefix = row[27]
+                    number_first_suffix = row[28]
+                    number_last_prefix = row[29]
+                    number_last = row[30]
+                    number_last_suffix = row[31]
+
+                    address_string, street_string = self.formatAddress(
+                        level_type_code=level_type_code, level_number_prefix=level_number_prefix,
+                        level_number=level_number, level_number_suffix=level_number_suffix,
+                        flat_type_code=flat_type_code, flat_number_prefix=flat_number_prefix, flat_number=flat_number,
+                        flat_number_suffix=flat_number_suffix,
+                        number_first_prefix=number_first_prefix, number_first=street_number_1,
+                        number_first_suffix=number_first_suffix,
+                        number_last_prefix=number_last_prefix, number_last=number_last,
+                        number_last_suffix=number_last_suffix,
+                        building=building_name, lot_number_prefix=lot_number_prefix, lot_number=lot_number,
+                        lot_number_suffix=lot_number_suffix,
+                        street_name=street_name, street_type=street_type,
+                        locality=locality_name, state_territory=state_territory, postcode=postcode
+                    )
+                    self.primary_addresses[row[32]] = address_string
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
@@ -401,10 +729,10 @@ class AddressRenderer(Renderer):
                 primary_secondary=primary_secondary,
                 street_locality_pid=street_locality_pid,
                 locality_pid=locality_pid,
-                alias_address_ids = self.alias_address_ids,
-                principal_address_ids = self.principal_address_ids,
-                secondary_address_ids = self.secondary_address_ids,
-                primary_address_ids = self.primary_address_ids,
+                alias_addresses = self.alias_addresses,
+                principal_addresses = self.principal_addresses,
+                secondary_addresses = self.secondary_addresses,
+                primary_addresses = self.primary_addresses,
                 mesh_block_2011_uri = config.URI_MB_2011_INSTANCE_BASE + '%s',
                 mesh_block_2011s = self.mesh_block_2011s,
                 mesh_block_2016_uri = config.URI_MB_2016_INSTANCE_BASE + '%s',
