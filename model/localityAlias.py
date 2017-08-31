@@ -33,9 +33,11 @@ class LocalityAliasRenderer(Renderer):
             address_string = None
             # make a human-readable address
             s = sql.SQL('''SELECT 
-                        locality_pid, 
-                        locality_name                     
-                    FROM {dbschema}.locality_alias
+                        a.locality_pid, 
+                        a.locality_name,
+                        b.locality_name                    
+                    FROM {dbschema}.locality_alias a
+                      INNER JOIN {dbschema}.locality_view b ON a.locality_pid = b.locality_pid
                     WHERE locality_alias_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
@@ -55,6 +57,7 @@ class LocalityAliasRenderer(Renderer):
                 for row in rows:
                     locality_pid = row[0]
                     locality_name = row[1].title()
+                    principal_name = row[2].title()
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
@@ -63,7 +66,8 @@ class LocalityAliasRenderer(Renderer):
                 'class_localityAlias_gnaf.html',
                 locality_alias_id=self.id,
                 locality_name=locality_name,
-                locality_id=locality_pid
+                locality_id=locality_pid,
+                principal_name=principal_name
             )
 
         elif view == 'ISO19160':
