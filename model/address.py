@@ -186,7 +186,7 @@ class AddressRenderer(Renderer):
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
 
-            address_string, street_string = self.formatAddress(
+            this_address_string, this_street_string = self.formatAddress(
                 level_type_code=level_type_code, level_number_prefix=level_number_prefix, level_number=level_number, level_number_suffix=level_number_suffix,
                 flat_type_code=flat_type_code, flat_number_prefix=flat_number_prefix, flat_number=flat_number, flat_number_suffix=flat_number_suffix,
                 number_first_prefix=number_first_prefix, number_first=street_number_1, number_first_suffix=number_first_suffix,
@@ -253,54 +253,54 @@ class AddressRenderer(Renderer):
                 cursor.execute(s2)
                 rows = cursor.fetchall()
                 for row in rows:
-                    street_locality_pid = row[0]
-                    locality_pid = row[1]
-                    street_number_1 = row[2]
-                    street_name = row[3].title()
-                    street_type = row[4]
-                    locality_name = row[5].title()
-                    state_territory = row[6]
-                    postcode = row[7]
-                    latitude = row[8]
-                    longitude = row[9]
-                    geocode_type = row[10].title()
-                    confidence = row[11]
-                    date_created = row[12]
-                    date_last_modified = row[13]
-                    date_retired = row[14]
-                    building_name = row[15]
-                    lot_number_prefix = row[16]
-                    lot_number = row[17]
-                    lot_number_suffix = row[18]
-                    flat_type_code = row[19]
-                    flat_number_prefix = row[20]
-                    flat_number = row[21]
-                    flat_number_suffix = row[22]
-                    level_type_code = row[23]
-                    level_number_prefix = row[24]
-                    level_number = row[25]
-                    level_number_suffix = row[26]
-                    number_first_prefix = row[27]
-                    number_first_suffix = row[28]
-                    number_last_prefix = row[29]
-                    number_last = row[30]
-                    number_last_suffix = row[31]
+                    al_street_locality_pid = row[0]
+                    al_locality_pid = row[1]
+                    al_street_number_1 = row[2]
+                    al_street_name = row[3].title()
+                    al_street_type = row[4]
+                    al_locality_name = row[5].title()
+                    al_state_territory = row[6]
+                    al_postcode = row[7]
+                    al_latitude = row[8]
+                    al_longitude = row[9]
+                    al_geocode_type = row[10].title()
+                    al_al_confidence = row[11]
+                    al_date_created = row[12]
+                    al_date_last_modified = row[13]
+                    al_date_retired = row[14]
+                    al_building_name = row[15]
+                    al_lot_number_prefix = row[16]
+                    al_lot_number = row[17]
+                    al_lot_number_suffix = row[18]
+                    al_flat_type_code = row[19]
+                    al_flat_number_prefix = row[20]
+                    al_flat_number = row[21]
+                    al_flat_number_suffix = row[22]
+                    al_level_type_code = row[23]
+                    al_level_number_prefix = row[24]
+                    al_level_number = row[25]
+                    al_level_number_suffix = row[26]
+                    al_number_first_prefix = row[27]
+                    al_number_first_suffix = row[28]
+                    al_number_last_prefix = row[29]
+                    al_number_last = row[30]
+                    al_number_last_suffix = row[31]
 
-                    address_string, street_string = self.formatAddress(
-                        level_type_code=level_type_code, level_number_prefix=level_number_prefix,
-                        level_number=level_number, level_number_suffix=level_number_suffix,
-                        flat_type_code=flat_type_code, flat_number_prefix=flat_number_prefix, flat_number=flat_number,
-                        flat_number_suffix=flat_number_suffix,
-                        number_first_prefix=number_first_prefix, number_first=street_number_1,
-                        number_first_suffix=number_first_suffix,
-                        number_last_prefix=number_last_prefix, number_last=number_last,
-                        number_last_suffix=number_last_suffix,
-                        building=building_name, lot_number_prefix=lot_number_prefix, lot_number=lot_number,
-                        lot_number_suffix=lot_number_suffix,
-                        street_name=street_name, street_type=street_type,
-                        locality=locality_name, state_territory=state_territory, postcode=postcode
+                    alias_address_string, alias_street_string = self.formatAddress(
+                        level_type_code=al_level_type_code, level_number_prefix=al_level_number_prefix,
+                        level_number=al_level_number, level_number_suffix=al_level_number_suffix,
+                        flat_type_code=al_flat_type_code, flat_number_prefix=al_flat_number_prefix, flat_number=al_flat_number,
+                        flat_number_suffix=al_flat_number_suffix,
+                        number_first_prefix=al_number_first_prefix, number_first=al_street_number_1,
+                        number_first_suffix=al_number_first_suffix,
+                        number_last_prefix=al_number_last_prefix, number_last=al_number_last,
+                        number_last_suffix=al_number_last_suffix,
+                        building=al_building_name, lot_number_prefix=al_lot_number_prefix, lot_number=al_lot_number,
+                        lot_number_suffix=al_lot_number_suffix,
+                        street_name=al_street_name, street_type=al_street_type,
+                        locality=al_locality_name, state_territory=al_state_territory, postcode=al_postcode
                     )
-                    self.alias_addresses[row[32]] = address_string
+                    self.alias_addresses[row[32]] = alias_address_string
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
@@ -362,54 +362,54 @@ class AddressRenderer(Renderer):
                 cursor.execute(s3)
                 rows = cursor.fetchall()
                 for row in rows:
-                    street_locality_pid = row[0]
-                    locality_pid = row[1]
-                    street_number_1 = row[2]
-                    street_name = row[3].title()
-                    street_type = row[4]
-                    locality_name = row[5].title()
-                    state_territory = row[6]
-                    postcode = row[7]
-                    latitude = row[8]
-                    longitude = row[9]
-                    geocode_type = row[10].title()
-                    confidence = row[11]
-                    date_created = row[12]
-                    date_last_modified = row[13]
-                    date_retired = row[14]
-                    building_name = row[15]
-                    lot_number_prefix = row[16]
-                    lot_number = row[17]
-                    lot_number_suffix = row[18]
-                    flat_type_code = row[19]
-                    flat_number_prefix = row[20]
-                    flat_number = row[21]
-                    flat_number_suffix = row[22]
-                    level_type_code = row[23]
-                    level_number_prefix = row[24]
-                    level_number = row[25]
-                    level_number_suffix = row[26]
-                    number_first_prefix = row[27]
-                    number_first_suffix = row[28]
-                    number_last_prefix = row[29]
-                    number_last = row[30]
-                    number_last_suffix = row[31]
+                    pc_street_locality_pid = row[0]
+                    pc_locality_pid = row[1]
+                    pc_street_number_1 = row[2]
+                    pc_street_name = row[3].title()
+                    pc_street_type = row[4]
+                    pc_locality_name = row[5].title()
+                    pc_state_territory = row[6]
+                    pc_postcode = row[7]
+                    pc_latitude = row[8]
+                    pc_longitude = row[9]
+                    pc_geocode_type = row[10].title()
+                    pc_confidence = row[11]
+                    pc_date_created = row[12]
+                    pc_date_last_modified = row[13]
+                    pc_date_retired = row[14]
+                    pc_building_name = row[15]
+                    pc_lot_number_prefix = row[16]
+                    pc_lot_number = row[17]
+                    pc_lot_number_suffix = row[18]
+                    pc_flat_type_code = row[19]
+                    pc_flat_number_prefix = row[20]
+                    pc_flat_number = row[21]
+                    pc_flat_number_suffix = row[22]
+                    pc_level_type_code = row[23]
+                    pc_level_number_prefix = row[24]
+                    pc_level_number = row[25]
+                    pc_level_number_suffix = row[26]
+                    pc_number_first_prefix = row[27]
+                    pc_number_first_suffix = row[28]
+                    pc_number_last_prefix = row[29]
+                    pc_number_last = row[30]
+                    pc_number_last_suffix = row[31]
 
-                    address_string, street_string = self.formatAddress(
-                        level_type_code=level_type_code, level_number_prefix=level_number_prefix,
-                        level_number=level_number, level_number_suffix=level_number_suffix,
-                        flat_type_code=flat_type_code, flat_number_prefix=flat_number_prefix, flat_number=flat_number,
-                        flat_number_suffix=flat_number_suffix,
-                        number_first_prefix=number_first_prefix, number_first=street_number_1,
-                        number_first_suffix=number_first_suffix,
-                        number_last_prefix=number_last_prefix, number_last=number_last,
-                        number_last_suffix=number_last_suffix,
-                        building=building_name, lot_number_prefix=lot_number_prefix, lot_number=lot_number,
-                        lot_number_suffix=lot_number_suffix,
-                        street_name=street_name, street_type=street_type,
-                        locality=locality_name, state_territory=state_territory, postcode=postcode
+                    principal_address_string, principal_street_string = self.formatAddress(
+                        level_type_code=pc_level_type_code, level_number_prefix=pc_level_number_prefix,
+                        level_number=pc_level_number, level_number_suffix=pc_level_number_suffix,
+                        flat_type_code=pc_flat_type_code, flat_number_prefix=pc_flat_number_prefix, flat_number=pc_flat_number,
+                        flat_number_suffix=pc_flat_number_suffix,
+                        number_first_prefix=pc_number_first_prefix, number_first=pc_street_number_1,
+                        number_first_suffix=pc_number_first_suffix,
+                        number_last_prefix=pc_number_last_prefix, number_last=pc_number_last,
+                        number_last_suffix=pc_number_last_suffix,
+                        building=pc_building_name, lot_number_prefix=pc_lot_number_prefix, lot_number=pc_lot_number,
+                        lot_number_suffix=pc_lot_number_suffix,
+                        street_name=pc_street_name, street_type=pc_street_type,
+                        locality=pc_locality_name, state_territory=pc_state_territory, postcode=pc_postcode
                     )
-                    self.principal_addresses[row[32]] = address_string
+                    self.principal_addresses[row[32]] = principal_address_string
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
@@ -471,54 +471,54 @@ class AddressRenderer(Renderer):
                 cursor.execute(s4)
                 rows = cursor.fetchall()
                 for row in rows:
-                    street_locality_pid = row[0]
-                    locality_pid = row[1]
-                    street_number_1 = row[2]
-                    street_name = row[3].title()
-                    street_type = row[4]
-                    locality_name = row[5].title()
-                    state_territory = row[6]
-                    postcode = row[7]
-                    latitude = row[8]
-                    longitude = row[9]
-                    geocode_type = row[10].title()
-                    confidence = row[11]
-                    date_created = row[12]
-                    date_last_modified = row[13]
-                    date_retired = row[14]
-                    building_name = row[15]
-                    lot_number_prefix = row[16]
-                    lot_number = row[17]
-                    lot_number_suffix = row[18]
-                    flat_type_code = row[19]
-                    flat_number_prefix = row[20]
-                    flat_number = row[21]
-                    flat_number_suffix = row[22]
-                    level_type_code = row[23]
-                    level_number_prefix = row[24]
-                    level_number = row[25]
-                    level_number_suffix = row[26]
-                    number_first_prefix = row[27]
-                    number_first_suffix = row[28]
-                    number_last_prefix = row[29]
-                    number_last = row[30]
-                    number_last_suffix = row[31]
+                    sc_street_locality_pid = row[0]
+                    sc_locality_pid = row[1]
+                    sc_street_number_1 = row[2]
+                    sc_street_name = row[3].title()
+                    sc_street_type = row[4]
+                    sc_locality_name = row[5].title()
+                    sc_state_territory = row[6]
+                    sc_postcode = row[7]
+                    sc_latitude = row[8]
+                    sc_longitude = row[9]
+                    sc_geocode_type = row[10].title()
+                    sc_confidence = row[11]
+                    sc_date_created = row[12]
+                    sc_date_last_modified = row[13]
+                    sc_date_retired = row[14]
+                    sc_building_name = row[15]
+                    sc_lot_number_prefix = row[16]
+                    sc_lot_number = row[17]
+                    sc_lot_number_suffix = row[18]
+                    sc_flat_type_code = row[19]
+                    sc_flat_number_prefix = row[20]
+                    sc_flat_number = row[21]
+                    sc_flat_number_suffix = row[22]
+                    sc_level_type_code = row[23]
+                    sc_level_number_prefix = row[24]
+                    sc_level_number = row[25]
+                    sc_level_number_suffix = row[26]
+                    sc_number_first_prefix = row[27]
+                    sc_number_first_suffix = row[28]
+                    sc_number_last_prefix = row[29]
+                    sc_number_last = row[30]
+                    sc_number_last_suffix = row[31]
 
-                    address_string, street_string = self.formatAddress(
-                        level_type_code=level_type_code, level_number_prefix=level_number_prefix,
-                        level_number=level_number, level_number_suffix=level_number_suffix,
-                        flat_type_code=flat_type_code, flat_number_prefix=flat_number_prefix, flat_number=flat_number,
-                        flat_number_suffix=flat_number_suffix,
-                        number_first_prefix=number_first_prefix, number_first=street_number_1,
-                        number_first_suffix=number_first_suffix,
-                        number_last_prefix=number_last_prefix, number_last=number_last,
-                        number_last_suffix=number_last_suffix,
-                        building=building_name, lot_number_prefix=lot_number_prefix, lot_number=lot_number,
-                        lot_number_suffix=lot_number_suffix,
-                        street_name=street_name, street_type=street_type,
-                        locality=locality_name, state_territory=state_territory, postcode=postcode
+                    secondary_address_string, secondary_street_string = self.formatAddress(
+                        level_type_code=sc_level_type_code, level_number_prefix=sc_level_number_prefix,
+                        level_number=sc_level_number, level_number_suffix=sc_level_number_suffix,
+                        flat_type_code=sc_flat_type_code, flat_number_prefix=sc_flat_number_prefix, flat_number=sc_flat_number,
+                        flat_number_suffix=sc_flat_number_suffix,
+                        number_first_prefix=sc_number_first_prefix, number_first=sc_street_number_1,
+                        number_first_suffix=sc_number_first_suffix,
+                        number_last_prefix=sc_number_last_prefix, number_last=sc_number_last,
+                        number_last_suffix=sc_number_last_suffix,
+                        building=sc_building_name, lot_number_prefix=sc_lot_number_prefix, lot_number=sc_lot_number,
+                        lot_number_suffix=sc_lot_number_suffix,
+                        street_name=sc_street_name, street_type=sc_street_type,
+                        locality=sc_locality_name, state_territory=sc_state_territory, postcode=sc_postcode
                     )
-                    self.secondary_addresses[row[32]] = address_string
+                    self.secondary_addresses[row[32]] = secondary_address_string
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
@@ -580,54 +580,54 @@ class AddressRenderer(Renderer):
                 cursor.execute(s5)
                 rows = cursor.fetchall()
                 for row in rows:
-                    street_locality_pid = row[0]
-                    locality_pid = row[1]
-                    street_number_1 = row[2]
-                    street_name = row[3].title()
-                    street_type = row[4]
-                    locality_name = row[5].title()
-                    state_territory = row[6]
-                    postcode = row[7]
-                    latitude = row[8]
-                    longitude = row[9]
-                    geocode_type = row[10].title()
-                    confidence = row[11]
-                    date_created = row[12]
-                    date_last_modified = row[13]
-                    date_retired = row[14]
-                    building_name = row[15]
-                    lot_number_prefix = row[16]
-                    lot_number = row[17]
-                    lot_number_suffix = row[18]
-                    flat_type_code = row[19]
-                    flat_number_prefix = row[20]
-                    flat_number = row[21]
-                    flat_number_suffix = row[22]
-                    level_type_code = row[23]
-                    level_number_prefix = row[24]
-                    level_number = row[25]
-                    level_number_suffix = row[26]
-                    number_first_prefix = row[27]
-                    number_first_suffix = row[28]
-                    number_last_prefix = row[29]
-                    number_last = row[30]
-                    number_last_suffix = row[31]
+                    pr_street_locality_pid = row[0]
+                    pr_locality_pid = row[1]
+                    pr_street_number_1 = row[2]
+                    pr_street_name = row[3].title()
+                    pr_street_type = row[4]
+                    pr_locality_name = row[5].title()
+                    pr_state_territory = row[6]
+                    pr_postcode = row[7]
+                    pr_latitude = row[8]
+                    pr_longitude = row[9]
+                    pr_geocode_type = row[10].title()
+                    pr_confidence = row[11]
+                    pr_date_created = row[12]
+                    pr_date_last_modified = row[13]
+                    pr_date_retired = row[14]
+                    pr_building_name = row[15]
+                    pr_lot_number_prefix = row[16]
+                    pr_lot_number = row[17]
+                    pr_lot_number_suffix = row[18]
+                    pr_flat_type_code = row[19]
+                    pr_flat_number_prefix = row[20]
+                    pr_flat_number = row[21]
+                    pr_flat_number_suffix = row[22]
+                    pr_level_type_code = row[23]
+                    pr_level_number_prefix = row[24]
+                    pr_level_number = row[25]
+                    pr_level_number_suffix = row[26]
+                    pr_number_first_prefix = row[27]
+                    pr_number_first_suffix = row[28]
+                    pr_number_last_prefix = row[29]
+                    pr_number_last = row[30]
+                    pr_number_last_suffix = row[31]
 
-                    address_string, street_string = self.formatAddress(
-                        level_type_code=level_type_code, level_number_prefix=level_number_prefix,
-                        level_number=level_number, level_number_suffix=level_number_suffix,
-                        flat_type_code=flat_type_code, flat_number_prefix=flat_number_prefix, flat_number=flat_number,
-                        flat_number_suffix=flat_number_suffix,
-                        number_first_prefix=number_first_prefix, number_first=street_number_1,
-                        number_first_suffix=number_first_suffix,
-                        number_last_prefix=number_last_prefix, number_last=number_last,
-                        number_last_suffix=number_last_suffix,
-                        building=building_name, lot_number_prefix=lot_number_prefix, lot_number=lot_number,
-                        lot_number_suffix=lot_number_suffix,
-                        street_name=street_name, street_type=street_type,
-                        locality=locality_name, state_territory=state_territory, postcode=postcode
+                    primary_address_string, primary_street_string = self.formatAddress(
+                        level_type_code=pr_level_type_code, level_number_prefix=pr_level_number_prefix,
+                        level_number=pr_level_number, level_number_suffix=pr_level_number_suffix,
+                        flat_type_code=pr_flat_type_code, flat_number_prefix=pr_flat_number_prefix, flat_number=pr_flat_number,
+                        flat_number_suffix=pr_flat_number_suffix,
+                        number_first_prefix=pr_number_first_prefix, number_first=pr_street_number_1,
+                        number_first_suffix=pr_number_first_suffix,
+                        number_last_prefix=pr_number_last_prefix, number_last=pr_number_last,
+                        number_last_suffix=pr_number_last_suffix,
+                        building=pr_building_name, lot_number_prefix=pr_lot_number_prefix, lot_number=pr_lot_number,
+                        lot_number_suffix=pr_lot_number_suffix,
+                        street_name=pr_street_name, street_type=pr_street_type,
+                        locality=pr_locality_name, state_territory=pr_state_territory, postcode=pr_postcode
                     )
-                    self.primary_addresses[row[32]] = address_string
+                    self.primary_addresses[row[32]] = primary_address_string
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
@@ -688,7 +688,7 @@ class AddressRenderer(Renderer):
 
             view_html = render_template(
                 'class_address_gnaf.html',
-                address_string=address_string,
+                address_string=this_address_string,
                 address_detail_pid=self.id,
                 street_number_1=street_number_1,
                 street_name=street_name,
@@ -737,7 +737,7 @@ class AddressRenderer(Renderer):
                 mesh_block_2011s = self.mesh_block_2011s,
                 mesh_block_2016_uri = config.URI_MB_2016_INSTANCE_BASE + '%s',
                 mesh_block_2016s = self.mesh_block_2016s,
-                street_string=street_string
+                street_string=this_street_string
             )
 
         elif view == 'ISO19160':
