@@ -19,7 +19,7 @@ class StreetRenderer(Renderer):
         # super(StreetRenderer, self).__init__(id)
         self.id = id
         self.uri = config.URI_STREET_INSTANCE_BASE + id
-        self.street_locality_alias_pids = []
+        self.street_locality_aliases = dict()
 
     def render(self, view, format):
         if format == 'text/html':
@@ -34,14 +34,16 @@ class StreetRenderer(Renderer):
             street_string = None
             # make a human-readable street
             s = sql.SQL('''SELECT 
-                        street_name, 
-                        street_type_code, 
-                        street_suffix_code,
-                        latitude,
-                        longitude,
-                        geocode_type,
-                        locality_pid
-                    FROM {dbschema}.street_view
+                        a.street_name, 
+                        a.street_type_code, 
+                        a.street_suffix_code,
+                        a.latitude,
+                        a.longitude,
+                        a.geocode_type,
+                        a.locality_pid,
+                        b.locality_name
+                    FROM {dbschema}.street_view a
+                      INNER JOIN {dbschema}.locality_view b ON a.locality_pid = b.locality_pid
                     WHERE street_locality_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
@@ -59,23 +61,28 @@ class StreetRenderer(Renderer):
                 cursor.execute(s)
                 rows = cursor.fetchall()
                 for row in rows:
-                    street_name = row[0]
-                    street_type = row[1]
-                    street_suffix = row[2]
+                    street_name = row[0].title()
+                    street_type = row[1].title() if row[1] != None else row[1]
+                    street_suffix = row[2].title() if row[2] != None else row[2]
                     latitude = row[3]
                     longitude = row[4]
                     geocode_type = row[5].title()
                     locality_pid = row[6]
+                    locality_name = row[7].title()
                     geometry_wkt = 'SRID=8311;POINT({} {})'.format(latitude, longitude)
-                    street_string = '{} {} {}'\
-                        .format(street_name, street_type, street_suffix)
+                    street_string = '{}{}{}'.format(street_name,
+                                                    ' ' + street_type.title() if street_type != None else '',
+                                                    ' ' + street_suffix.title() if street_suffix != None else '')
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
 
             # get a list of addressSiteGeocodeIds from the address_site_geocode table
             s2 = sql.SQL('''SELECT 
-                        street_locality_alias_pid                
+                        street_locality_alias_pid,
+                        street_name, 
+                        street_type_code, 
+                        street_suffix_code                
                     FROM {dbschema}.street_locality_alias
                     WHERE street_locality_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
@@ -94,7 +101,13 @@ class StreetRenderer(Renderer):
                 cursor.execute(s2)
                 rows = cursor.fetchall()
                 for row in rows:
-                    self.street_locality_alias_pids.append(row[0])
+                    alias_street_name = row[1].title()
+                    alias_street_type = row[2]
+                    alias_street_suffix = row[3]
+                    alias_street_string = '{}{}{}'.format(alias_street_name,
+                                                    ' ' + alias_street_type.title() if alias_street_type != None else '',
+                                                    ' ' + alias_street_suffix.title() if alias_street_suffix != None else '')
+                    self.street_locality_aliases[row[0]] = alias_street_string
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
@@ -106,12 +119,13 @@ class StreetRenderer(Renderer):
                 street_name=street_name,
                 street_type=street_type,
                 street_suffix=street_suffix,
+                locality_name=locality_name,
                 latitude=latitude,
                 longitude=longitude,
                 geocode_type=geocode_type,
                 geometry_wkt=geometry_wkt,
                 locality_pid=locality_pid,
-                street_locality_alias_ids=self.street_locality_alias_pids
+                street_locality_aliases=self.street_locality_aliases
             )
 
         elif view == 'ISO19160':

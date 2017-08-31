@@ -3,7 +3,8 @@
     <tr><th>Property</th><th>Value</th></tr>
     <tr><td>Street Name</td><td>{{ street_name }}</td></tr>
     <tr><td>Street Type</td><td>{{ street_type }}</td></tr>
-    <tr><td>Locality PID</td><td><a href="{{ url_for('model_classes.locality', locality_id=locality_pid) }}">/doc/locality/{{ locality_pid }}</a></td></tr>
+    <tr><td>Street Suffix</td><td>{{ street_suffix }}</td></tr>
+    <tr><td>Locality PID</td><td><a href="{{ url_for('model_classes.locality', locality_id=locality_pid) }}">{{ locality_name }}</a></td></tr>
     <tr><td>Default Geometry</td><td><code>{{ geometry_wkt }}</code></td></tr>
     <tr><td>Default Latitude</td><td><code>{{ latitude }}</code></td></tr>
     <tr><td>Default Longitude</td><td><code>{{ longitude }}</code></td></tr>
@@ -12,8 +13,8 @@
     <tr>
         <td>Street Locality Aliases</td><td>
             <ul>
-                {% for street_locality_alias_id in street_locality_alias_ids %}
-                    <li><a href="{{ url_for('model_classes.streetLocalityAlias', street_locality_alias_id=street_locality_alias_id) }}">{{ url_for('model_classes.streetLocalityAlias', street_locality_alias_id=street_locality_alias_id) }}</a></li>
+                {% for street_locality_alias_id, street_locality_alias in street_locality_aliases.items() %}
+                    <li><a href="{{ url_for('model_classes.streetLocalityAlias', street_locality_alias_id=street_locality_alias_id) }}">{{ street_locality_alias }}</a></li>
                 {% endfor %}
             </ul>
         </td>
