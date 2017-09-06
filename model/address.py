@@ -2,7 +2,7 @@ from .renderer import Renderer
 from flask import Response, render_template
 from rdflib import Graph, URIRef, RDF, RDFS, XSD, OWL, Namespace, Literal, BNode
 import _config as config
-from _ldapi.ldapi import LDAPI
+from _ldapi import LDAPI
 import psycopg2
 from psycopg2 import sql
 
