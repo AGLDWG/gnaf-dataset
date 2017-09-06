@@ -1,7 +1,7 @@
 from .renderer import Renderer
 from flask import Response, render_template
 from rdflib import Graph, URIRef, RDF, RDFS, XSD, Namespace, Literal
-from _ldapi.ldapi import LDAPI
+from _ldapi import LDAPI
 import _config as config
 import psycopg2
 from psycopg2 import sql
