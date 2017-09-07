@@ -4,13 +4,13 @@ This file contains all the HTTP routes for classes from the GNAF model, such as 
 from flask import Blueprint, render_template, request, Response
 from .functions import render_alternates_view, client_error_Response
 import _config as config
-from _ldapi.ldapi import LDAPI, LdapiParameterError
+from _ldapi import LDAPI, LdapiParameterError
 import urllib.parse as uparse
 
-model_classes = Blueprint('model_classes', __name__)
+classes = Blueprint('classes', __name__)
 
 
-@model_classes.route('/doc/address/')
+@classes.route('/doc/address/')
 def addresses():
     """
     Register of all addresses
@@ -107,7 +107,7 @@ def addresses():
     except LdapiParameterError as e:
         return client_error_Response(e)
 
-@model_classes.route('/doc/addressSite/')
+@classes.route('/doc/addressSite/')
 def addressSites():
     """
     Register of all address sites
@@ -204,7 +204,7 @@ def addressSites():
     except LdapiParameterError as e:
         return client_error_Response(e)
 
-@model_classes.route('/doc/addressSiteGeocode/')
+@classes.route('/doc/addressSiteGeocode/')
 def addressSiteGeocodes():
     """
     Register of all address site geocodes
@@ -301,7 +301,7 @@ def addressSiteGeocodes():
     except LdapiParameterError as e:
         return client_error_Response(e)
 
-@model_classes.route('/doc/street/')
+@classes.route('/doc/street/')
 def streets():
     """
     Register of all streets
@@ -398,7 +398,7 @@ def streets():
     except LdapiParameterError as e:
         return client_error_Response(e)
 
-@model_classes.route('/doc/streetLocalityAlias/')
+@classes.route('/doc/streetLocalityAlias/')
 def streetLocalityAliases():
     """
     Register of all street locality aliases
@@ -495,7 +495,7 @@ def streetLocalityAliases():
     except LdapiParameterError as e:
         return client_error_Response(e)
 
-@model_classes.route('/doc/locality/')
+@classes.route('/doc/locality/')
 def localities():
     """
     Register of all localities
@@ -592,7 +592,7 @@ def localities():
     except LdapiParameterError as e:
         return client_error_Response(e)
 
-@model_classes.route('/doc/localityAlias/')
+@classes.route('/doc/localityAlias/')
 def localityAliases():
     """
     Register of all locality aliases
@@ -689,7 +689,7 @@ def localityAliases():
     except LdapiParameterError as e:
         return client_error_Response(e)
 
-@model_classes.route('/doc/address/<string:address_id>')
+@classes.route('/doc/address/<string:address_id>')
 def address(address_id):
     """
     A single Address
@@ -731,7 +731,7 @@ def address(address_id):
     except LdapiParameterError as e:
         return client_error_Response(e)
 
-@model_classes.route('/doc/addressSite/<string:address_site_id>')
+@classes.route('/doc/addressSite/<string:address_site_id>')
 def addressSite(address_site_id):
     """
     A single Address Site
@@ -773,7 +773,7 @@ def addressSite(address_site_id):
     except LdapiParameterError as e:
         return client_error_Response(e)
 
-@model_classes.route('/doc/addressSiteGeocode/<string:address_site_geocode_id>')
+@classes.route('/doc/addressSiteGeocode/<string:address_site_geocode_id>')
 def addressSiteGeocode(address_site_geocode_id):
     """
     A single Address Site Geocode
@@ -815,7 +815,7 @@ def addressSiteGeocode(address_site_geocode_id):
     except LdapiParameterError as e:
         return client_error_Response(e)
 
-@model_classes.route('/doc/street/<string:street_id>')
+@classes.route('/doc/street/<string:street_id>')
 def street(street_id):
     """
     A single street
@@ -857,7 +857,7 @@ def street(street_id):
     except LdapiParameterError as e:
         return client_error_Response(e)
 
-@model_classes.route('/doc/streetLocalityAlias/<string:street_locality_alias_id>')
+@classes.route('/doc/streetLocalityAlias/<string:street_locality_alias_id>')
 def streetLocalityAlias(street_locality_alias_id):
     """
     A single street locality alias
@@ -899,7 +899,7 @@ def streetLocalityAlias(street_locality_alias_id):
     except LdapiParameterError as e:
         return client_error_Response(e)
 
-@model_classes.route('/doc/locality/<string:locality_id>')
+@classes.route('/doc/locality/<string:locality_id>')
 def locality(locality_id):
     """
     A single locality
@@ -941,7 +941,7 @@ def locality(locality_id):
     except LdapiParameterError as e:
         return client_error_Response(e)
 
-@model_classes.route('/doc/localityAlias/<string:locality_alias_id>')
+@classes.route('/doc/localityAlias/<string:locality_alias_id>')
 def localityAlias(locality_alias_id):
     """
     A single locality alias

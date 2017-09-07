@@ -2,7 +2,7 @@
 This file contains all the HTTP routes for basic pages (usually HTML)
 """
 from flask import Blueprint, Response, request, render_template
-from _ldapi.ldapi import LDAPI, LdapiParameterError
+from _ldapi import LDAPI, LdapiParameterError
 
 pages = Blueprint('routes', __name__)
 
