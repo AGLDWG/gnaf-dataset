@@ -1,13 +1,10 @@
-<html>
-    <head>
-        <title>G-NAF LDAPI</title>
-    </head>
-    <body>
-        <h1>G-NAF LDAPI</h1>
-        <p>This is the homepage of a test Linked Data API delivering data from the <a href="https://www.psma.com.au/products/g-naf">G-NAF, the Geocoded National Address File</a>.</p>
-        <p>See the code repository for more details:</p>
-        <ul>
-            <li><a href="https://github.com/nicholascar/gnaf-ldapi-test">https://github.com/nicholascar/gnaf-ldapi-test</a></li>
-        </ul>
-    </body>
-</html>
+{% extends "template_layout.html" %}
+
+{% block content %}
+    <h1>G-NAF LDAPI</h1>
+    <p>This is the homepage of a test Linked Data API delivering data from the <a href="https://www.psma.com.au/products/g-naf">G-NAF, the Geocoded National Address File</a>.</p>
+    <p>See the code repository for more details:</p>
+    <ul>
+        <li><a href="https://github.com/nicholascar/gnaf-ldapi-test">https://github.com/nicholascar/gnaf-ldapi-test</a></li>
+    </ul>
+{% endblock %}
