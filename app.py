@@ -3,8 +3,8 @@ import _config
 from flask import Flask
 from controller import pages, classes
 import os
-tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'view', 'templates')
-app = Flask(__name__, template_folder=tmpl_dir)
+
+app = Flask(__name__, template_folder=_config.TEMPLATES_DIR, static_folder=_config.STATIC_DIR)
 
 app.register_blueprint(pages.pages)
 app.register_blueprint(classes.classes)

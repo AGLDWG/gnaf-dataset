@@ -6,3 +6,7 @@ table, th, td {
     border: 1px solid black;
     text-align: left;
 }
+
+h1 {
+    color: darkblue;
+}

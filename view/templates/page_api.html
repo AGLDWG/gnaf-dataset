@@ -1,13 +1,10 @@
-<html>
-    <head>
-        <title>G-NAF LDAPI</title>
-    </head>
-    <body>
-        <h1>G-NAF LDAPI</h1>
-        <h2>Application Programming Interface</h2>
-        <p>API endpoints for this Linked Data API are:</p>
-        <ul>
-            <li><a href="/api/address/">/api/address</a> - register of Address objects</li>
-        </ul>
-    </body>
-</html>
+{% extends "template_layout.html" %}
+
+{% block content %}
+    <h1>G-NAF LDAPI</h1>
+    <h2>Application Programming Interface</h2>
+    <p>API endpoints for this Linked Data API are:</p>
+    <ul>
+        <li><a href="/api/address/">/api/address</a> - register of Address objects</li>
+    </ul>
+{% endblock %}
