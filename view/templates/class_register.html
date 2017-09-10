@@ -28,7 +28,7 @@
     <h3>Instances</h3>
     <ul>
     {% for instance in register %}
-        <li><a href="{{ url_for('model_classes.address', address_id=instance) }}">{{ instance }}</a></li>
+        <li><a href="{{ url_for('classes.address', address_id=instance) }}">{{ instance }}</a></li>
     {% endfor %}
     </ul>
 {% endblock %}
