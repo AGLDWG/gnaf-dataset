@@ -26,42 +26,42 @@ class AddressRenderer(Renderer):
         self.mesh_block_2011s = []
         self.mesh_block_2016s = []
 
-    def formatAddress(self,
-                      level_type_code=None, level_number_prefix=None, level_number=None, level_number_suffix=None,
-                      flat_type_code=None, flat_number_prefix=None, flat_number=None, flat_number_suffix=None,
-                      number_first_prefix=None, number_first=None, number_first_suffix=None,
-                      number_last_prefix=None, number_last=None, number_last_suffix=None,
-                      building=None, lot_number_prefix=None, lot_number=None, lot_number_suffix=None,
-                      street_name=None, street_type=None, street_suffix_code=None,
-                      locality=None, state_territory=None, postcode=None):
-        street_string = '{}{}'.format(street_name, ' ' + street_type.title() if street_type != None else '')
+    def format_address(self,
+                       level_type_code=None, level_number_prefix=None, level_number=None, level_number_suffix=None,
+                       flat_type_code=None, flat_number_prefix=None, flat_number=None, flat_number_suffix=None,
+                       number_first_prefix=None, number_first=None, number_first_suffix=None,
+                       number_last_prefix=None, number_last=None, number_last_suffix=None,
+                       building=None, lot_number_prefix=None, lot_number=None, lot_number_suffix=None,
+                       street_name=None, street_type=None, street_suffix_code=None,
+                       locality=None, state_territory=None, postcode=None):
+        street_string = '{}{}'.format(street_name, ' ' + street_type.title() if street_type is not None else '')
         address_string = ''
-        if locality == None:
+        if locality is None:
             address_string = street_string
         else:
-            flatNum = '{}{}{}'.format(flat_number_prefix if flat_number_prefix != None else '',
-                                      flat_number if flat_number != None else '',
-                                      flat_number_suffix if flat_number_suffix != None else '')
-            levelNum = '{}{}{}'.format(level_number_prefix if level_number_prefix != None else '',
-                                       level_number if level_number != None else '',
-                                       level_number_suffix if level_number_suffix != None else '')
-            lotNum = '{}{}{}'.format(lot_number_prefix if lot_number_prefix != None else '',
-                                     lot_number if lot_number != None else '',
-                                     lot_number_suffix if lot_number_suffix != None else '')
-            num1 = '{}{}{}'.format(number_first_prefix if number_first_prefix != None else '',
-                                   number_first if number_first != None else '',
-                                   number_first_suffix if number_first_suffix != None else '')
-            num2 = '{}{}{}'.format(number_last_prefix if number_last_prefix != None else '',
-                                   number_last if number_last != None else '',
-                                   number_last_suffix if number_last_suffix != None else '')
-            if level_type_code != None:
+            flatNum = '{}{}{}'.format(flat_number_prefix if flat_number_prefix is not None else '',
+                                      flat_number if flat_number is not None else '',
+                                      flat_number_suffix if flat_number_suffix is not None else '')
+            levelNum = '{}{}{}'.format(level_number_prefix if level_number_prefix is not None else '',
+                                       level_number if level_number is not None else '',
+                                       level_number_suffix if level_number_suffix is not None else '')
+            lotNum = '{}{}{}'.format(lot_number_prefix if lot_number_prefix is not None else '',
+                                     lot_number if lot_number is not None else '',
+                                     lot_number_suffix if lot_number_suffix is not None else '')
+            num1 = '{}{}{}'.format(number_first_prefix if number_first_prefix is not None else '',
+                                   number_first if number_first is not None else '',
+                                   number_first_suffix if number_first_suffix is not None else '')
+            num2 = '{}{}{}'.format(number_last_prefix if number_last_prefix is not None else '',
+                                   number_last if number_last is not None else '',
+                                   number_last_suffix if number_last_suffix is not None else '')
+            if level_type_code is not None:
                 address_string += level_type_code.title() + ' '
             if levelNum != '':
                 address_string += levelNum + ' '
             if flatNum != '':
                 address_string += '{flattype} {flatnum} '.format(flattype=flat_type_code.title(),
-                                                                 flatnum=flatNum) if flat_type_code != None else flatNum + ' '
-            if building != None:
+                                                                 flatnum=flatNum) if flat_type_code is not None else flatNum + ' '
+            if building is not None:
                 address_string += building.title() + ' '
             if num1 != '':
                 address_string += num1
@@ -84,6 +84,47 @@ class AddressRenderer(Renderer):
 
     def export_html(self, view='gnaf'):
         if view == 'gnaf':
+            # initialise all varables in case not found by SQL
+            street_locality_pid = None
+            locality_pid = None
+            street_number_1 = None
+            street_name = None
+            street_type = None
+            locality_name = None
+            state_territory = None
+            postcode = None
+            latitude = None
+            longitude = None
+            geocode_type = None
+            confidence = None
+            date_created = None
+            date_last_modified = None
+            date_retired = None
+            building_name = None
+            lot_number_prefix = None
+            lot_number = None
+            lot_number_suffix = None
+            flat_type_code = None
+            flat_number_prefix = None
+            flat_number = None
+            flat_number_suffix = None
+            level_type_code = None
+            level_number_prefix = None
+            level_number = None
+            level_number_suffix = None
+            number_first_prefix = None
+            number_first_suffix = None
+            number_last_prefix = None
+            number_last = None
+            number_last_suffix = None
+            alias_principal = None
+            legal_parcel_id = None
+            address_site_pid = None
+            level_geocoded_code = None
+            property_pid = None
+            primary_secondary = None
+            geometry_wkt = None
+
             address_string = None
             # make a human-readable address
             s = sql.SQL('''SELECT 
@@ -186,7 +227,7 @@ class AddressRenderer(Renderer):
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
 
-            this_address_string, this_street_string = self.formatAddress(
+            this_address_string, this_street_string = self.format_address(
                 level_type_code=level_type_code, level_number_prefix=level_number_prefix, level_number=level_number, level_number_suffix=level_number_suffix,
                 flat_type_code=flat_type_code, flat_number_prefix=flat_number_prefix, flat_number=flat_number, flat_number_suffix=flat_number_suffix,
                 number_first_prefix=number_first_prefix, number_first=street_number_1, number_first_suffix=number_first_suffix,
@@ -286,7 +327,7 @@ class AddressRenderer(Renderer):
                     al_number_last = row[30]
                     al_number_last_suffix = row[31]
 
-                    alias_address_string, alias_street_string = self.formatAddress(
+                    alias_address_string, alias_street_string = self.format_address(
                         level_type_code=al_level_type_code, level_number_prefix=al_level_number_prefix,
                         level_number=al_level_number, level_number_suffix=al_level_number_suffix,
                         flat_type_code=al_flat_type_code, flat_number_prefix=al_flat_number_prefix, flat_number=al_flat_number,
@@ -395,7 +436,7 @@ class AddressRenderer(Renderer):
                     pc_number_last = row[30]
                     pc_number_last_suffix = row[31]
 
-                    principal_address_string, principal_street_string = self.formatAddress(
+                    principal_address_string, principal_street_string = self.format_address(
                         level_type_code=pc_level_type_code, level_number_prefix=pc_level_number_prefix,
                         level_number=pc_level_number, level_number_suffix=pc_level_number_suffix,
                         flat_type_code=pc_flat_type_code, flat_number_prefix=pc_flat_number_prefix, flat_number=pc_flat_number,
@@ -504,7 +545,7 @@ class AddressRenderer(Renderer):
                     sc_number_last = row[30]
                     sc_number_last_suffix = row[31]
 
-                    secondary_address_string, secondary_street_string = self.formatAddress(
+                    secondary_address_string, secondary_street_string = self.format_address(
                         level_type_code=sc_level_type_code, level_number_prefix=sc_level_number_prefix,
                         level_number=sc_level_number, level_number_suffix=sc_level_number_suffix,
                         flat_type_code=sc_flat_type_code, flat_number_prefix=sc_flat_number_prefix, flat_number=sc_flat_number,
@@ -613,7 +654,7 @@ class AddressRenderer(Renderer):
                     pr_number_last = row[30]
                     pr_number_last_suffix = row[31]
 
-                    primary_address_string, primary_street_string = self.formatAddress(
+                    primary_address_string, primary_street_string = self.format_address(
                         level_type_code=pr_level_type_code, level_number_prefix=pr_level_number_prefix,
                         level_number=pr_level_number, level_number_suffix=pr_level_number_suffix,
                         flat_type_code=pr_flat_type_code, flat_number_prefix=pr_flat_number_prefix, flat_number=pr_flat_number,
@@ -686,6 +727,7 @@ class AddressRenderer(Renderer):
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
 
+            print('address_site_pid: ' + str(address_site_pid))
             view_html = render_template(
                 'class_address_gnaf.html',
                 address_string=this_address_string,
@@ -729,14 +771,14 @@ class AddressRenderer(Renderer):
                 primary_secondary=primary_secondary,
                 street_locality_pid=street_locality_pid,
                 locality_pid=locality_pid,
-                alias_addresses = self.alias_addresses,
-                principal_addresses = self.principal_addresses,
-                secondary_addresses = self.secondary_addresses,
-                primary_addresses = self.primary_addresses,
-                mesh_block_2011_uri = config.URI_MB_2011_INSTANCE_BASE + '%s',
-                mesh_block_2011s = self.mesh_block_2011s,
-                mesh_block_2016_uri = config.URI_MB_2016_INSTANCE_BASE + '%s',
-                mesh_block_2016s = self.mesh_block_2016s,
+                alias_addresses=self.alias_addresses,
+                principal_addresses=self.principal_addresses,
+                secondary_addresses=self.secondary_addresses,
+                primary_addresses=self.primary_addresses,
+                mesh_block_2011_uri=config.URI_MB_2011_INSTANCE_BASE + '%s',
+                mesh_block_2011s=self.mesh_block_2011s,
+                mesh_block_2016_uri=config.URI_MB_2016_INSTANCE_BASE + '%s',
+                mesh_block_2016s=self.mesh_block_2016s,
                 street_string=this_street_string
             )
 
