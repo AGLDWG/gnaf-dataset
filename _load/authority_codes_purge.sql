@@ -1,0 +1,15 @@
+DELETE FROM gnaf.address_alias_type_aut;
+DELETE FROM gnaf.address_type_aut;
+DELETE FROM gnaf.flat_type_aut;      
+DELETE FROM gnaf.geocode_reliability_aut;
+DELETE FROM gnaf.geocode_type_aut;
+DELETE FROM gnaf.geocoded_level_type_aut;
+DELETE FROM gnaf.level_type_aut;
+DELETE FROM gnaf.locality_alias_type_aut;
+DELETE FROM gnaf.locality_class_aut;
+DELETE FROM gnaf.mb_match_code_aut;
+DELETE FROM gnaf.ps_join_type_aut;
+DELETE FROM gnaf.street_class_aut;
+DELETE FROM gnaf.street_locality_alias_type_aut;
+DELETE FROM gnaf.street_suffix_aut;
+DELETE FROM gnaf.street_type_aut;
