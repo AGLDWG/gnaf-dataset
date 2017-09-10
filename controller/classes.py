@@ -107,8 +107,9 @@ def addresses():
     except LdapiParameterError as e:
         return client_error_Response(e)
 
+
 @classes.route('/doc/addressSite/')
-def addressSites():
+def address_sites():
     """
     Register of all address sites
 
@@ -204,8 +205,9 @@ def addressSites():
     except LdapiParameterError as e:
         return client_error_Response(e)
 
+
 @classes.route('/doc/addressSiteGeocode/')
-def addressSiteGeocodes():
+def address_site_geocodes():
     """
     Register of all address site geocodes
 
@@ -300,6 +302,7 @@ def addressSiteGeocodes():
 
     except LdapiParameterError as e:
         return client_error_Response(e)
+
 
 @classes.route('/doc/street/')
 def streets():
@@ -398,8 +401,9 @@ def streets():
     except LdapiParameterError as e:
         return client_error_Response(e)
 
+
 @classes.route('/doc/streetLocalityAlias/')
-def streetLocalityAliases():
+def street_locality_aliases():
     """
     Register of all street locality aliases
 
@@ -494,6 +498,7 @@ def streetLocalityAliases():
 
     except LdapiParameterError as e:
         return client_error_Response(e)
+
 
 @classes.route('/doc/locality/')
 def localities():
@@ -592,8 +597,9 @@ def localities():
     except LdapiParameterError as e:
         return client_error_Response(e)
 
+
 @classes.route('/doc/localityAlias/')
-def localityAliases():
+def locality_aliases():
     """
     Register of all locality aliases
 
@@ -689,6 +695,7 @@ def localityAliases():
     except LdapiParameterError as e:
         return client_error_Response(e)
 
+
 @classes.route('/doc/address/<string:address_id>')
 def address(address_id):
     """
@@ -731,8 +738,9 @@ def address(address_id):
     except LdapiParameterError as e:
         return client_error_Response(e)
 
+
 @classes.route('/doc/addressSite/<string:address_site_id>')
-def addressSite(address_site_id):
+def address_site(address_site_id):
     """
     A single Address Site
 
@@ -773,8 +781,9 @@ def addressSite(address_site_id):
     except LdapiParameterError as e:
         return client_error_Response(e)
 
+
 @classes.route('/doc/addressSiteGeocode/<string:address_site_geocode_id>')
-def addressSiteGeocode(address_site_geocode_id):
+def address_site_geocode(address_site_geocode_id):
     """
     A single Address Site Geocode
 
@@ -814,6 +823,7 @@ def addressSiteGeocode(address_site_geocode_id):
 
     except LdapiParameterError as e:
         return client_error_Response(e)
+
 
 @classes.route('/doc/street/<string:street_id>')
 def street(street_id):
@@ -857,8 +867,9 @@ def street(street_id):
     except LdapiParameterError as e:
         return client_error_Response(e)
 
+
 @classes.route('/doc/streetLocalityAlias/<string:street_locality_alias_id>')
-def streetLocalityAlias(street_locality_alias_id):
+def street_locality_alias(street_locality_alias_id):
     """
     A single street locality alias
 
@@ -898,6 +909,7 @@ def streetLocalityAlias(street_locality_alias_id):
 
     except LdapiParameterError as e:
         return client_error_Response(e)
+
 
 @classes.route('/doc/locality/<string:locality_id>')
 def locality(locality_id):
@@ -941,8 +953,9 @@ def locality(locality_id):
     except LdapiParameterError as e:
         return client_error_Response(e)
 
+
 @classes.route('/doc/localityAlias/<string:locality_alias_id>')
-def localityAlias(locality_alias_id):
+def locality_alias(locality_alias_id):
     """
     A single locality alias
 
@@ -982,4 +995,3 @@ def localityAlias(locality_alias_id):
 
     except LdapiParameterError as e:
         return client_error_Response(e)
-
