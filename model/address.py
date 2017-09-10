@@ -224,7 +224,7 @@ class AddressRenderer(Renderer):
                     primary_secondary = row[37]
                     geometry_wkt = 'SRID=8311;POINT({} {})'.format(latitude, longitude)
             except Exception as e:
-                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
+                print("Uh oh, can't connect to DB for query s. Invalid dbname, user or password?")
                 print(e)
 
             this_address_string, this_street_string = self.format_address(
@@ -343,7 +343,7 @@ class AddressRenderer(Renderer):
                     )
                     self.alias_addresses[row[32]] = alias_address_string
             except Exception as e:
-                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
+                print("Uh oh, can't connect to DB for query s2. Invalid dbname, user or password?")
                 print(e)
 
             # get a list of principalIds from the address_alias table
@@ -452,7 +452,7 @@ class AddressRenderer(Renderer):
                     )
                     self.principal_addresses[row[32]] = principal_address_string
             except Exception as e:
-                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
+                print("Uh oh, can't connect to DB for query s3. Invalid dbname, user or password?")
                 print(e)
 
             # get a list of secondaryIds from the primary_secondary table
@@ -561,7 +561,7 @@ class AddressRenderer(Renderer):
                     )
                     self.secondary_addresses[row[32]] = secondary_address_string
             except Exception as e:
-                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
+                print("Uh oh, can't connect to DB for query s4. Invalid dbname, user or password?")
                 print(e)
 
             # get a list of primaryIds from the primary_secondary table
@@ -670,7 +670,7 @@ class AddressRenderer(Renderer):
                     )
                     self.primary_addresses[row[32]] = primary_address_string
             except Exception as e:
-                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
+                print("Uh oh, can't connect to DB for query s5. Invalid dbname, user or password?")
                 print(e)
 
             # get a list of mb2011s from the address_mesh_block_2011 and mb_2011 tables
@@ -697,10 +697,10 @@ class AddressRenderer(Renderer):
                 for row in rows:
                     self.mesh_block_2011s.append(row[0])
             except Exception as e:
-                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
+                print("Uh oh, can't connect to DB for query s6. Invalid dbname, user or password?")
                 print(e)
 
-            # get a list of mb2011s from the address_mesh_block_2016 and mb_2016 tables
+            # get a list of mb2016s from the address_mesh_block_2016 and mb_2016 tables
             s7 = sql.SQL('''SELECT 
                         mb_2016_code,
                         mb_match_code                
@@ -724,7 +724,7 @@ class AddressRenderer(Renderer):
                 for row in rows:
                     self.mesh_block_2016s.append(row[0])
             except Exception as e:
-                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
+                print("Uh oh, can't connect to DB for query s7. Invalid dbname, user or password?")
                 print(e)
 
             print('address_site_pid: ' + str(address_site_pid))
