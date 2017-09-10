@@ -10,5 +10,9 @@ sudo service postgresql restart
 psql
 # now running in psql shell
 CREATE DATABASE gnaf;
-CREATE USER gnafusr WITH PASSWORD 'gnafrocks';
+\connect gnaf;
+CREATE SCHEMA gnaf;
+CREATE USER gnafusr WITH PASSWORD 'xxxxxx';
 ALTER DATABASE gnaf OWNER TO gnafusr;
+GRANT ALL ON DATABASE gnaf TO gnafusr;
+GRANT ALL ON SCHEMA gnaf TO gnafusr;
