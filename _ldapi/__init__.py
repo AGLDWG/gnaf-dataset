@@ -10,7 +10,7 @@ class LDAPI:
 
     This class is issued as a Python file, rather than a Git submodule so check the version number before use!
 
-    Version 2.0
+    Version 2.1
     """
 
     # maps HTTP MIMETYPES to rdflib's RDF parsing formats
@@ -120,13 +120,19 @@ class LDAPI:
     def get_valid_view_and_format(view, format, views_formats):
         """
         If both the model and the format are valid, return them
+
+        If a view is given but no format, return the default format for that view
         :param view: the model model parameter
         :param format: the MIMETYPE format parameter
         :param views_formats: the allowed model and their formats in this instance
         :return: valid model and format
         """
         view = LDAPI.valid_view(view, views_formats)
-        format = LDAPI.valid_format(format, view, views_formats)
+        if format is not None:
+            format = LDAPI.valid_format(format, view, views_formats)
+        else:
+            format = views_formats[view]['default_mimetype']
+
         if view and format:
             # return valid model and format
             return view, format
@@ -206,5 +212,5 @@ class LdapiParameterError(ValueError):
 
 
 if __name__ == '__main__':
-    vfs = LDAPI.get_classes_views_formats().get('http://reference.data.gov.au/def/ont/gnaf#Address')
-    print(LDAPI.get_valid_view_and_format('gnafx', 'text/html', vfs))
+    vfs = LDAPI.get_classes_views_formats().get('http://reference.data.gov.au/def/dataset#Dataset')
+    print(LDAPI.get_valid_view_and_format('dataset', 'text/turtle', vfs))
