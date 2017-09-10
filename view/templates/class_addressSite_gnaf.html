@@ -8,7 +8,7 @@
         <td>Address Site Geocodes</td><td>
             <ul>
                 {% for address_site_geocode_id in address_site_geocode_ids %}
-                    <li><a href="{{ url_for('model_classes.addressSiteGeocode', address_site_geocode_id=address_site_geocode_id) }}">{{ url_for('model_classes.addressSiteGeocode', address_site_geocode_id=address_site_geocode_id) }}</a></li>
+                    <li><a href="{{ url_for('classes.addressSiteGeocode', address_site_geocode_id=address_site_geocode_id) }}">{{ url_for('classes.addressSiteGeocode', address_site_geocode_id=address_site_geocode_id) }}</a></li>
                 {% endfor %}
             </ul>
         </td>
