@@ -31,7 +31,18 @@ class StreetRenderer(Renderer):
 
     def export_html(self, view='gnaf'):
         if view == 'gnaf':
+            # initialise parameters in case no results are returned from SQL
+            street_name = None
+            street_type = None
+            street_suffix = None
+            latitude = None
+            longitude = None
+            geocode_type = None
+            locality_pid = None
+            locality_name = None
+            geometry_wkt = None            
             street_string = None
+
             # make a human-readable street
             s = sql.SQL('''SELECT 
                         a.street_name, 
