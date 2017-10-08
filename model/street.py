@@ -31,6 +31,7 @@ class StreetRenderer(Renderer):
 
     def export_html(self, view='gnaf'):
         if view == 'gnaf':
+
             # initialise parameters in case no results are returned from SQL
             street_name = None
             street_type = None
