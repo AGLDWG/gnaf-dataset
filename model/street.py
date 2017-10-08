@@ -66,7 +66,7 @@ class StreetRenderer(Renderer):
                     street_suffix = row[2].title() if row[2] != None else row[2]
                     latitude = row[3]
                     longitude = row[4]
-                    geocode_type = row[5].title()
+                    geocode_type = row[5].title() if row[5] != None else row[5]
                     locality_pid = row[6]
                     locality_name = row[7].title()
                     geometry_wkt = 'SRID=8311;POINT({} {})'.format(latitude, longitude)
