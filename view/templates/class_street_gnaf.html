@@ -14,7 +14,7 @@
         <td>Street Locality Aliases</td><td>
             <ul>
                 {% for street_locality_alias_id, street_locality_alias in street_locality_aliases.items() %}
-                    <li><a href="{{ url_for('classes.streetLocalityAlias', street_locality_alias_id=street_locality_alias_id) }}">{{ street_locality_alias }}</a></li>
+                    <li><a href="{{ url_for('classes.street_locality_alias', street_locality_alias_id=street_locality_alias_id) }}">{{ street_locality_alias }}</a></li>
                 {% endfor %}
             </ul>
         </td>

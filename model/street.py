@@ -81,7 +81,7 @@ class StreetRenderer(Renderer):
                     geocode_type = row[5].title() if row[5] != None else row[5]
                     locality_pid = row[6]
                     locality_name = row[7].title()
-                    geometry_wkt = 'SRID=8311;POINT({} {})'.format(latitude, longitude)
+                    geometry_wkt = 'SRID=8311;POINT({} {})'.format(latitude, longitude) if latitude != None else None
                     street_string = '{}{}{}'.format(street_name,
                                                     ' ' + street_type.title() if street_type != None else '',
                                                     ' ' + street_suffix.title() if street_suffix != None else '')

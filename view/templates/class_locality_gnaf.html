@@ -10,7 +10,7 @@
         <td>Locality Aliases</td><td>
             <ul>
                 {% for locality_alias_id, locality_alias in locality_aliases.items() %}
-                    <li><a href="{{ url_for('classes.localityAlias', locality_alias_id=locality_alias_id) }}">{{ locality_alias }}</a></li>
+                    <li><a href="{{ url_for('classes.locality_alias', locality_alias_id=locality_alias_id) }}">{{ locality_alias }}</a></li>
                 {% endfor %}
             </ul>
         </td>
