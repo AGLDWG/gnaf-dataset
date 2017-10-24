@@ -6,6 +6,7 @@ from .functions import render_alternates_view, client_error_Response
 import _config as config
 from _ldapi import LDAPI, LdapiParameterError
 import urllib.parse as uparse
+from controller import classes_functions
 
 classes = Blueprint('classes', __name__)
 
@@ -13,12 +14,12 @@ classes = Blueprint('classes', __name__)
 @classes.route('/doc/address/')
 def addresses():
     """
-    Register of all addresses
+    The Register of Addresses
 
-    :return: LDAPI views of the Address register
+    :return: HTTP Response
     """
-    # lists the views and mimetypes available for an Address Register (a generic Register)
-    views_formats = LDAPI.get_classes_views_formats() \
+    # lists the views and formats available for a Sample
+    views_formats = classes_functions.get_classes_views_formats() \
         .get('http://purl.org/linked-data/registry#Register')
 
     try:
@@ -29,11 +30,10 @@ def addresses():
         )
 
         # if alternates model, return this info from file
-        class_uri = 'http://purl.org/linked-data/registry#Register'
+        class_uri = 'http://transport.data.gov.au/def/ont/gnaf#Address'
 
         if view == 'alternates':
             del views_formats['renderer']
-            print(views_formats)
             return render_alternates_view(
                 class_uri,
                 uparse.quote_plus(class_uri),
@@ -49,17 +49,17 @@ def addresses():
             page = int(request.args.get('page')) if request.args.get('page') is not None else 1
             per_page = int(request.args.get('per_page')) if request.args.get('per_page') is not None else 100
 
-            if per_page > 100:
+            if per_page > config.PAGE_SIZE:
                 return Response(
-                    'You must enter either no value for per_page or an integer <= 100.',
+                    'You must enter either no value for per_page or an integer <= {}.'.format(config.PAGE_SIZE),
                     status=400,
                     mimetype='text/plain'
                 )
 
-            links = []
+            links = list()
             links.append('<http://www.w3.org/ns/ldp#Resource>; rel="type"')
-            links.append(
-                '<http://www.w3.org/ns/ldp#Page>; rel="type"')  # signalling that this is, in fact, a resource described in pages
+            # signalling that this is, in fact, a resource described in pages
+            links.append('<http://www.w3.org/ns/ldp#Page>; rel="type"')
             links.append('<{}?per_page={}>; rel="first"'.format(config.URI_ADDRESS_INSTANCE_BASE, per_page))
 
             # if this isn't the first page, add a link to "prev"
@@ -70,39 +70,62 @@ def addresses():
                     (page - 1)
                 ))
 
+            # if this isn't the first page, add a link to "prev"
+            if page != 1:
+                prev_page = page - 1
+                links.append('<{}?per_page={}&page={}>; rel="prev"'.format(
+                    config.URI_ADDRESS_INSTANCE_BASE,
+                    per_page,
+                    prev_page
+                ))
+            else:
+                prev_page = None
+
             # add a link to "next" and "last"
             try:
-                no_of_objects = 9200  # TODO replace this magic number
-                last_page_no = int(round(no_of_objects / per_page, 0)) + 1  # same as math.ceil()
+                no_of_samples = 13000000  # TODO: remove this outrageous magic number
+                last_page = int(round(no_of_samples / per_page, 0)) + 1  # same as math.ceil()
 
                 # if we've gotten the last page value successfully, we can choke if someone enters a larger value
-                if page > last_page_no:
+                if page > last_page:
                     return Response(
                         'You must enter either no value for page or an integer <= {} which is the last page number.'
-                            .format(last_page_no),
+                        .format(last_page),
                         status=400,
                         mimetype='text/plain'
                     )
 
                 # add a link to "next"
-                if page != last_page_no:
-                    links.append(
-                        '<{}?per_page={}&page={}>; rel="next"'.format(config.URI_ADDRESS_INSTANCE_BASE, per_page, (page + 1)))
+                if page != last_page:
+                    next_page = page + 1
+                    links.append('<{}?per_page={}&page={}>; rel="next"'
+                                 .format(config.URI_ADDRESS_INSTANCE_BASE, per_page, (page + 1)))
+                else:
+                    next_page = None
 
                 # add a link to "last"
-                links.append(
-                    '<{}?per_page={}&page={}>; rel="last"'.format(config.URI_ADDRESS_INSTANCE_BASE, per_page, last_page_no))
+                links.append('<{}?per_page={}&page={}>; rel="last"'
+                             .format(config.URI_ADDRESS_INSTANCE_BASE, per_page, last_page))
             except:
-                # if there's some error in getting the no of object, add the "next" link but not the "last" link
-                links.append(
-                    '<{}?per_page={}&page={}>; rel="next"'.format(config.URI_ADDRESS_INSTANCE_BASE, per_page, (page + 1)))
+                # if there's some error in getting the no of samples, add the "next" link but not the "last" link
+                next_page = page + 1
+                links.append('<{}?per_page={}&page={}>; rel="next"'
+                             .format(config.URI_ADDRESS_INSTANCE_BASE, per_page, (page + 1)))
 
             headers = {
                 'Link': ', '.join(links)
             }
 
-            return register.RegisterRenderer(request, class_uri, None, page, per_page, last_page_no) \
-                .render(view, mime_format, extra_headers=headers)
+            return register.RegisterRenderer(
+                request,
+                config.URI_ADDRESS_INSTANCE_BASE,
+                class_uri,
+                None,
+                page,
+                per_page,
+                prev_page,
+                next_page,
+                last_page).render(view, mime_format, extra_headers=headers)
 
     except LdapiParameterError as e:
         return client_error_Response(e)
