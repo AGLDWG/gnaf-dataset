@@ -3,8 +3,8 @@
 {% block content %}
     <h1>G-NAF LDAPI</h1>
     <h2>Application Programming Interface</h2>
-    <p>API endpoints for this Linked Data API are:</p>
+    <p>The API endpoints for this Linked Data API are:</p>
     <ul>
-        <li><a href="/api/address/">/api/address</a> - register of Address objects</li>
+        <li><a href="{{ url_for('classes.addresses') }}">/api/address/</a> - register of Address objects</li>
     </ul>
 {% endblock %}

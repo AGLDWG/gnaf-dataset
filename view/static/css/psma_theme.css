@@ -8,5 +8,61 @@ table, th, td {
 }
 
 h1 {
-    color: darkblue;
+    color: rgb(0, 92, 132);
+    text-align: center;
+    font-family: Helvetica,Arial,sans-serif;
+    font-size: 45.6px;
+}
+
+h2 {
+    color: rgb(0, 92, 132);
+    font-family: Helvetica,Arial,sans-serif;
+}
+
+h3 {
+    color: rgb(0, 92, 132);
+    font-family: Helvetica,Arial,sans-serif;
+}
+
+p, a, li {
+    font-family: Arial,sans-serif;
+}
+a {
+    color: rgb(0, 92, 132);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+#container-content {
+    background-color: rgb(241, 241, 242);
+    padding: 20px;
+
+}
+
+body {
+    text-align: center;
+}
+#widther {
+    margin: 0 auto;
+    max-width: 1000px;
+    text-align: left;
+    padding: 20px;
+}
+#header {
+    padding: 20px 0 40px 0;
+}
+#header > div > a {
+    color: rgb(0, 92, 132);
+    font-family: Helvetica,Arial,sans-serif;
+    font-size: 14.4px;
+    font-weight: 700;
+    text-decoration: none;
+    margin-right: 20px;
+}
+
+#footer {
+    background-color: rgb(0, 92, 132);
+    min-height: 50px;
 }

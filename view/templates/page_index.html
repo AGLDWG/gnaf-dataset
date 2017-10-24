@@ -4,26 +4,13 @@
     <h1>G-NAF LDAPI</h1>
     <h2>About</h2>
     <p>This is a <strong>test</strong> Linked Data API delivering data from the <a href="https://www.psma.com.au/products/g-naf">G-NAF, the Geocoded National Address File</a>.</p>
-    <h2>Starting points</h2>
+    <h3>Starting points</h3>
     <ul>
         <li><a href="{{ url_for('classes.addresses') }}">Address Register</a> - the list of all Addresses, paged</li>
         <li><a href="{{ url_for('classes.address', address_id='GAACT714845933') }}">An Address</a> - example, GAACT714845933</li>
     </ul>
-    <h2>Further documentation</h2>
-    <p>Documentation for this API is contained within its code repository at:</p>
+    <h3>More information</h3>
     <ul>
-        <li><a href="https://github.com/nicholascar/gnaf-ldapi-test">https://github.com/nicholascar/gnaf-ldapi-test</a></li>
+        <li>See the <a href="{{ url_for('routes.about') }}">About page</a> for more!</li>
     </ul>
-    <h2>Contacts</h2>
-    <p>This API is developed by:</p>
-    <p>
-        Joseph Abhayaratna<br />
-        CTO, PSMA Australia Ltd.<br />
-        <a href="mailto:Joseph.Abhayaratna@psma.com.au">Joseph.Abhayaratna@psma.com.au</a>
-    </p>
-    <p>
-        Nicholas Car<br />
-        Data Architect, Geoscience Australia<br />
-        <a href="mailto:nicholas.car@ga.gov.au">nicholas.car@ga.gov.au</a>
-    </p>
 {% endblock %}
