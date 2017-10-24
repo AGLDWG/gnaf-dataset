@@ -6,10 +6,12 @@
     <link rel="stylesheet" href="{{url_for('static', filename='css/psma_theme.css')}}" />
 </head>
 <body>
-    {% include 'template_header.html' %}
-    <div id="container-content">
-        {% block content %}{% endblock %}
+    <div id="widther">
+        {% include 'template_header.html' %}
+        <div id="container-content">
+            {% block content %}{% endblock %}
+        </div>
+        {% include 'template_footer.html' %}
     </div>
-    {% include 'template_footer.html' %}
 </body>
 </html>

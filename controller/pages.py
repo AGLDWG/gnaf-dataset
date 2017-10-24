@@ -19,3 +19,10 @@ def api():
     return render_template(
         'page_api.html'
     )
+
+
+@pages.route('/about')
+def about():
+    return render_template(
+        'page_about.html'
+    )
