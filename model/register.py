@@ -8,16 +8,22 @@ from psycopg2 import sql
 
 
 class RegisterRenderer(Renderer):
-    def __init__(self, request, uri, endpoints, page, per_page, last_page_no):
+    """
+    Version 1.0
+    """
+    def __init__(self, request, base_uri, uri, endpoints, page, per_page, prev_page, next_page, last_page):
         Renderer.__init__(self, uri, endpoints)
 
         self.request = request
+        self.base_uri = base_uri
         self.uri = uri
         self.register = []
         self.g = None
         self.per_page = per_page
         self.page = page
-        self.last_page_no = last_page_no
+        self.prev_page = prev_page
+        self.next_page = next_page
+        self.last_page = last_page
 
         self._get_data_from_db(page, per_page)
 
@@ -38,8 +44,14 @@ class RegisterRenderer(Renderer):
                 return Response(
                     render_template(
                         'class_register.html',
+                        base_uri=self.base_uri,
                         class_name=self.uri,
-                        register=self.register
+                        register=self.register,
+                        page=self.page,
+                        per_page=self.per_page,
+                        prev_page=self.prev_page,
+                        next_page=self.next_page,
+                        last_page=self.last_page
                     ),
                     mimetype='text/html',
                     headers=extra_headers

@@ -35,11 +35,6 @@ a {
 a:hover {
     text-decoration: underline;
 }
-#container-content {
-    background-color: rgb(241, 241, 242);
-    padding: 20px;
-
-}
 
 body {
     text-align: center;
@@ -65,4 +60,17 @@ body {
 #footer {
     background-color: rgb(0, 92, 132);
     min-height: 50px;
+}
+
+#container-content {
+    background-color: rgb(241, 241, 242);
+    padding: 20px;
+
+}
+
+#container-content > table,
+#container-content > table > tbody > tr > td,
+#container-content > table > tbody > tr > th {
+    border-collapse: collapse;
+    border: none;
 }
