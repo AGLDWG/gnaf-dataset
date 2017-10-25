@@ -10,16 +10,30 @@ The data accessed is the copy of the G-NAF available freely on the [data.gov.au/
 * <http://data.gov.au/dataset/geocoded-national-address-file-g-naf>
     * downloaded on 2017-08-18
 
-This code is written to test out LD ideas with the G-NAF and may not be used in a final product. 
+This code is written to test out Linked Data ideas with the G-NAF and may not be used in a final product. 
+
+### API technical details 
+This code uses a simple Linked Data API that reads data from a data source, in this case a Postgres database containing the GNAF data, restructures it according to various models, such as addressing ontologies, and the delivers it in either human- or machine-readable forms. 
+
+Constraints on the API's views and formats are imposed via the LDAPI module housed within the _ldpai folder.
+
+The API uses Python Flask as it's HTTP framework and Jinja2 for HTML generation by templates. RDF generation is done by generating triples using the Python rdflib module. 
 
 
 ## License
-It is licensed using Creative Commons 4.0 International (see [LICENSE file](LICENSE)).
+This code repository licensed using Creative Commons 4.0 International (see [LICENSE file](LICENSE)).
 
 
-## Author & Contact
+## Contacts
+Programmer:  
 **Nicholas Car**  
-Data Architect  
+*Data Architect*  
 Geoscience Australia  
 <nicholas.car@ga.gov.au>  
 <http://orcid.org/0000-0002-8742-7730>
+
+Programmer:  
+**Joseph Abhayaratna**  
+*Chief Technical Officer*  
+PSMA Australia Ltd.
+<Joseph.Abhayaratna@psma.com.au>  
