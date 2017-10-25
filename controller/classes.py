@@ -11,7 +11,7 @@ from controller import classes_functions
 classes = Blueprint('classes', __name__)
 
 
-@classes.route('/doc/address/')
+@classes.route('/address/')
 def addresses():
     """
     The Register of Addresses
@@ -131,7 +131,7 @@ def addresses():
         return client_error_Response(e)
 
 
-@classes.route('/doc/addressSite/')
+@classes.route('/addressSite/')
 def address_sites():
     """
     Register of all address sites
@@ -229,7 +229,7 @@ def address_sites():
         return client_error_Response(e)
 
 
-@classes.route('/doc/addressSiteGeocode/')
+@classes.route('/addressSiteGeocode/')
 def address_site_geocodes():
     """
     Register of all address site geocodes
@@ -327,7 +327,7 @@ def address_site_geocodes():
         return client_error_Response(e)
 
 
-@classes.route('/doc/street/')
+@classes.route('/street/')
 def streets():
     """
     Register of all streets
@@ -425,7 +425,7 @@ def streets():
         return client_error_Response(e)
 
 
-@classes.route('/doc/streetLocalityAlias/')
+@classes.route('/streetLocalityAlias/')
 def street_locality_aliases():
     """
     Register of all street locality aliases
@@ -523,7 +523,7 @@ def street_locality_aliases():
         return client_error_Response(e)
 
 
-@classes.route('/doc/locality/')
+@classes.route('/locality/')
 def localities():
     """
     Register of all localities
@@ -621,7 +621,7 @@ def localities():
         return client_error_Response(e)
 
 
-@classes.route('/doc/localityAlias/')
+@classes.route('/localityAlias/')
 def locality_aliases():
     """
     Register of all locality aliases
@@ -719,7 +719,7 @@ def locality_aliases():
         return client_error_Response(e)
 
 
-@classes.route('/doc/address/<string:address_id>')
+@classes.route('/address/<string:address_id>')
 def address(address_id):
     """
     A single Address
@@ -762,7 +762,7 @@ def address(address_id):
         return client_error_Response(e)
 
 
-@classes.route('/doc/addressSite/<string:address_site_id>')
+@classes.route('/addressSite/<string:address_site_id>')
 def address_site(address_site_id):
     """
     A single Address Site
@@ -805,7 +805,7 @@ def address_site(address_site_id):
         return client_error_Response(e)
 
 
-@classes.route('/doc/addressSiteGeocode/<string:address_site_geocode_id>')
+@classes.route('/addressSiteGeocode/<string:address_site_geocode_id>')
 def address_site_geocode(address_site_geocode_id):
     """
     A single Address Site Geocode
@@ -848,7 +848,7 @@ def address_site_geocode(address_site_geocode_id):
         return client_error_Response(e)
 
 
-@classes.route('/doc/street/<string:street_id>')
+@classes.route('/street/<string:street_id>')
 def street(street_id):
     """
     A single street
@@ -891,7 +891,7 @@ def street(street_id):
         return client_error_Response(e)
 
 
-@classes.route('/doc/streetLocalityAlias/<string:street_locality_alias_id>')
+@classes.route('/streetLocalityAlias/<string:street_locality_alias_id>')
 def street_locality_alias(street_locality_alias_id):
     """
     A single street locality alias
@@ -934,7 +934,7 @@ def street_locality_alias(street_locality_alias_id):
         return client_error_Response(e)
 
 
-@classes.route('/doc/locality/<string:locality_id>')
+@classes.route('/locality/<string:locality_id>')
 def locality(locality_id):
     """
     A single locality
@@ -977,7 +977,7 @@ def locality(locality_id):
         return client_error_Response(e)
 
 
-@classes.route('/doc/localityAlias/<string:locality_alias_id>')
+@classes.route('/localityAlias/<string:locality_alias_id>')
 def locality_alias(locality_alias_id):
     """
     A single locality alias
