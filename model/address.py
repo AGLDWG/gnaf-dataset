@@ -222,7 +222,7 @@ class AddressRenderer(Renderer):
                     level_geocoded_code = row[35]
                     property_pid = row[36]
                     primary_secondary = row[37]
-                    geometry_wkt = 'SRID=8311;POINT({} {})'.format(latitude, longitude)
+                    geometry_wkt = 'SRID=GDA94;POINT({} {})'.format(latitude, longitude)
             except Exception as e:
                 print("DB conn 1 can't connect to DB for query s. Invalid dbname, user or password?")
                 print(e)
@@ -493,10 +493,10 @@ class AddressRenderer(Renderer):
                         c.ps_join_type_code                                        
                     FROM 
                         {dbschema}.primary_secondary c
-                          INNER JOIN {dbschema}.address_view a ON c.secondary_pid = a.address_detail_pid
-                          INNER JOIN {dbschema}.address_detail b ON a.address_detail_pid = b.address_detail_pid
+                        INNER JOIN {dbschema}.address_view a ON c.secondary_pid = a.address_detail_pid
+                        INNER JOIN {dbschema}.address_detail b ON a.address_detail_pid = b.address_detail_pid
                     WHERE primary_pid = {id}''') \
-                .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
+                .format(dbschema=sql.Identifier(config.DB_SCHEMA), id=sql.Literal(self.id))
 
             try:
                 connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
@@ -818,7 +818,7 @@ class AddressRenderer(Renderer):
                 for record in cursor:
                     address_string = '{} {} {}, {}, {} {}' \
                         .format(record[2], record[3].title(), record[4].title(), record[5].title(), record[6], record[7])
-                    geometry_wkt = 'SRID=8311;POINT({} {})'.format(record[8], record[9])
+                    geometry_wkt = 'SRID=GDA94;POINT({} {})'.format(record[8], record[9])
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
@@ -931,8 +931,5 @@ class AddressRenderer(Renderer):
             g.add((position, ISO.geometry, position_geometry))
             g.add((position, ISO.type, URIRef(AddressPositionTypeUriBase + 'centroid')))
             g.add((a, ISO.position, position))
-
-        elif view == 'gnaf':
-            pass
 
         return g.serialize(format=LDAPI.get_rdf_parser_for_mimetype(format))
