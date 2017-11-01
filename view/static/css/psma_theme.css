@@ -79,3 +79,7 @@ table.alternates td {
     vertical-align: top;
     padding: 5px;
 }
+
+table.content td {
+    padding: 5px;
+}

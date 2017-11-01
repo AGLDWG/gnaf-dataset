@@ -1,6 +1,6 @@
 from .renderer import Renderer
 from flask import Response, render_template
-from rdflib import Graph, URIRef, RDF, RDFS, XSD, OWL, Namespace, Literal, BNode
+from rdflib import Graph, URIRef, RDF, XSD, Namespace, Literal, BNode
 import _config as config
 from _ldapi import LDAPI
 import psycopg2
@@ -9,8 +9,8 @@ from psycopg2 import sql
 
 class AddressSiteRenderer(Renderer):
     """
-    This class represents an Address Site and methods in this class allow an Address Site to be loaded from the GNAF database
-    and to be exported in a number of formats including RDF, according to the 'GNAF Ontology' and an
+    This class represents an Address Site and methods in this class allow an Address Site to be loaded from the GNAF
+    database and to be exported in a number of formats including RDF, according to the 'GNAF Ontology' and an
     expression of the Dublin Core ontology, HTML, XML in the form according to the AS4590 XML schema.
     """
 
@@ -69,11 +69,11 @@ class AddressSiteRenderer(Renderer):
             try:
                 connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
                     .format(
-                    config.DB_HOST,
-                    config.DB_DBNAME,
-                    config.DB_USR,
-                    config.DB_PWD
-                )
+                        config.DB_HOST,
+                        config.DB_DBNAME,
+                        config.DB_USR,
+                        config.DB_PWD
+                    )
                 conn = psycopg2.connect(connect_str)
                 cursor = conn.cursor()
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
@@ -90,7 +90,7 @@ class AddressSiteRenderer(Renderer):
                 address_site_pid=self.id,
                 address_site_name=address_site_name,
                 address_type=address_type,
-                address_site_geocode_ids = self.address_site_geocode_ids
+                address_site_geocode_ids=self.address_site_geocode_ids
             )
 
         elif view == 'ISO19160':
@@ -109,11 +109,11 @@ class AddressSiteRenderer(Renderer):
             try:
                 connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
                     .format(
-                    config.DB_HOST,
-                    config.DB_DBNAME,
-                    config.DB_USR,
-                    config.DB_PWD
-                )
+                        config.DB_HOST,
+                        config.DB_DBNAME,
+                        config.DB_USR,
+                        config.DB_PWD
+                    )
                 conn = psycopg2.connect(connect_str)
                 cursor = conn.cursor()
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
