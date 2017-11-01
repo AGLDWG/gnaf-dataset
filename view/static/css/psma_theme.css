@@ -74,3 +74,8 @@ body {
     border-collapse: collapse;
     border: none;
 }
+
+table.alternates td {
+    vertical-align: top;
+    padding: 5px;
+}

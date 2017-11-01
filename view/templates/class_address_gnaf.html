@@ -2,94 +2,166 @@
 <table>
     <tr><th>Property</th><th>Value</th></tr>
     <tr><td>Address Line</td><td><code>{{ address_string }}</code></td></tr>
+    {% if building_name is not none %}
     <tr><td>Building Name</td><td><code>{{ building_name }}</code></td></tr>
+    {% endif %}
+    {% if lot_number_prefix is not none %}
     <tr><td>Lot Number Prefix</td><td><code>{{ lot_number_prefix }}</code></td></tr>
+    {% endif %}
+    {% if lot_number is not none %}
     <tr><td>Lot Number</td><td><code>{{ lot_number }}</code></td></tr>
+    {% endif %}
+    {% if lot_number_suffix is not none %}
     <tr><td>Lot Number Suffix</td><td><code>{{ lot_number_suffix }}</code></td></tr>
+    {% endif %}
+    {% if flat_type_code is not none %}
     <tr><td>Flat Type Code</td><td><code>{{ flat_type_code }}</code></td></tr>
+    {% endif %}
+    {% if flat_number_prefix is not none %}
     <tr><td>Flat Number Prefix</td><td><code>{{ flat_number_prefix }}</code></td></tr>
+    {% endif %}
+    {% if flat_number is not none %}
     <tr><td>Flat Number</td><td><code>{{ flat_number }}</code></td></tr>
+    {% endif %}
+    {% if flat_number_suffix is not none %}
     <tr><td>Flat Number Suffix</td><td><code>{{ flat_number_suffix }}</code></td></tr>
+    {% endif %}
+    {% if level_type_code is not none %}
     <tr><td>Level Type Code</td><td><code>{{ level_type_code }}</code></td></tr>
+    {% endif %}
+    {% if level_number_prefix is not none %}
     <tr><td>Level Number Prefix</td><td><code>{{ level_number_prefix }}</code></td></tr>
+    {% endif %}
+    {% if level_number is not none %}
     <tr><td>Level Number</td><td><code>{{ level_number }}</code></td></tr>
+    {% endif %}
+    {% if level_number_suffix is not none %}
     <tr><td>Level Number Suffix</td><td><code>{{ level_number_suffix }}</code></td></tr>
+    {% endif %}
+    {% if number_first_prefix is not none %}
     <tr><td>Number First Prefix</td><td><code>{{ number_first_prefix }}</code></td></tr>
+    {% endif %}
+    {% if street_number_1 is not none %}
     <tr><td>Number First</td><td><code>{{ street_number_1 }}</code></td></tr>
+    {% endif %}
+    {% if number_first_suffix is not none %}
     <tr><td>Number First Suffix</td><td><code>{{ number_first_suffix }}</code></td></tr>
+    {% endif %}
+    {% if number_last_prefix is not none %}
     <tr><td>Number Last Prefix</td><td><code>{{ number_last_prefix }}</code></td></tr>
+    {% endif %}
+    {% if number_last is not none %}
     <tr><td>Number Last</td><td><code>{{ number_last }}</code></td></tr>
+    {% endif %}
+    {% if number_last_suffix is not none %}
     <tr><td>Number Last Suffix</td><td><code>{{ number_last_suffix }}</code></td></tr>
+    {% endif %}
+    {% if street_string is not none %}
     <tr><td>Street Locality</td><td><code><a href="{{ url_for('classes.street', street_id=street_locality_pid) }}">{{ street_string }}</a></code></td></tr>
+    {% endif %}
+    {% if locality_name is not none %}
     <tr><td>Locality</td><td><code><a href="{{ url_for('classes.locality', locality_id=locality_pid) }}">{{ locality_name }}</a></code></td></tr>
+    {% endif %}
+    {% if state_territory is not none %}
     <tr><td>State/Territory</td><td><code>{{ state_territory }}</code></td></tr>
+    {% endif %}
+    {% if postcode is not none %}
     <tr><td>Postcode</td><td><code>{{ postcode }}</code></td></tr>
+    {% endif %}
+    {% if alias_principal is not none %}
     <tr><td>Alias Principal</td><td><code>{{ alias_principal }}</code></td></tr>
+    {% endif %}
+    {% if legal_parcel_id is not none %}
     <tr><td>Legal Parcel ID</td><td><code>{{ legal_parcel_id }}</code></td></tr>
+    {% endif %}
+    {% if address_site_pid is not none %}
     <tr><td>Address Site PID</td><td><code><a href="{{ url_for('classes.address_site', address_site_id=address_site_pid) }}">{{ address_site_pid }}</a></code></td></tr>
+    {% endif %}
+    {% if level_geocoded_code is not none %}
     <tr><td>Level Geocoded Code</td><td><code>{{ level_geocoded_code }}</code></td></tr>
+    {% endif %}
+    {% if property_pid is not none %}
     <tr><td>Property PID</td><td><code>{{ property_pid }}</code></td></tr>
+    {% endif %}
+    {% if primary_secondary is not none %}
     <tr><td>Primary Secondary</td><td><code>{{ primary_secondary }}</code></td></tr>
+    {% endif %}
+    {% if confidence is not none %}
     <tr><td>Confidence</td><td><code>{{ confidence }}</code></td></tr>
+    {% endif %}
+    {% if date_created is not none %}
     <tr><td>Date Created</td><td><code>{{ date_created }}</code></td></tr>
+    {% endif %}
+    {% if date_last_modified is not none %}
     <tr><td>Date Last Modified</td><td><code>{{ date_last_modified }}</code></td></tr>
+    {% endif %}
+    {% if date_retired is not none %}
     <tr><td>Date Retired</td><td><code>{{ date_retired }}</code></td></tr>
+    {% endif %}
+    {% if geometry_wkt is not none %}
     <tr><td>Default Geometry</td><td><code>{{ geometry_wkt }}</code></td></tr>
+    {% endif %}
+    {% if latitude is not none %}
     <tr><td>Default Latitude</td><td><code>{{ latitude }}</code></td></tr>
+    {% endif %}
+    {% if longitude is not none %}
     <tr><td>Default Longitude</td><td><code>{{ longitude }}</code></td></tr>
+    {% endif %}
+    {% if geocode_type is not none %}
     <tr><td>Default Geocode Type</td><td><code>{{ geocode_type }}</code></td></tr>
+    {% endif %}
+    {% if principal_addresses.items()|length > 0 %}
     <tr>
         <td>Principal Address</td><td>
-            <ul>
-                {% for principal_address_id, principal_address in principal_addresses.items() %}
-                    <li><a href="{{ url_for('classes.address', address_id=principal_address_id) }}">{{ principal_address }}</a></li>
-                {% endfor %}
-            </ul>
+            {% for principal_address_id, principal_address in principal_addresses.items() %}
+                <a href="{{ url_for('classes.address', address_id=principal_address_id) }}">{{ principal_address }}</a><br />
+            {% endfor %}
         </td>
     </tr>
+    {% endif %}
+    {% if alias_addresses.items()|length > 0 %}
     <tr>
         <td>Alias Addresses</td><td>
-            <ul>
-                {% for alias_address_id, alias_address in alias_addresses.items() %}
-                    <li><a href="{{ url_for('classes.address', address_id=alias_address_id) }}">{{ alias_address }}</a></li>
-                {% endfor %}
-            </ul>
+            {% for alias_address_id, alias_address in alias_addresses.items() %}
+                <a href="{{ url_for('classes.address', address_id=alias_address_id) }}">{{ alias_address }}</a><br />
+            {% endfor %}
         </td>
     </tr>
+    {% endif %}
+    {% if primary_addresses.items()|length > 0 %}
     <tr>
         <td>Primary Address</td><td>
-            <ul>
-                {% for primary_address_id, primary_address in primary_addresses.items() %}
-                    <li><a href="{{ url_for('classes.address', address_id=primary_address_id) }}">{{ primary_address }}</a></li>
-                {% endfor %}
-            </ul>
+            {% for primary_address_id, primary_address in primary_addresses.items() %}
+                <a href="{{ url_for('classes.address', address_id=primary_address_id) }}">{{ primary_address }}</a><br />
+            {% endfor %}
         </td>
     </tr>
+    {% endif %}
+    {% if secondary_addresses.items()|length > 0 %}
     <tr>
         <td>Secondary Addresses</td><td>
-            <ul>
-                {% for secondary_address_id, secondary_address in secondary_addresses.items() %}
-                    <li><a href="{{ url_for('classes.address', address_id=secondary_address_id) }}">{{ secondary_address }}</a></li>
-                {% endfor %}
-            </ul>
+            {% for secondary_address_id, secondary_address in secondary_addresses.items() %}
+                <a href="{{ url_for('classes.address', address_id=secondary_address_id) }}">{{ secondary_address }}</a><br />
+            {% endfor %}
         </td>
     </tr>
+    {% endif %}
+    {% if mesh_block_2011s|length > 0 %}
     <tr>
         <td>Mesh Block 2011</td><td>
-            <ul>
-                {% for mesh_block_2011 in mesh_block_2011s %}
-                    <li><a href="{{ mesh_block_2011_uri%mesh_block_2011|urlencode }}">{{ mesh_block_2011 }}</a></li>
-                {% endfor %}
-            </ul>
+            {% for mesh_block_2011 in mesh_block_2011s %}
+                <a href="{{ mesh_block_2011_uri%mesh_block_2011|urlencode }}">{{ mesh_block_2011 }}</a><br />
+            {% endfor %}
         </td>
     </tr>
+    {% endif %}
+    {% if mesh_block_2016s|length > 0 %}
     <tr>
         <td>Mesh Block 2016</td><td>
-            <ul>
-                {% for mesh_block_2016 in mesh_block_2016s %}
-                    <li><a href="{{ mesh_block_2016_uri%mesh_block_2016|urlencode }}">{{ mesh_block_2016 }}</a></li>
-                {% endfor %}
-            </ul>
+            {% for mesh_block_2016 in mesh_block_2016s %}
+                <a href="{{ mesh_block_2016_uri%mesh_block_2016|urlencode }}">{{ mesh_block_2016 }}</a><br />
+            {% endfor %}
         </td>
     </tr>
+    {% endif %}
 </table>
