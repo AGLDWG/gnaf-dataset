@@ -1,5 +1,5 @@
 <h2>G-NAF View</h2>
-<table>
+<table class="content">
     <tr><th>Property</th><th>Value</th></tr>
     <tr><td>Address Line</td><td><code>{{ address_string }}</code></td></tr>
     {% if building_name is not none %}
@@ -114,7 +114,7 @@
     <tr>
         <td>Principal Address</td><td>
             {% for principal_address_id, principal_address in principal_addresses.items() %}
-                <a href="{{ url_for('classes.address', address_id=principal_address_id) }}">{{ principal_address }}</a><br />
+                <code><a href="{{ url_for('classes.address', address_id=principal_address_id) }}">{{ principal_address }}</a></code><br />
             {% endfor %}
         </td>
     </tr>
@@ -123,7 +123,7 @@
     <tr>
         <td>Alias Addresses</td><td>
             {% for alias_address_id, alias_address in alias_addresses.items() %}
-                <a href="{{ url_for('classes.address', address_id=alias_address_id) }}">{{ alias_address }}</a><br />
+                <code><a href="{{ url_for('classes.address', address_id=alias_address_id) }}">{{ alias_address }}</a></code><br />
             {% endfor %}
         </td>
     </tr>
@@ -132,7 +132,7 @@
     <tr>
         <td>Primary Address</td><td>
             {% for primary_address_id, primary_address in primary_addresses.items() %}
-                <a href="{{ url_for('classes.address', address_id=primary_address_id) }}">{{ primary_address }}</a><br />
+                <code><a href="{{ url_for('classes.address', address_id=primary_address_id) }}">{{ primary_address }}</a></code><br />
             {% endfor %}
         </td>
     </tr>
@@ -141,7 +141,7 @@
     <tr>
         <td>Secondary Addresses</td><td>
             {% for secondary_address_id, secondary_address in secondary_addresses.items() %}
-                <a href="{{ url_for('classes.address', address_id=secondary_address_id) }}">{{ secondary_address }}</a><br />
+                <code><a href="{{ url_for('classes.address', address_id=secondary_address_id) }}">{{ secondary_address }}</a></code><br />
             {% endfor %}
         </td>
     </tr>
@@ -150,7 +150,7 @@
     <tr>
         <td>Mesh Block 2011</td><td>
             {% for mesh_block_2011 in mesh_block_2011s %}
-                <a href="{{ mesh_block_2011_uri%mesh_block_2011|urlencode }}">{{ mesh_block_2011 }}</a><br />
+                <code><a href="{{ mesh_block_2011_uri%mesh_block_2011|urlencode }}">{{ mesh_block_2011 }}</a></code><br />
             {% endfor %}
         </td>
     </tr>
@@ -159,7 +159,7 @@
     <tr>
         <td>Mesh Block 2016</td><td>
             {% for mesh_block_2016 in mesh_block_2016s %}
-                <a href="{{ mesh_block_2016_uri%mesh_block_2016|urlencode }}">{{ mesh_block_2016 }}</a><br />
+                <code><a href="{{ mesh_block_2016_uri%mesh_block_2016|urlencode }}">{{ mesh_block_2016 }}</a></code><br />
             {% endfor %}
         </td>
     </tr>

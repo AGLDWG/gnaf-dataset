@@ -1,27 +1,32 @@
 <h2>G-NAF View</h2>
-<table>
+<table class="content">
     <tr><th>Property</th><th>Value</th></tr>
     <tr><td>Locality Name</td><td>{{ locality_name }}</td></tr>
     <tr><td>State PID</td><td>{{ state_pid }}</td></tr>
     <tr><td>Default Latitude</td><td><code>{{ latitude }}</code></td></tr>
     <tr><td>Default Longitude</td><td><code>{{ longitude }}</code></td></tr>
     <tr><td>Default Geocode Type</td><td><code>{{ geocode_type }}</code></td></tr>
+    {% if locality_aliases.items()|length > 0 %}
     <tr>
         <td>Locality Aliases</td><td>
             <ul>
                 {% for locality_alias_id, locality_alias in locality_aliases.items() %}
-                    <li><a href="{{ url_for('classes.locality_alias', locality_alias_id=locality_alias_id) }}">{{ locality_alias }}</a></li>
+                    <li><code><a href="{{ url_for('classes.locality_alias', locality_alias_id=locality_alias_id) }}">{{ locality_alias }}</a></code></li>
                 {% endfor %}
             </ul>
         </td>
     </tr>
+    {% endif %}
+    {% if locality_neighbours.items()|length > 0 %}
     <tr>
+
         <td>Locality Neighbours</td><td>
             <ul>
                 {% for locality_neighbour_id, locality_neighbour in locality_neighbours.items() %}
-                    <li><a href="{{ url_for('classes.locality', locality_id=locality_neighbour_id) }}">{{ locality_neighbour }}</a></li>
+                    <li><code><a href="{{ url_for('classes.locality', locality_id=locality_neighbour_id) }}">{{ locality_neighbour }}</a></code></li>
                 {% endfor %}
             </ul>
         </td>
     </tr>
+    {% endif %}
 </table>

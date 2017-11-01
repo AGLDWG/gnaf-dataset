@@ -1,16 +1,24 @@
 <h2>G-NAF View</h2>
-<table>
+<table class="content">
     <tr><th>Property</th><th>Value</th></tr>
+    {% if address_site_pid is not none %}
     <tr><td>Address Site PID</td><td><code>{{ address_site_pid }}</code></td></tr>
-    <tr><td>Address Site Name</td><td><code>{{ address_site_name_name }}</code></td></tr>
+    {% endif %}
+    {% if address_site_name is not none %}
+    <tr><td>Address Site Name</td><td><code>{{ address_site_name }}</code></td></tr>
+    {% endif %}
+    {% if address_type is not none %}
     <tr><td>Address Type</td><td><code>{{ address_type }}</code></td></tr>
+    {% endif %}
+    {% if address_site_geocode_ids|length > 0 %}
     <tr>
         <td>Address Site Geocodes</td><td>
             <ul>
                 {% for address_site_geocode_id in address_site_geocode_ids %}
-                    <li><a href="{{ url_for('classes.address_site_geocode', address_site_geocode_id=address_site_geocode_id) }}">{{ url_for('classes.address_site_geocode', address_site_geocode_id=address_site_geocode_id) }}</a></li>
+                    <li><code><a href="{{ url_for('classes.address_site_geocode', address_site_geocode_id=address_site_geocode_id) }}">{{ address_site_geocode_id }}</a></code></li>
                 {% endfor %}
             </ul>
         </td>
     </tr>
+    {% endif %}
 </table>
