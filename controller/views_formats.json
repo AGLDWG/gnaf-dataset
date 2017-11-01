@@ -21,16 +21,16 @@
       "description": "Dublin Core Terms from the Dublin Core Metadata Initiative"
     },
     "gnaf": {
-      "mimetypes": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json"],
+      "mimetypes": ["text/html"],
       "default_mimetype": "text/html",
       "namespace": "http://reference.data.gov.au/def/ont/gnaf#",
-      "description": "The G-NAF ontology. An OWL2 ontology based on the data model of PSMA's G-NAF as of August, 2017"
+      "description": "G-NAF web page view. A simple human-readable, web page-only view, based on the data model of PSMA's G-NAF as of August, 2017"
     },
     "ISO19160": {
-      "mimetypes": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json"],
+      "mimetypes": ["text/turtle", "application/rdf+xml", "application/rdf+json"],
       "default_mimetype": "text/turtle",
       "namespace": "http://def.isotc211.org/iso19160/-1/2015/Address#",
-      "description": "ISO 19160-1:2015 Address"
+      "description": "The OWL ontology view of the ISO 19160-1:2015 Address standard from the OGC's TC211 UML to OWL mapping: https://github.com/ISO-TC211/GOM/tree/master/isotc211_GOM_harmonizedOntology/19160-1/2015 "
     }
   },
   "http://reference.data.gov.au/def/ont/gnaf#AddressSite": {
@@ -49,16 +49,16 @@
       "description": "Dublin Core Terms from the Dublin Core Metadata Initiative"
     },
     "gnaf": {
-      "mimetypes": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json"],
+      "mimetypes": ["text/html"],
       "default_mimetype": "text/html",
       "namespace": "http://reference.data.gov.au/def/ont/gnaf#",
-      "description": "The G-NAF ontology. An OWL2 ontology based on the data model of PSMA's G-NAF as of August, 2017"
+      "description": "G-NAF web page view. A simple human-readable, web page-only view, based on the data model of PSMA's G-NAF as of August, 2017"
     },
     "ISO19160": {
-      "mimetypes": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json"],
+      "mimetypes": ["text/turtle", "application/rdf+xml", "application/rdf+json"],
       "default_mimetype": "text/turtle",
       "namespace": "http://def.isotc211.org/iso19160/-1/2015/Address#",
-      "description": "ISO 19160-1:2015 Address"
+      "description": "The OWL ontology view of the ISO 19160-1:2015 Address standard from the OGC's TC211 UML to OWL mapping: https://github.com/ISO-TC211/GOM/tree/master/isotc211_GOM_harmonizedOntology/19160-1/2015 "
     }
   },
   "http://reference.data.gov.au/def/ont/gnaf#AddressSiteGeocode": {
@@ -77,23 +77,23 @@
       "description": "Dublin Core Terms from the Dublin Core Metadata Initiative"
     },
     "gnaf": {
-      "mimetypes": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json"],
+      "mimetypes": ["text/html"],
       "default_mimetype": "text/html",
       "namespace": "http://reference.data.gov.au/def/ont/gnaf#",
-      "description": "The G-NAF ontology. An OWL2 ontology based on the data model of PSMA's G-NAF as of August, 2017"
+      "description": "G-NAF web page view. A simple human-readable, web page-only view, based on the data model of PSMA's G-NAF as of August, 2017"
     },
     "ISO19160": {
-      "mimetypes": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json"],
+      "mimetypes": ["text/turtle", "application/rdf+xml", "application/rdf+json"],
       "default_mimetype": "text/turtle",
       "namespace": "http://def.isotc211.org/iso19160/-1/2015/Address#",
-      "description": "ISO 19160-1:2015 Address Site Geocode"
+      "description": "The OWL ontology view of the ISO 19160-1:2015 Address standard from the OGC's TC211 UML to OWL mapping: https://github.com/ISO-TC211/GOM/tree/master/isotc211_GOM_harmonizedOntology/19160-1/2015  Site Geocode"
     }
   },
   "http://reference.data.gov.au/def/ont/gnaf#Street": {
     "renderer": "StreetRenderer",
     "default": "gnaf",
     "alternates": {
-      "mimetypes": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json"],
+      "mimetypes": ["text/html"],
       "default_mimetype": "text/html",
       "namespace": "http://www.w3.org/ns/ldp#Alternates",
       "description": "The view listing all other views of this class of object"
@@ -105,13 +105,13 @@
       "description": "Dublin Core Terms from the Dublin Core Metadata Initiative"
     },
     "gnaf": {
-      "mimetypes": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json"],
+      "mimetypes": ["text/html"],
       "default_mimetype": "text/html",
       "namespace": "http://reference.data.gov.au/def/ont/gnaf#",
-      "description": "The G-NAF ontology. An OWL2 ontology based on the data model of PSMA's G-NAF as of August, 2017"
+      "description": "G-NAF web page view. A simple human-readable, web page-only view, based on the data model of PSMA's G-NAF as of August, 2017"
     },
     "ISO19160": {
-      "mimetypes": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json"],
+      "mimetypes": ["text/turtle", "application/rdf+xml", "application/rdf+json"],
       "default_mimetype": "text/turtle",
       "namespace": "http://def.isotc211.org/iso19160/-1/2015/Address#",
       "description": "ISO 19160-1:2015 Street"
@@ -121,7 +121,7 @@
     "renderer": "StreetLocalityAliasRenderer",
     "default": "gnaf",
     "alternates": {
-      "mimetypes": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json"],
+      "mimetypes": ["text/html"],
       "default_mimetype": "text/html",
       "namespace": "http://www.w3.org/ns/ldp#Alternates",
       "description": "The view listing all other views of this class of object"
@@ -133,13 +133,13 @@
       "description": "Dublin Core Terms from the Dublin Core Metadata Initiative"
     },
     "gnaf": {
-      "mimetypes": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json"],
+      "mimetypes": ["text/html"],
       "default_mimetype": "text/html",
       "namespace": "http://reference.data.gov.au/def/ont/gnaf#",
-      "description": "The G-NAF ontology. An OWL2 ontology based on the data model of PSMA's G-NAF as of August, 2017"
+      "description": "G-NAF web page view. A simple human-readable, web page-only view, based on the data model of PSMA's G-NAF as of August, 2017"
     },
     "ISO19160": {
-      "mimetypes": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json"],
+      "mimetypes": ["text/turtle", "application/rdf+xml", "application/rdf+json"],
       "default_mimetype": "text/turtle",
       "namespace": "http://def.isotc211.org/iso19160/-1/2015/Address#",
       "description": "ISO 19160-1:2015 Street Locality Alias"
@@ -161,13 +161,13 @@
       "description": "Dublin Core Terms from the Dublin Core Metadata Initiative"
     },
     "gnaf": {
-      "mimetypes": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json"],
+      "mimetypes": ["text/html"],
       "default_mimetype": "text/html",
       "namespace": "http://reference.data.gov.au/def/ont/gnaf#",
-      "description": "The G-NAF ontology. An OWL2 ontology based on the data model of PSMA's G-NAF as of August, 2017"
+      "description": "G-NAF web page view. A simple human-readable, web page-only view, based on the data model of PSMA's G-NAF as of August, 2017"
     },
     "ISO19160": {
-      "mimetypes": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json"],
+      "mimetypes": ["text/turtle", "application/rdf+xml", "application/rdf+json"],
       "default_mimetype": "text/html",
       "namespace": "http://def.isotc211.org/iso19160/-1/2015/Address#",
       "description": "ISO 19160-1:2015 Locality"
@@ -189,13 +189,13 @@
       "description": "Dublin Core Terms from the Dublin Core Metadata Initiative"
     },
     "gnaf": {
-      "mimetypes": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json"],
+      "mimetypes": ["text/html"],
       "default_mimetype": "text/html",
       "namespace": "http://reference.data.gov.au/def/ont/gnaf#",
-      "description": "The G-NAF ontology. An OWL2 ontology based on the data model of PSMA's G-NAF as of August, 2017"
+      "description": "G-NAF web page view. A simple human-readable, web page-only view, based on the data model of PSMA's G-NAF as of August, 2017"
     },
     "ISO19160": {
-      "mimetypes": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json"],
+      "mimetypes": ["text/turtle", "application/rdf+xml", "application/rdf+json"],
       "default_mimetype": "text/turtle",
       "namespace": "http://def.isotc211.org/iso19160/-1/2015/Address#",
       "description": "ISO 19160-1:2015 Locality Alias"
