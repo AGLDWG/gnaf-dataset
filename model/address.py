@@ -932,4 +932,5 @@ class AddressRenderer(Renderer):
             g.add((position, ISO.type, URIRef(AddressPositionTypeUriBase + 'centroid')))
             g.add((a, ISO.position, position))
 
+        print('format: ' + format)
         return g.serialize(format=LDAPI.get_rdf_parser_for_mimetype(format))

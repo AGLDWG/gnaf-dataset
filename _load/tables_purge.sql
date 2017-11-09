@@ -1,0 +1,1 @@
+SELECT 'DROP TABLE IF EXISTS gnaf.' || tablename || ' cascade;' FROM pg_tables WHERE schemaname = 'gnaf';
