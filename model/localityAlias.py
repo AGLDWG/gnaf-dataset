@@ -34,7 +34,7 @@ class LocalityAliasRenderer(Renderer):
             # make a human-readable address
             s = sql.SQL('''SELECT 
                         a.locality_pid, 
-                        a.locality_name,
+                        a."name",
                         b.locality_name                    
                     FROM {dbschema}.locality_alias a
                       INNER JOIN {dbschema}.locality_view b ON a.locality_pid = b.locality_pid
@@ -78,7 +78,7 @@ class LocalityAliasRenderer(Renderer):
         elif view == 'dct':
             s = sql.SQL('''SELECT 
                         locality_pid, 
-                        locality_name                     
+                        "name"                  
                     FROM {dbschema}.locality_alias
                     WHERE locality_alias_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
@@ -126,7 +126,7 @@ class LocalityAliasRenderer(Renderer):
             # get the components from the DB needed for ISO19160
             s = sql.SQL('''SELECT 
                         locality_pid, 
-                        locality_name                     
+                        "name"                     
                     FROM {dbschema}.locality_alias
                     WHERE locality_alias_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
