@@ -40,6 +40,12 @@ CREATE INDEX ix_locality_localitypid_statepid
   USING btree
   (locality_pid, state_pid);
 
+-- DROP INDEX gnaf.ix_localitypoint_streetlocalitypid_point;
+CREATE INDEX ix_localitypoint_streetlocalitypid_point
+  ON gnaf.locality_point
+  USING btree
+  (locality_pid, latitude, longitude);
+
 -- DROP INDEX gnaf.ix_primarysecondary_primary_secondary;
 CREATE INDEX ix_primarysecondary_primary_secondary
   ON gnaf.primary_secondary
@@ -57,3 +63,9 @@ CREATE INDEX ix_streetlocality_streetlocalitypid_localitypid
   ON gnaf.street_locality
   USING btree
   (street_locality_pid, locality_pid);
+
+-- DROP INDEX gnaf.ix_streetlocalitypoint_streetlocalitypid_point;
+CREATE INDEX ix_streetlocalitypoint_streetlocalitypid_point
+  ON gnaf.street_locality_point
+  USING btree
+  (street_locality_pid, latitude, longitude);
