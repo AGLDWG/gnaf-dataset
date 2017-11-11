@@ -239,44 +239,48 @@ class AddressRenderer(Renderer):
 
             # get a list of aliasIds from the address_alias table
             s2 = sql.SQL('''SELECT 
-                        b.street_locality_pid, 
-                        b.locality_pid, 
-                        CAST(b.number_first AS text), 
-                        a.street_name, 
-                        a.street_type_code, 
-                        a.locality_name, 
-                        a.state_abbreviation, 
-                        b.postcode ,
-                        a.latitude,
-                        a.longitude,
-                        a.geocode_type,
-                        CAST(b.confidence AS text),
-                        CAST(b.date_created AS text),
-                        CAST(b.date_last_modified AS text),
-                        CAST(b.date_retired AS text),
-                        b.building_name,
-                        b.lot_number_prefix,
-                        b.lot_number,
-                        b.lot_number_suffix,
-                        b.flat_type_code,
-                        b.flat_number_prefix,
-                        CAST(b.flat_number AS text),
-                        b.flat_number_suffix,
-                        b.level_type_code,
-                        b.level_number_prefix,
-                        CAST(b.level_number AS text),
-                        b.level_number_suffix,
-                        b.number_first_prefix,
-                        b.number_first_suffix,
-                        b.number_last_prefix,
-                        CAST(b.number_last AS text),
-                        b.number_last_suffix,
+                        a.street_locality_pid, 
+                        a.locality_pid, 
+                        CAST(a.number_first AS text), 
+                        s.street_name, 
+                        s.street_type_code, 
+                        l.locality_name, 
+                        st.state_abbreviation, 
+                        a.postcode ,
+                        g.latitude,
+                        g.longitude,
+                        gt.name AS geocode_type,
+                        CAST(a.confidence AS text),
+                        CAST(a.date_created AS text),
+                        CAST(a.date_last_modified AS text),
+                        CAST(a.date_retired AS text),
+                        a.building_name,
+                        a.lot_number_prefix,
+                        a.lot_number,
+                        a.lot_number_suffix,
+                        a.flat_type_code,
+                        a.flat_number_prefix,
+                        CAST(a.flat_number AS text),
+                        a.flat_number_suffix,
+                        a.level_type_code,
+                        a.level_number_prefix,
+                        CAST(a.level_number AS text),
+                        a.level_number_suffix,
+                        a.number_first_prefix,
+                        a.number_first_suffix,
+                        a.number_last_prefix,
+                        CAST(a.number_last AS text),
+                        a.number_last_suffix,
                         c.alias_pid,
                         c.alias_type_code                                        
                     FROM 
                         {dbschema}.address_alias c
-                          INNER JOIN {dbschema}.address_view a ON c.alias_pid = a.address_detail_pid
-                          INNER JOIN {dbschema}.address_detail b ON a.address_detail_pid = b.address_detail_pid
+                          INNER JOIN {dbschema}.address_detail a ON c.alias_pid = a.address_detail_pid
+                          INNER JOIN {dbschema}.address_default_geocode g ON a.address_detail_pid = g.address_detail_pid
+                          INNER JOIN {dbschema}.geocode_type_aut gt ON g.geocode_type_code = gt.code
+                          INNER JOIN {dbschema}.street_locality s ON a.street_locality_pid = s.street_locality_pid
+                          INNER JOIN {dbschema}.locality l ON s.locality_pid = l.locality_pid
+                          INNER JOIN {dbschema}.state st ON l.state_pid = st.state_pid
                     WHERE principal_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
@@ -348,44 +352,48 @@ class AddressRenderer(Renderer):
 
             # get a list of principalIds from the address_alias table
             s3 = sql.SQL('''SELECT 
-                        b.street_locality_pid, 
-                        b.locality_pid, 
-                        CAST(b.number_first AS text), 
-                        a.street_name, 
-                        a.street_type_code, 
-                        a.locality_name, 
-                        a.state_abbreviation, 
-                        b.postcode ,
-                        a.latitude,
-                        a.longitude,
-                        a.geocode_type,
-                        CAST(b.confidence AS text),
-                        CAST(b.date_created AS text),
-                        CAST(b.date_last_modified AS text),
-                        CAST(b.date_retired AS text),
-                        b.building_name,
-                        b.lot_number_prefix,
-                        b.lot_number,
-                        b.lot_number_suffix,
-                        b.flat_type_code,
-                        b.flat_number_prefix,
-                        CAST(b.flat_number AS text),
-                        b.flat_number_suffix,
-                        b.level_type_code,
-                        b.level_number_prefix,
-                        CAST(b.level_number AS text),
-                        b.level_number_suffix,
-                        b.number_first_prefix,
-                        b.number_first_suffix,
-                        b.number_last_prefix,
-                        CAST(b.number_last AS text),
-                        b.number_last_suffix,
-                        c.principal_pid,
+                        a.street_locality_pid, 
+                        a.locality_pid, 
+                        CAST(a.number_first AS text), 
+                        s.street_name, 
+                        s.street_type_code, 
+                        l.locality_name, 
+                        st.state_abbreviation, 
+                        a.postcode ,
+                        g.latitude,
+                        g.longitude,
+                        gt.name AS geocode_type,
+                        CAST(a.confidence AS text),
+                        CAST(a.date_created AS text),
+                        CAST(a.date_last_modified AS text),
+                        CAST(a.date_retired AS text),
+                        a.building_name,
+                        a.lot_number_prefix,
+                        a.lot_number,
+                        a.lot_number_suffix,
+                        a.flat_type_code,
+                        a.flat_number_prefix,
+                        CAST(a.flat_number AS text),
+                        a.flat_number_suffix,
+                        a.level_type_code,
+                        a.level_number_prefix,
+                        CAST(a.level_number AS text),
+                        a.level_number_suffix,
+                        a.number_first_prefix,
+                        a.number_first_suffix,
+                        a.number_last_prefix,
+                        CAST(a.number_last AS text),
+                        a.number_last_suffix,
+                        c.alias_pid,
                         c.alias_type_code                                        
                     FROM 
                         {dbschema}.address_alias c
-                          INNER JOIN {dbschema}.address_view a ON c.principal_pid = a.address_detail_pid
-                          INNER JOIN {dbschema}.address_detail b ON a.address_detail_pid = b.address_detail_pid
+                          INNER JOIN {dbschema}.address_detail a ON c.principal_pid = a.address_detail_pid
+                          INNER JOIN {dbschema}.address_default_geocode g ON a.address_detail_pid = g.address_detail_pid
+                          INNER JOIN {dbschema}.geocode_type_aut gt ON g.geocode_type_code = gt.code
+                          INNER JOIN {dbschema}.street_locality s ON a.street_locality_pid = s.street_locality_pid
+                          INNER JOIN {dbschema}.locality l ON s.locality_pid = l.locality_pid
+                          INNER JOIN {dbschema}.state st ON l.state_pid = st.state_pid
                     WHERE alias_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
@@ -457,44 +465,48 @@ class AddressRenderer(Renderer):
 
             # get a list of secondaryIds from the primary_secondary table
             s4 = sql.SQL('''SELECT 
-                        b.street_locality_pid, 
-                        b.locality_pid, 
-                        CAST(b.number_first AS text), 
-                        a.street_name, 
-                        a.street_type_code, 
-                        a.locality_name, 
-                        a.state_abbreviation, 
-                        b.postcode ,
-                        a.latitude,
-                        a.longitude,
-                        a.geocode_type,
-                        CAST(b.confidence AS text),
-                        CAST(b.date_created AS text),
-                        CAST(b.date_last_modified AS text),
-                        CAST(b.date_retired AS text),
-                        b.building_name,
-                        b.lot_number_prefix,
-                        b.lot_number,
-                        b.lot_number_suffix,
-                        b.flat_type_code,
-                        b.flat_number_prefix,
-                        CAST(b.flat_number AS text),
-                        b.flat_number_suffix,
-                        b.level_type_code,
-                        b.level_number_prefix,
-                        CAST(b.level_number AS text),
-                        b.level_number_suffix,
-                        b.number_first_prefix,
-                        b.number_first_suffix,
-                        b.number_last_prefix,
-                        CAST(b.number_last AS text),
-                        b.number_last_suffix,
+                        a.street_locality_pid, 
+                        a.locality_pid, 
+                        CAST(a.number_first AS text), 
+                        s.street_name, 
+                        s.street_type_code, 
+                        l.locality_name, 
+                        st.state_abbreviation, 
+                        a.postcode ,
+                        g.latitude,
+                        g.longitude,
+                        gt.name AS geocode_type,
+                        CAST(a.confidence AS text),
+                        CAST(a.date_created AS text),
+                        CAST(a.date_last_modified AS text),
+                        CAST(a.date_retired AS text),
+                        a.building_name,
+                        a.lot_number_prefix,
+                        a.lot_number,
+                        a.lot_number_suffix,
+                        a.flat_type_code,
+                        a.flat_number_prefix,
+                        CAST(a.flat_number AS text),
+                        a.flat_number_suffix,
+                        a.level_type_code,
+                        a.level_number_prefix,
+                        CAST(a.level_number AS text),
+                        a.level_number_suffix,
+                        a.number_first_prefix,
+                        a.number_first_suffix,
+                        a.number_last_prefix,
+                        CAST(a.number_last AS text),
+                        a.number_last_suffix,
                         c.secondary_pid,
                         c.ps_join_type_code                                        
                     FROM 
                         {dbschema}.primary_secondary c
-                        INNER JOIN {dbschema}.address_view a ON c.secondary_pid = a.address_detail_pid
-                        INNER JOIN {dbschema}.address_detail b ON a.address_detail_pid = b.address_detail_pid
+                          INNER JOIN {dbschema}.address_detail a ON c.secondary_pid = a.address_detail_pid
+                          INNER JOIN {dbschema}.address_default_geocode g ON a.address_detail_pid = g.address_detail_pid
+                          INNER JOIN {dbschema}.geocode_type_aut gt ON g.geocode_type_code = gt.code
+                          INNER JOIN {dbschema}.street_locality s ON a.street_locality_pid = s.street_locality_pid
+                          INNER JOIN {dbschema}.locality l ON s.locality_pid = l.locality_pid
+                          INNER JOIN {dbschema}.state st ON l.state_pid = st.state_pid
                     WHERE primary_pid = {id}''') \
                 .format(dbschema=sql.Identifier(config.DB_SCHEMA), id=sql.Literal(self.id))
 
@@ -566,44 +578,48 @@ class AddressRenderer(Renderer):
 
             # get a list of primaryIds from the primary_secondary table
             s5 = sql.SQL('''SELECT 
-                        b.street_locality_pid, 
-                        b.locality_pid, 
-                        CAST(b.number_first AS text), 
-                        a.street_name, 
-                        a.street_type_code, 
-                        a.locality_name, 
-                        a.state_abbreviation, 
-                        b.postcode ,
-                        a.latitude,
-                        a.longitude,
-                        a.geocode_type,
-                        CAST(b.confidence AS text),
-                        CAST(b.date_created AS text),
-                        CAST(b.date_last_modified AS text),
-                        CAST(b.date_retired AS text),
-                        b.building_name,
-                        b.lot_number_prefix,
-                        b.lot_number,
-                        b.lot_number_suffix,
-                        b.flat_type_code,
-                        b.flat_number_prefix,
-                        CAST(b.flat_number AS text),
-                        b.flat_number_suffix,
-                        b.level_type_code,
-                        b.level_number_prefix,
-                        CAST(b.level_number AS text),
-                        b.level_number_suffix,
-                        b.number_first_prefix,
-                        b.number_first_suffix,
-                        b.number_last_prefix,
-                        CAST(b.number_last AS text),
-                        b.number_last_suffix,
-                        c.primary_pid,
+                        a.street_locality_pid, 
+                        a.locality_pid, 
+                        CAST(a.number_first AS text), 
+                        s.street_name, 
+                        s.street_type_code, 
+                        l.locality_name, 
+                        st.state_abbreviation, 
+                        a.postcode ,
+                        g.latitude,
+                        g.longitude,
+                        gt.name AS geocode_type,
+                        CAST(a.confidence AS text),
+                        CAST(a.date_created AS text),
+                        CAST(a.date_last_modified AS text),
+                        CAST(a.date_retired AS text),
+                        a.building_name,
+                        a.lot_number_prefix,
+                        a.lot_number,
+                        a.lot_number_suffix,
+                        a.flat_type_code,
+                        a.flat_number_prefix,
+                        CAST(a.flat_number AS text),
+                        a.flat_number_suffix,
+                        a.level_type_code,
+                        a.level_number_prefix,
+                        CAST(a.level_number AS text),
+                        a.level_number_suffix,
+                        a.number_first_prefix,
+                        a.number_first_suffix,
+                        a.number_last_prefix,
+                        CAST(a.number_last AS text),
+                        a.number_last_suffix,
+                        c.secondary_pid,
                         c.ps_join_type_code                                        
                     FROM 
                         {dbschema}.primary_secondary c
-                          INNER JOIN {dbschema}.address_view a ON c.primary_pid = a.address_detail_pid
-                          INNER JOIN {dbschema}.address_detail b ON a.address_detail_pid = b.address_detail_pid
+                          INNER JOIN {dbschema}.address_detail a ON c.primary_pid = a.address_detail_pid
+                          INNER JOIN {dbschema}.address_default_geocode g ON a.address_detail_pid = g.address_detail_pid
+                          INNER JOIN {dbschema}.geocode_type_aut gt ON g.geocode_type_code = gt.code
+                          INNER JOIN {dbschema}.street_locality s ON a.street_locality_pid = s.street_locality_pid
+                          INNER JOIN {dbschema}.locality l ON s.locality_pid = l.locality_pid
+                          INNER JOIN {dbschema}.state st ON l.state_pid = st.state_pid
                     WHERE secondary_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 

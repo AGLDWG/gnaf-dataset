@@ -1,4 +1,4 @@
--- DROP VIEW gnaf.address_mesh_block_2011_view;
+﻿-- DROP VIEW gnaf.address_mesh_block_2011_view;
 
 CREATE OR REPLACE VIEW gnaf.address_mesh_block_2011_view AS 
  SELECT a.address_mesh_block_2011_pid,
@@ -37,27 +37,57 @@ CREATE OR REPLACE VIEW gnaf.address_site_geocode_view AS
 -- DROP VIEW gnaf.address_view;
 
 CREATE OR REPLACE VIEW gnaf.address_view AS 
- SELECT a.address_detail_pid,
-    a.street_locality_pid,
-    a.locality_pid,
-    a.number_first,
-    b.street_name,
-    b.street_type_code,
-    c.locality_name,
-    d.state_abbreviation,
-    a.postcode,
-    e.longitude,
-    e.latitude,
-    f.name AS geocode_type,
-    a.confidence
-   FROM gnaf.address_detail a,
-    gnaf.street_locality b,
-    gnaf.locality c,
-    gnaf.state d,
-    gnaf.address_default_geocode e,
-    gnaf.geocode_type_aut f
-  WHERE a.street_locality_pid::text = b.street_locality_pid::text AND b.locality_pid::text = c.locality_pid::text AND c.state_pid::text = d.state_pid::text AND a.address_detail_pid::text = e.address_detail_pid::text AND e.geocode_type_code::text = f.code::text;
-
+ SELECT ad.address_detail_pid,
+    ad.street_locality_pid,
+    ad.locality_pid,
+    ad.building_name,
+    ad.lot_number_prefix,
+    ad.lot_number,
+    ad.lot_number_suffix,
+    fta.name AS flat_type,
+    ad.flat_number_prefix,
+    ad.flat_number,
+    ad.flat_number_suffix,
+    lta.name AS level_type,
+    ad.level_number_prefix,
+    ad.level_number,
+    ad.level_number_suffix,
+    ad.number_first_prefix,
+    ad.number_first,
+    ad.number_first_suffix,
+    ad.number_last_prefix,
+    ad.number_last,
+    ad.number_last_suffix,
+    sl.street_name,
+    sl.street_class_code,
+    sca.name AS street_class_type,
+    sl.street_type_code,
+    sl.street_suffix_code,
+    ssa.name AS street_suffix_type,
+    l.locality_name,
+    st.state_abbreviation,
+    ad.postcode,
+    adg.latitude,
+    adg.longitude,
+    gta.name AS geocode_type,
+    ad.confidence,
+    ad.alias_principal,
+    ad.primary_secondary,
+    ad.legal_parcel_id,
+    ad.date_created
+   FROM gnaf.address_detail ad
+     LEFT JOIN gnaf.flat_type_aut fta ON ad.flat_type_code::text = fta.code::text
+     LEFT JOIN gnaf.level_type_aut lta ON ad.level_type_code::text = lta.code::text
+     JOIN gnaf.street_locality sl ON ad.street_locality_pid::text = sl.street_locality_pid::text
+     LEFT JOIN gnaf.street_suffix_aut ssa ON sl.street_suffix_code::text = ssa.code::text
+     LEFT JOIN gnaf.street_class_aut sca ON sl.street_class_code = sca.code
+     LEFT JOIN gnaf.street_type_aut sta ON sl.street_type_code::text = sta.code::text
+     JOIN gnaf.locality l ON ad.locality_pid::text = l.locality_pid::text
+     JOIN gnaf.address_default_geocode adg ON ad.address_detail_pid::text = adg.address_detail_pid::text
+     LEFT JOIN gnaf.geocode_type_aut gta ON adg.geocode_type_code::text = gta.code::text
+     LEFT JOIN gnaf.geocoded_level_type_aut glta ON ad.level_geocoded_code = glta.code
+     JOIN gnaf.state st ON l.state_pid::text = st.state_pid::text
+  WHERE ad.confidence > CAST(CAST('-1' AS integer) AS numeric);
 -- DROP VIEW gnaf.locality_view;
 
 CREATE OR REPLACE VIEW gnaf.locality_view AS 
