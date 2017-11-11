@@ -73,7 +73,7 @@ class LocalityRenderer(Renderer):
             # get a list of localityAliasIds from the locality_alias table
             s2 = sql.SQL('''SELECT 
                         locality_alias_pid,
-                        name                
+                        "name"                
                     FROM {dbschema}.locality_alias
                     WHERE locality_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
