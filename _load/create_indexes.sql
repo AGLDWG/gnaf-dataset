@@ -10,17 +10,29 @@ CREATE INDEX ix_addressalias_alias_principal
   USING btree
   (alias_pid, principal_pid);
 
+-- DROP INDEX gnaf.ix_addressdefaultgeocode_addressdetailpid;
+CREATE INDEX ix_addressdefaultgeocode_addressdetailpid
+  ON gnaf.address_default_geocode
+  USING btree
+  (address_detail_pid);
+
 -- DROP INDEX gnaf.ix_addressdetail_address;
 CREATE INDEX ix_addressdetail_address
   ON gnaf.address_detail
   USING btree
   (address_detail_pid, street_locality_pid, locality_pid, CAST(CAST(confidence AS integer) AS numeric));
 
--- DROP INDEX gnaf.ix_addressdefaultgeocode_addressdetailpid;
-CREATE INDEX ix_addressdefaultgeocode_addressdetailpid
-  ON gnaf.address_default_geocode
+-- DROP INDEX gnaf.ix_addressmeshblock2011_addressdetailpid_mb2011pid;
+CREATE INDEX ix_addressmeshblock2011_addressdetailpid_mb2011pid
+  ON gnaf.address_mesh_block_2011
   USING btree
-  (address_detail_pid);
+  (address_detail_pid, mb_2011_pid);
+
+-- DROP INDEX gnaf.ix_addressmeshblock2016_addressdetailpid_mb2016pid;
+CREATE INDEX ix_addressmeshblock2016_addressdetailpid_mb2016pid
+  ON gnaf.address_mesh_block_2016
+  USING btree
+  (address_detail_pid, mb_2016_pid);
 
 -- DROP INDEX gnaf.ix_locality_localitypid_statepid;
 CREATE INDEX ix_locality_localitypid_statepid
