@@ -34,6 +34,12 @@ CREATE INDEX ix_addressmeshblock2016_addressdetailpid_mb2016pid
   USING btree
   (address_detail_pid, mb_2016_pid);
 
+-- DROP INDEX gnaf.ix_addresssitegeocode_addresssitepid_geocodetype;
+CREATE INDEX ix_addresssitegeocode_addresssitepid_geocodetype
+  ON gnaf.address_site_geocode
+  USING btree
+  (address_site_pid, geocode_type_code);
+
 -- DROP INDEX gnaf.ix_locality_localitypid_statepid;
 CREATE INDEX ix_locality_localitypid_statepid
   ON gnaf.locality
