@@ -14,8 +14,8 @@
     <tr>
         <td>Address Site Geocodes</td><td>
             <ul>
-                {% for address_site_geocode_id in address_site_geocode_ids %}
-                    <li><code><a href="{{ url_for('classes.address_site_geocode', address_site_geocode_id=address_site_geocode_id) }}">{{ address_site_geocode_id }}</a></code></li>
+                {% for address_site_geocode_id, geocode_type in address_site_geocode_ids.items() %}
+                    <li><code><a href="{{ url_for('classes.address_site_geocode', address_site_geocode_id=address_site_geocode_id) }}">{{ geocode_type }}</a></code></li>
                 {% endfor %}
             </ul>
         </td>
