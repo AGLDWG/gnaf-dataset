@@ -19,7 +19,7 @@ class AddressSiteRenderer(Renderer):
         # super(AddressRenderer, self).__init__(id)
         self.id = id
         self.uri = config.URI_ADDRESS_SITE_INSTANCE_BASE + id
-        self.address_site_geocode_ids = []
+        self.address_site_geocode_ids = dict()
 
     def render(self, view, format):
         if format == 'text/html':
@@ -61,7 +61,8 @@ class AddressSiteRenderer(Renderer):
 
             # get a list of addressSiteGeocodeIds from the address_site_geocode table
             s2 = sql.SQL('''SELECT 
-                        address_site_geocode_pid                
+                        address_site_geocode_pid,
+                        geocode_type                
                     FROM {dbschema}.address_site_geocode_view
                     WHERE address_site_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
@@ -80,7 +81,7 @@ class AddressSiteRenderer(Renderer):
                 cursor.execute(s2)
                 rows = cursor.fetchall()
                 for row in rows:
-                    self.address_site_geocode_ids.append(row[0])
+                    self.address_site_geocode_ids[row[0]] = row[1].title()
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
