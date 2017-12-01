@@ -222,7 +222,7 @@ class AddressRenderer(Renderer):
                     level_geocoded_code = row[35]
                     property_pid = row[36]
                     primary_secondary = row[37]
-                    geometry_wkt = 'SRID=GDA94;POINT({} {})'.format(latitude, longitude)
+                    geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(latitude, longitude)
             except Exception as e:
                 print("DB conn 1 can't connect to DB for query s. Invalid dbname, user or password?")
                 print(e)
@@ -743,7 +743,6 @@ class AddressRenderer(Renderer):
                 print("DB conn 7, can't connect to DB for query s7. Invalid dbname, user or password?")
                 print(e)
 
-            print('address_site_pid: ' + str(address_site_pid))
             view_html = render_template(
                 'class_address_gnaf.html',
                 address_string=this_address_string,
