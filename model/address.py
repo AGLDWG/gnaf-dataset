@@ -833,7 +833,7 @@ class AddressRenderer(Renderer):
                 for record in cursor:
                     address_string = '{} {} {}, {}, {} {}' \
                         .format(record[2], record[3].title(), record[4].title(), record[5].title(), record[6], record[7])
-                    geometry_wkt = 'SRID=GDA94;POINT({} {})'.format(record[8], record[9])
+                    geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(record[8], record[9])
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
@@ -893,7 +893,7 @@ class AddressRenderer(Renderer):
                     ac_locality_value = record[5].title()
                     ac_state_value = record[6]
                     ac_postcode_value = record[7]
-                    geometry_wkt = 'SRID=8311;POINT({} {})'.format(record[8], record[9])
+                    geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(record[8], record[9])
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
