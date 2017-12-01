@@ -178,7 +178,7 @@ class StreetRenderer(Renderer):
                     longitude = record[4]
                     geocode_type = record[5].title()
                     locality_pid = record[6]
-                    geometry_wkt = 'SRID=8311;POINT({} {})'.format(latitude, longitude)
+                    geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(latitude, longitude)
                     street_string = '{} {} {}'\
                         .format(street_name, street_type, street_suffix)
             except Exception as e:
@@ -238,7 +238,7 @@ class StreetRenderer(Renderer):
                         ac_street_value += ' {}'.format(record[1].title())
                     if(record[2] != None):
                         ac_street_value += ' {}'.format(record[2].title())
-                    geometry_wkt = 'SRID=8311;POINT({} {})'.format(record[3], record[4])
+                    geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(record[3], record[4])
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)

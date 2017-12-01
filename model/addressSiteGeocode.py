@@ -106,7 +106,7 @@ class AddressSiteGeocodeRenderer(Renderer):
                     latitude = row[1]
                     longitude = row[2]
                     geocode_type = row[3].title()
-                    geometry_wkt = 'SRID=8311;POINT({} {})'.format(latitude, longitude)
+                    geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(latitude, longitude)
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
@@ -160,7 +160,7 @@ class AddressSiteGeocodeRenderer(Renderer):
                     latitude = row[1]
                     longitude = row[2]
                     geocode_type = row[3].title()
-                    geometry_wkt = 'SRID=8311;POINT({} {})'.format(latitude, longitude)
+                    geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(latitude, longitude)
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
