@@ -901,7 +901,7 @@ class AddressRenderer(Renderer):
             AddressComponentTypeUriBase = 'http://def.isotc211.org/iso19160/-1/2015/Address/code/AddressComponentType/'
             AddressPositionTypeUriBase = 'http://def.isotc211.org/iso19160/-1/2015/Address/code/AddressPositionType/'
 
-            ISO = Namespace('http://def.isotc211.org/iso19160/-1/2015/Address#')
+            ISO = Namespace('http://reference.data.gov.au/def/ont/iso19160-1-address#')
             g.bind('iso19160', ISO)
 
             GEO = Namespace('http://www.opengis.net/ont/geosparql#')
