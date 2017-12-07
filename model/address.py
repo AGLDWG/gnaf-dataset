@@ -384,7 +384,7 @@ class AddressRenderer(Renderer):
                         a.number_last_prefix,
                         CAST(a.number_last AS text),
                         a.number_last_suffix,
-                        c.alias_pid,
+                        c.principal_pid,
                         c.alias_type_code                                        
                     FROM 
                         {dbschema}.address_alias c
@@ -610,7 +610,7 @@ class AddressRenderer(Renderer):
                         a.number_last_prefix,
                         CAST(a.number_last AS text),
                         a.number_last_suffix,
-                        c.secondary_pid,
+                        c.primary_pid,
                         c.ps_join_type_code                                        
                     FROM 
                         {dbschema}.primary_secondary c
