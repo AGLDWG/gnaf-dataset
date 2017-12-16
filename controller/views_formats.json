@@ -5,7 +5,7 @@
     "   alternates  -- a list of all available views and formats",
     "   gnaf  -- the gnaf-specific view based on the GNAF Ontology",
     ""],
-  "http://reference.data.gov.au/def/ont/iso19160-1-address#Address": {
+  "http://reference.data.gov.au/def/ont/gnaf#Address": {
     "renderer": "AddressRenderer",
     "default": "gnaf",
     "alternates": {
