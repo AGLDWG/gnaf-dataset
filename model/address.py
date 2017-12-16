@@ -1638,8 +1638,8 @@ class AddressRenderer(Renderer):
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
 
-            AddressComponentTypeUriBase = 'http://def.isotc211.org/iso19160/-1/2015/Address/code/AddressComponentType/'
-            AddressPositionTypeUriBase = 'http://def.isotc211.org/iso19160/-1/2015/Address/code/AddressPositionType/'
+            AddressComponentTypeUriBase = 'http://reference.data.gov.au/def/ont/iso19160-1-address/Address/code/AddressComponentType/'
+            AddressPositionTypeUriBase = 'http://reference.data.gov.au/def/ont/iso19160-1-address/Address/code/AddressPositionType/'
 
             ISO = Namespace('http://reference.data.gov.au/def/ont/iso19160-1-address#')
             g.bind('iso19160', ISO)
