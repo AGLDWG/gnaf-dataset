@@ -1604,9 +1604,15 @@ class AddressRenderer(Renderer):
             s = sql.SQL('''SELECT 
                         street_locality_pid, 
                         locality_pid, 
+                        flat_type,
+                        flat_number,
+                        level_type,
+                        level_number,
                         CAST(number_first AS text), 
+                        CAST(number_last AS text), 
                         street_name, 
                         street_type_code, 
+                        street_suffix_code,
                         locality_name, 
                         state_abbreviation, 
                         postcode,
@@ -1629,11 +1635,19 @@ class AddressRenderer(Renderer):
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
                 cursor.execute(s)
                 for record in cursor:
-                    ac_street_value = '{} {} {}'.format(record[2], record[3].title(), record[4].title())
-                    ac_locality_value = record[5].title()
-                    ac_state_value = record[6]
-                    ac_postcode_value = record[7]
-                    geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(record[8], record[9])
+                    ac_flat_type_value = record[2].title() if record[2] != None else None
+                    ac_flat_number_value = record[3]
+                    ac_level_type_value = record[4].title() if record[4] != None else None
+                    ac_level_number_value = record[5]
+                    ac_street_number_low_value = record[6]
+                    ac_street_number_high_value = record[7]
+                    ac_street_name_value = record[8].title()
+                    ac_street_type_value = record[9].title() if record[9] != None else None
+                    ac_street_suffix_value = record[10].title() if record[10] != None else None
+                    ac_locality_value = record[11].title()
+                    ac_state_value = record[12]
+                    ac_postcode_value = record[13]
+                    geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(record[14], record[15])
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
@@ -1649,11 +1663,89 @@ class AddressRenderer(Renderer):
 
             g.add((a, RDF.type, ISO.Address))
 
+            if (ac_flat_type_value != None or ac_flat_number_value != None):
+                ac_unit = BNode()
+                g.add((ac_unit, RDF.type, ISO.AddressComponent))
+                g.add((ac_unit, ISO.type, URIRef(AddressComponentTypeUriBase + 'unit')))
+                g.add((a, ISO.addressComponent, ac_unit))
+
+            if (ac_flat_type_value != None):
+                ac_unit_type = BNode()
+                g.add((ac_unit_type, RDF.type, ISO.AddressComponent))
+                g.add((ac_unit_type, ISO.valueInformation, Literal(ac_flat_type_value, datatype=XSD.string)))
+                g.add((ac_unit_type, ISO.type, URIRef(AddressComponentTypeUriBase + 'unitType')))
+                g.add((ac_unit, ISO.valueComponent, ac_unit_type))
+
+            if (ac_flat_number_value != None):
+                ac_unit_value = BNode()
+                g.add((ac_unit_value, RDF.type, ISO.AddressComponent))
+                g.add((ac_unit_value, ISO.valueInformation, Literal(ac_flat_number_value, datatype=XSD.string)))
+                g.add((ac_unit_value, ISO.type, URIRef(AddressComponentTypeUriBase + 'unitValue')))
+                g.add((ac_unit, ISO.valueComponent, ac_unit_value))
+
+            if (ac_level_type_value != None or ac_level_number_value != None):
+                ac_level = BNode()
+                g.add((ac_level, RDF.type, ISO.AddressComponent))
+                g.add((ac_level, ISO.type, URIRef(AddressComponentTypeUriBase + 'level')))
+                g.add((a, ISO.addressComponent, ac_level))
+
+            if (ac_level_type_value != None):
+                ac_level_type = BNode()
+                g.add((ac_level_type, RDF.type, ISO.AddressComponent))
+                g.add((ac_level_type, ISO.valueInformation, Literal(ac_level_type_value, datatype=XSD.string)))
+                g.add((ac_level_type, ISO.type, URIRef(AddressComponentTypeUriBase + 'levelType')))
+                g.add((ac_level, ISO.valueComponent, ac_level_type))
+
+            if (ac_level_number_value != None):
+                ac_level_value = BNode()
+                g.add((ac_level_value, RDF.type, ISO.AddressComponent))
+                g.add((ac_level_value, ISO.valueInformation, Literal(ac_level_number_value, datatype=XSD.string)))
+                g.add((ac_level_value, ISO.type, URIRef(AddressComponentTypeUriBase + 'levelValue')))
+                g.add((ac_level, ISO.valueComponent, ac_level_value))
+
+            ac_address_number = BNode()
+            g.add((ac_address_number, RDF.type, ISO.AddressComponent))
+            g.add((ac_address_number, ISO.type, URIRef(AddressComponentTypeUriBase + 'addressNumber')))
+            g.add((a, ISO.addressComponent, ac_address_number))
+
+            if (ac_street_number_low_value != None):
+                ac_address_number_low = BNode()
+                g.add((ac_address_number_low, RDF.type, ISO.AddressComponent))
+                g.add((ac_address_number_low, ISO.valueInformation, Literal(ac_street_number_low_value, datatype=XSD.string)))
+                g.add((ac_address_number_low, ISO.type, URIRef(AddressComponentTypeUriBase + 'addressNumberLow')))
+                g.add((ac_address_number, ISO.valueComponent, ac_address_number_low))
+
+            if (ac_street_number_high_value != None):
+                ac_address_number_high = BNode()
+                g.add((ac_address_number_high, RDF.type, ISO.AddressComponent))
+                g.add((ac_address_number_high, ISO.valueInformation, Literal(ac_street_number_high_value, datatype=XSD.string)))
+                g.add((ac_address_number_high, ISO.type, URIRef(AddressComponentTypeUriBase + 'addressNumberHigh')))
+                g.add((ac_address_number, ISO.valueComponent, ac_address_number_high))
+
             ac_street = BNode()
             g.add((ac_street, RDF.type, ISO.AddressComponent))
-            g.add((ac_street, ISO.valueInformation, Literal(ac_street_value, datatype=XSD.string)))
-            g.add((ac_street, ISO.type, URIRef(AddressComponentTypeUriBase + 'thoroughfareName')))
+            g.add((ac_street, ISO.type, URIRef(AddressComponentTypeUriBase + 'thoroughfare')))
             g.add((a, ISO.addressComponent, ac_street))
+
+            ac_street_name = BNode()
+            g.add((ac_street_name, RDF.type, ISO.AddressComponent))
+            g.add((ac_street_name, ISO.valueInformation, Literal(ac_street_name_value, datatype=XSD.string)))
+            g.add((ac_street_name, ISO.type, URIRef(AddressComponentTypeUriBase + 'thoroughfareName')))
+            g.add((ac_street, ISO.valueComponent, ac_street_name))
+
+            if(ac_street_type_value != None):
+                ac_street_type = BNode()
+                g.add((ac_street_type, RDF.type, ISO.AddressComponent))
+                g.add((ac_street_type, ISO.valueInformation, Literal(ac_street_type_value, datatype=XSD.string)))
+                g.add((ac_street_type, ISO.type, URIRef(AddressComponentTypeUriBase + 'thoroughfareType')))
+                g.add((ac_street, ISO.valueComponent, ac_street_type))
+
+            if (ac_street_suffix_value != None):
+                ac_street_suffix = BNode()
+                g.add((ac_street_suffix, RDF.type, ISO.AddressComponent))
+                g.add((ac_street_suffix, ISO.valueInformation, Literal(ac_street_suffix_value, datatype=XSD.string)))
+                g.add((ac_street_suffix, ISO.type, URIRef(AddressComponentTypeUriBase + 'thoroughfareSuffix')))
+                g.add((ac_street, ISO.valueComponent, ac_street_suffix))
 
             ac_locality = BNode()
             g.add((ac_locality, RDF.type, ISO.AddressComponent))
@@ -1664,7 +1756,7 @@ class AddressRenderer(Renderer):
             ac_state = BNode()
             g.add((ac_state, RDF.type, ISO.AddressComponent))
             g.add((ac_state, ISO.valueInformation, Literal(ac_state_value, datatype=XSD.string)))
-            g.add((ac_state, ISO.type, URIRef(AddressComponentTypeUriBase + 'state')))
+            g.add((ac_state, ISO.type, URIRef(AddressComponentTypeUriBase + 'stateTerritory')))
             g.add((a, ISO.addressComponent, ac_state))
 
             ac_postcode = BNode()
