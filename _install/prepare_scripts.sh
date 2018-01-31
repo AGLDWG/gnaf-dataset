@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 SCRIPT_DIR=$(dirname "$0")
-PSV_FOLDERS_DIR="/Users/car587/work/gnaf-ldapi-test/_load/AUG17_GNAF_PipeSeparatedValue_20170821153434/G-NAF/G-NAF AUGUST 2017/"
+PSV_FOLDERS_DIR="/Users/car587/work/gnaf-ldapi-test/_install/AUG17_GNAF_PipeSeparatedValue_20170821153434/G-NAF/G-NAF AUGUST 2017/"
 
 sed "s@{PSV_FOLDERS_DIR}@$PSV_FOLDERS_DIR@g" < "$SCRIPT_DIR/authority_codes_load.sql.template" > "$SCRIPT_DIR/authority_codes_load.sql"
 # put in the right folder
