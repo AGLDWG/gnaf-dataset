@@ -13,3 +13,5 @@
 \i standard_tables_load_VIC.sql
 \i standard_tables_load_WA.sql
 \i add_fk_constraints.sql
+\i create_gnaf_views.sql
+\i create_indexes.sql

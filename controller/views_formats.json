@@ -5,7 +5,7 @@
     "   alternates  -- a list of all available views and formats",
     "   gnaf  -- the gnaf-specific view based on the GNAF Ontology",
     ""],
-  "http://reference.data.gov.au/def/ont/gnaf#Address": {
+  "http://reference.data.gov.au/def/ont/gnaf/Address": {
     "renderer": "AddressRenderer",
     "default": "gnaf",
     "alternates": {
@@ -21,9 +21,9 @@
       "description": "Dublin Core Terms from the Dublin Core Metadata Initiative"
     },
     "gnaf": {
-      "mimetypes": ["text/html"],
+      "mimetypes": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json", "application/xml"],
       "default_mimetype": "text/html",
-      "namespace": "http://reference.data.gov.au/def/ont/gnaf#",
+      "namespace": "http://reference.data.gov.au/def/ont/gnaf/",
       "description": "G-NAF web page view. A simple human-readable, web page-only view, based on the data model of PSMA's G-NAF as of August, 2017"
     },
     "ISO19160": {
@@ -33,7 +33,7 @@
       "description": "The OWL ontology view of the ISO 19160-1:2015 Address standard from the OGC's TC211 UML to OWL mapping: https://github.com/ISO-TC211/GOM/tree/master/isotc211_GOM_harmonizedOntology/19160-1/2015 "
     }
   },
-  "http://reference.data.gov.au/def/ont/gnaf#AddressSite": {
+  "http://reference.data.gov.au/def/ont/gnaf/AddressSite": {
     "renderer": "AddressSiteRenderer",
     "default": "gnaf",
     "alternates": {
@@ -51,11 +51,11 @@
     "gnaf": {
       "mimetypes": ["text/html"],
       "default_mimetype": "text/html",
-      "namespace": "http://reference.data.gov.au/def/ont/gnaf#",
+      "namespace": "http://reference.data.gov.au/def/ont/gnaf/",
       "description": "G-NAF web page view. A simple human-readable, web page-only view, based on the data model of PSMA's G-NAF as of August, 2017"
     }
   },
-  "http://reference.data.gov.au/def/ont/gnaf#AddressSiteGeocode": {
+  "http://reference.data.gov.au/def/ont/gnaf/AddressSiteGeocode": {
     "renderer": "AddressSiteGeocodeRenderer",
     "default": "gnaf",
     "alternates": {
@@ -73,11 +73,11 @@
     "gnaf": {
       "mimetypes": ["text/html"],
       "default_mimetype": "text/html",
-      "namespace": "http://reference.data.gov.au/def/ont/gnaf#",
+      "namespace": "http://reference.data.gov.au/def/ont/gnaf/",
       "description": "G-NAF web page view. A simple human-readable, web page-only view, based on the data model of PSMA's G-NAF as of August, 2017"
     }
   },
-  "http://reference.data.gov.au/def/ont/gnaf#Street": {
+  "http://reference.data.gov.au/def/ont/gnaf/Street": {
     "renderer": "StreetRenderer",
     "default": "gnaf",
     "alternates": {
@@ -95,11 +95,11 @@
     "gnaf": {
       "mimetypes": ["text/html"],
       "default_mimetype": "text/html",
-      "namespace": "http://reference.data.gov.au/def/ont/gnaf#",
+      "namespace": "http://reference.data.gov.au/def/ont/gnaf/",
       "description": "G-NAF web page view. A simple human-readable, web page-only view, based on the data model of PSMA's G-NAF as of August, 2017"
     }
   },
-  "http://reference.data.gov.au/def/ont/gnaf#StreetLocalityAlias": {
+  "http://reference.data.gov.au/def/ont/gnaf/StreetLocalityAlias": {
     "renderer": "StreetLocalityAliasRenderer",
     "default": "gnaf",
     "alternates": {
@@ -117,11 +117,11 @@
     "gnaf": {
       "mimetypes": ["text/html"],
       "default_mimetype": "text/html",
-      "namespace": "http://reference.data.gov.au/def/ont/gnaf#",
+      "namespace": "http://reference.data.gov.au/def/ont/gnaf/",
       "description": "G-NAF web page view. A simple human-readable, web page-only view, based on the data model of PSMA's G-NAF as of August, 2017"
     }
   },
-  "http://reference.data.gov.au/def/ont/gnaf#Locality": {
+  "http://reference.data.gov.au/def/ont/gnaf/Locality": {
     "renderer": "LocalityRenderer",
     "default": "gnaf",
     "alternates": {
@@ -139,11 +139,11 @@
     "gnaf": {
       "mimetypes": ["text/html"],
       "default_mimetype": "text/html",
-      "namespace": "http://reference.data.gov.au/def/ont/gnaf#",
+      "namespace": "http://reference.data.gov.au/def/ont/gnaf/",
       "description": "G-NAF web page view. A simple human-readable, web page-only view, based on the data model of PSMA's G-NAF as of August, 2017"
     }
   },
-  "http://reference.data.gov.au/def/ont/gnaf#LocalityAlias": {
+  "http://reference.data.gov.au/def/ont/gnaf/LocalityAlias": {
     "renderer": "LocalityAliasRenderer",
     "default": "gnaf",
     "alternates": {
@@ -161,7 +161,7 @@
     "gnaf": {
       "mimetypes": ["text/html"],
       "default_mimetype": "text/html",
-      "namespace": "http://reference.data.gov.au/def/ont/gnaf#",
+      "namespace": "http://reference.data.gov.au/def/ont/gnaf/",
       "description": "G-NAF web page view. A simple human-readable, web page-only view, based on the data model of PSMA's G-NAF as of August, 2017"
     }
   },

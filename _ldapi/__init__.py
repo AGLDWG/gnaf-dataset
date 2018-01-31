@@ -212,5 +212,5 @@ class LdapiParameterError(ValueError):
 
 
 if __name__ == '__main__':
-    vfs = LDAPI.get_classes_views_formats().get('http://reference.data.gov.au/def/dataset#Dataset')
-    print(LDAPI.get_valid_view_and_format('dataset', 'text/turtle', vfs))
+    vfs = LDAPI.get_classes_views_formats().get('http://reference.data.gov.au/def/ont/iso19160-1-address#Address')
+    print(LDAPI.get_valid_view_and_format('gnaf', 'text/turtle', vfs))

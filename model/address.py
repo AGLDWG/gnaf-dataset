@@ -57,16 +57,16 @@ class AddressRenderer(Renderer):
                                    number_last_suffix if number_last_suffix is not None else '')
             if level_type_code is not None:
                 address_string += level_type_code.title() + ' '
-            if levelNum != '':
+            if levelNum is not '':
                 address_string += levelNum + ' '
-            if flatNum != '':
+            if flatNum is not '':
                 address_string += '{flattype} {flatnum} '.format(flattype=flat_type_code.title(),
                                                                  flatnum=flatNum) if flat_type_code is not None else flatNum + ' '
             if building is not None:
                 address_string += building.title() + ' '
-            if num1 != '':
+            if num1 is not '':
                 address_string += num1
-                if num2 != '':
+                if num2 is not '':
                     address_string += '-' + num2
                 address_string += ' '
             else:
@@ -229,11 +229,15 @@ class AddressRenderer(Renderer):
                 print(e)
 
             this_address_string, this_street_string = self.format_address(
-                level_type_code=level_type_code, level_number_prefix=level_number_prefix, level_number=level_number, level_number_suffix=level_number_suffix,
-                flat_type_code=flat_type_code, flat_number_prefix=flat_number_prefix, flat_number=flat_number, flat_number_suffix=flat_number_suffix,
-                number_first_prefix=number_first_prefix, number_first=street_number_1, number_first_suffix=number_first_suffix,
-                number_last_prefix=number_last_prefix, number_last=number_last, number_last_suffix=number_last_suffix,
-                building=building_name, lot_number_prefix=lot_number_prefix, lot_number=lot_number, lot_number_suffix=lot_number_suffix,
+                level_type_code=level_type_code, level_number_prefix=level_number_prefix,
+                level_number=level_number, level_number_suffix=level_number_suffix,
+                flat_type_code=flat_type_code, flat_number_prefix=flat_number_prefix,
+                flat_number=flat_number, flat_number_suffix=flat_number_suffix,
+                number_first_prefix=number_first_prefix, number_first=street_number_1,
+                number_first_suffix=number_first_suffix, number_last_prefix=number_last_prefix,
+                number_last=number_last, number_last_suffix=number_last_suffix,
+                building=building_name, lot_number_prefix=lot_number_prefix,
+                lot_number=lot_number, lot_number_suffix=lot_number_suffix,
                 street_name=street_name, street_type=street_type,
                 locality=locality_name, state_territory=state_territory, postcode=postcode
             )
@@ -288,11 +292,11 @@ class AddressRenderer(Renderer):
             try:
                 connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
                     .format(
-                    config.DB_HOST,
-                    config.DB_DBNAME,
-                    config.DB_USR,
-                    config.DB_PWD
-                )
+                        config.DB_HOST,
+                        config.DB_DBNAME,
+                        config.DB_USR,
+                        config.DB_PWD
+                    )
                 conn = psycopg2.connect(connect_str)
                 cursor = conn.cursor()
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
@@ -401,11 +405,11 @@ class AddressRenderer(Renderer):
             try:
                 connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
                     .format(
-                    config.DB_HOST,
-                    config.DB_DBNAME,
-                    config.DB_USR,
-                    config.DB_PWD
-                )
+                        config.DB_HOST,
+                        config.DB_DBNAME,
+                        config.DB_USR,
+                        config.DB_PWD
+                    )
                 conn = psycopg2.connect(connect_str)
                 cursor = conn.cursor()
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
@@ -514,11 +518,11 @@ class AddressRenderer(Renderer):
             try:
                 connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
                     .format(
-                    config.DB_HOST,
-                    config.DB_DBNAME,
-                    config.DB_USR,
-                    config.DB_PWD
-                )
+                        config.DB_HOST,
+                        config.DB_DBNAME,
+                        config.DB_USR,
+                        config.DB_PWD
+                    )
                 conn = psycopg2.connect(connect_str)
                 cursor = conn.cursor()
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
@@ -627,11 +631,11 @@ class AddressRenderer(Renderer):
             try:
                 connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
                     .format(
-                    config.DB_HOST,
-                    config.DB_DBNAME,
-                    config.DB_USR,
-                    config.DB_PWD
-                )
+                        config.DB_HOST,
+                        config.DB_DBNAME,
+                        config.DB_USR,
+                        config.DB_PWD
+                    )
                 conn = psycopg2.connect(connect_str)
                 cursor = conn.cursor()
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
@@ -701,11 +705,11 @@ class AddressRenderer(Renderer):
             try:
                 connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
                     .format(
-                    config.DB_HOST,
-                    config.DB_DBNAME,
-                    config.DB_USR,
-                    config.DB_PWD
-                )
+                        config.DB_HOST,
+                        config.DB_DBNAME,
+                        config.DB_USR,
+                        config.DB_PWD
+                    )
                 conn = psycopg2.connect(connect_str)
                 cursor = conn.cursor()
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
@@ -728,11 +732,11 @@ class AddressRenderer(Renderer):
             try:
                 connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
                     .format(
-                    config.DB_HOST,
-                    config.DB_DBNAME,
-                    config.DB_USR,
-                    config.DB_PWD
-                )
+                        config.DB_HOST,
+                        config.DB_DBNAME,
+                        config.DB_USR,
+                        config.DB_PWD
+                    )
                 conn = psycopg2.connect(connect_str)
                 cursor = conn.cursor()
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
@@ -1002,11 +1006,11 @@ class AddressRenderer(Renderer):
             try:
                 connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
                     .format(
-                    config.DB_HOST,
-                    config.DB_DBNAME,
-                    config.DB_USR,
-                    config.DB_PWD
-                )
+                        config.DB_HOST,
+                        config.DB_DBNAME,
+                        config.DB_USR,
+                        config.DB_PWD
+                    )
                 conn = psycopg2.connect(connect_str)
                 cursor = conn.cursor()
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
@@ -1115,11 +1119,11 @@ class AddressRenderer(Renderer):
             try:
                 connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
                     .format(
-                    config.DB_HOST,
-                    config.DB_DBNAME,
-                    config.DB_USR,
-                    config.DB_PWD
-                )
+                        config.DB_HOST,
+                        config.DB_DBNAME,
+                        config.DB_USR,
+                        config.DB_PWD
+                    )
                 conn = psycopg2.connect(connect_str)
                 cursor = conn.cursor()
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
@@ -1228,11 +1232,11 @@ class AddressRenderer(Renderer):
             try:
                 connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
                     .format(
-                    config.DB_HOST,
-                    config.DB_DBNAME,
-                    config.DB_USR,
-                    config.DB_PWD
-                )
+                        config.DB_HOST,
+                        config.DB_DBNAME,
+                        config.DB_USR,
+                        config.DB_PWD
+                    )
                 conn = psycopg2.connect(connect_str)
                 cursor = conn.cursor()
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
@@ -1341,11 +1345,11 @@ class AddressRenderer(Renderer):
             try:
                 connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
                     .format(
-                    config.DB_HOST,
-                    config.DB_DBNAME,
-                    config.DB_USR,
-                    config.DB_PWD
-                )
+                        config.DB_HOST,
+                        config.DB_DBNAME,
+                        config.DB_USR,
+                        config.DB_PWD
+                    )
                 conn = psycopg2.connect(connect_str)
                 cursor = conn.cursor()
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
@@ -1415,11 +1419,11 @@ class AddressRenderer(Renderer):
             try:
                 connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
                     .format(
-                    config.DB_HOST,
-                    config.DB_DBNAME,
-                    config.DB_USR,
-                    config.DB_PWD
-                )
+                        config.DB_HOST,
+                        config.DB_DBNAME,
+                        config.DB_USR,
+                        config.DB_PWD
+                    )
                 conn = psycopg2.connect(connect_str)
                 cursor = conn.cursor()
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
@@ -1442,11 +1446,11 @@ class AddressRenderer(Renderer):
             try:
                 connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
                     .format(
-                    config.DB_HOST,
-                    config.DB_DBNAME,
-                    config.DB_USR,
-                    config.DB_PWD
-                )
+                        config.DB_HOST,
+                        config.DB_DBNAME,
+                        config.DB_USR,
+                        config.DB_PWD
+                    )
                 conn = psycopg2.connect(connect_str)
                 cursor = conn.cursor()
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
@@ -1471,11 +1475,11 @@ class AddressRenderer(Renderer):
             try:
                 connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
                     .format(
-                    config.DB_HOST,
-                    config.DB_DBNAME,
-                    config.DB_USR,
-                    config.DB_PWD
-                )
+                        config.DB_HOST,
+                        config.DB_DBNAME,
+                        config.DB_USR,
+                        config.DB_PWD
+                    )
                 conn = psycopg2.connect(connect_str)
                 cursor = conn.cursor()
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
@@ -1561,11 +1565,11 @@ class AddressRenderer(Renderer):
             try:
                 connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
                     .format(
-                    config.DB_HOST,
-                    config.DB_DBNAME,
-                    config.DB_USR,
-                    config.DB_PWD
-                )
+                        config.DB_HOST,
+                        config.DB_DBNAME,
+                        config.DB_USR,
+                        config.DB_PWD
+                    )
                 conn = psycopg2.connect(connect_str)
                 cursor = conn.cursor()
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
@@ -1635,15 +1639,15 @@ class AddressRenderer(Renderer):
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
                 cursor.execute(s)
                 for record in cursor:
-                    ac_flat_type_value = record[2].title() if record[2] != None else None
+                    ac_flat_type_value = record[2].title() if record[2] is not None else None
                     ac_flat_number_value = record[3]
-                    ac_level_type_value = record[4].title() if record[4] != None else None
+                    ac_level_type_value = record[4].title() if record[4] is not None else None
                     ac_level_number_value = record[5]
                     ac_street_number_low_value = record[6]
                     ac_street_number_high_value = record[7]
                     ac_street_name_value = record[8].title()
-                    ac_street_type_value = record[9].title() if record[9] != None else None
-                    ac_street_suffix_value = record[10].title() if record[10] != None else None
+                    ac_street_type_value = record[9].title() if record[9] is not None else None
+                    ac_street_suffix_value = record[10].title() if record[10] is not None else None
                     ac_locality_value = record[11].title()
                     ac_state_value = record[12]
                     ac_postcode_value = record[13]
@@ -1663,40 +1667,40 @@ class AddressRenderer(Renderer):
 
             g.add((a, RDF.type, ISO.Address))
 
-            if (ac_flat_type_value != None or ac_flat_number_value != None):
+            if ac_flat_type_value is not None or ac_flat_number_value is not None:
                 ac_unit = BNode()
                 g.add((ac_unit, RDF.type, ISO.AddressComponent))
                 g.add((ac_unit, ISO.type, URIRef(AddressComponentTypeUriBase + 'unit')))
                 g.add((a, ISO.addressComponent, ac_unit))
 
-            if (ac_flat_type_value != None):
+            if ac_flat_type_value is not None:
                 ac_unit_type = BNode()
                 g.add((ac_unit_type, RDF.type, ISO.AddressComponent))
                 g.add((ac_unit_type, ISO.valueInformation, Literal(ac_flat_type_value, datatype=XSD.string)))
                 g.add((ac_unit_type, ISO.type, URIRef(AddressComponentTypeUriBase + 'unitType')))
                 g.add((ac_unit, ISO.valueComponent, ac_unit_type))
 
-            if (ac_flat_number_value != None):
+            if ac_flat_number_value is not None:
                 ac_unit_value = BNode()
                 g.add((ac_unit_value, RDF.type, ISO.AddressComponent))
                 g.add((ac_unit_value, ISO.valueInformation, Literal(ac_flat_number_value, datatype=XSD.string)))
                 g.add((ac_unit_value, ISO.type, URIRef(AddressComponentTypeUriBase + 'unitValue')))
                 g.add((ac_unit, ISO.valueComponent, ac_unit_value))
 
-            if (ac_level_type_value != None or ac_level_number_value != None):
+            if ac_level_type_value is not None or ac_level_number_value is not None:
                 ac_level = BNode()
                 g.add((ac_level, RDF.type, ISO.AddressComponent))
                 g.add((ac_level, ISO.type, URIRef(AddressComponentTypeUriBase + 'level')))
                 g.add((a, ISO.addressComponent, ac_level))
 
-            if (ac_level_type_value != None):
+            if (ac_level_type_value is not None):
                 ac_level_type = BNode()
                 g.add((ac_level_type, RDF.type, ISO.AddressComponent))
                 g.add((ac_level_type, ISO.valueInformation, Literal(ac_level_type_value, datatype=XSD.string)))
                 g.add((ac_level_type, ISO.type, URIRef(AddressComponentTypeUriBase + 'levelType')))
                 g.add((ac_level, ISO.valueComponent, ac_level_type))
 
-            if (ac_level_number_value != None):
+            if (ac_level_number_value is not None):
                 ac_level_value = BNode()
                 g.add((ac_level_value, RDF.type, ISO.AddressComponent))
                 g.add((ac_level_value, ISO.valueInformation, Literal(ac_level_number_value, datatype=XSD.string)))
@@ -1708,14 +1712,14 @@ class AddressRenderer(Renderer):
             g.add((ac_address_number, ISO.type, URIRef(AddressComponentTypeUriBase + 'addressNumber')))
             g.add((a, ISO.addressComponent, ac_address_number))
 
-            if (ac_street_number_low_value != None):
+            if ac_street_number_low_value is not None:
                 ac_address_number_low = BNode()
                 g.add((ac_address_number_low, RDF.type, ISO.AddressComponent))
                 g.add((ac_address_number_low, ISO.valueInformation, Literal(ac_street_number_low_value, datatype=XSD.string)))
                 g.add((ac_address_number_low, ISO.type, URIRef(AddressComponentTypeUriBase + 'addressNumberLow')))
                 g.add((ac_address_number, ISO.valueComponent, ac_address_number_low))
 
-            if (ac_street_number_high_value != None):
+            if ac_street_number_high_value is not None:
                 ac_address_number_high = BNode()
                 g.add((ac_address_number_high, RDF.type, ISO.AddressComponent))
                 g.add((ac_address_number_high, ISO.valueInformation, Literal(ac_street_number_high_value, datatype=XSD.string)))
@@ -1733,14 +1737,14 @@ class AddressRenderer(Renderer):
             g.add((ac_street_name, ISO.type, URIRef(AddressComponentTypeUriBase + 'thoroughfareName')))
             g.add((ac_street, ISO.valueComponent, ac_street_name))
 
-            if(ac_street_type_value != None):
+            if ac_street_type_value is not None:
                 ac_street_type = BNode()
                 g.add((ac_street_type, RDF.type, ISO.AddressComponent))
                 g.add((ac_street_type, ISO.valueInformation, Literal(ac_street_type_value, datatype=XSD.string)))
                 g.add((ac_street_type, ISO.type, URIRef(AddressComponentTypeUriBase + 'thoroughfareType')))
                 g.add((ac_street, ISO.valueComponent, ac_street_type))
 
-            if (ac_street_suffix_value != None):
+            if ac_street_suffix_value is not None:
                 ac_street_suffix = BNode()
                 g.add((ac_street_suffix, RDF.type, ISO.AddressComponent))
                 g.add((ac_street_suffix, ISO.valueInformation, Literal(ac_street_suffix_value, datatype=XSD.string)))
@@ -1779,5 +1783,171 @@ class AddressRenderer(Renderer):
             g.add((position, ISO.type, URIRef(AddressPositionTypeUriBase + 'centroid')))
             g.add((a, ISO.position, position))
 
-        print('format: ' + format)
+        elif view == 'gnaf':
+            GNAF = Namespace('http://gnafld.org/def/gnaf/')
+            g.bind('gnaf', GNAF)
+
+            GEO = Namespace('http://www.opengis.net/ont/geosparql#')
+            g.bind('geo', GEO)
+
+            PROV = Namespace('http://www.w3.org/ns/prov#')
+            g.bind('prov', PROV)
+
+            DCT = Namespace('http://purl.org/dc/terms/')
+            g.bind('dct', DCT)
+
+            # RDF: declare Address instance
+            g.add((a, RDF.type, GNAF.Address))
+
+            # get the details from DB
+            s = sql.SQL('''SELECT * FROM {dbschema}.address_detail WHERE address_detail_pid = {id}''') \
+                .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
+
+            try:
+                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
+                    .format(
+                        config.DB_HOST,
+                        config.DB_DBNAME,
+                        config.DB_USR,
+                        config.DB_PWD
+                    )
+                conn = psycopg2.connect(connect_str)
+                cursor = conn.cursor()
+                # get just IDs, ordered, from the address_detail table, paginated by class init args
+                cursor.execute(s)
+                rows = cursor.fetchall()
+                for row in rows:
+                    # RDF: geometry
+                    geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(row[14], row[15])
+                    geometry = BNode()
+                    g.add((geometry, RDF.type, GEO.Geometry))
+                    g.add((geometry, GEO.asWKT, Literal(geometry_wkt, datatype=GEO.wktLiteral)))
+                    g.add((a, GEO.hasGeometry, geometry))
+
+                    # RDF private street
+                    if row[27] is not None:
+                        g.add((a, GNAF.hasPrivateStreet, Literal(True, datatype=XSD.boolean)))
+                    else:
+                        g.add((a, GNAF.hasPrivateStreet, Literal(False, datatype=XSD.boolean)))
+
+                    # RDF: has street
+                    g.add((a, GNAF.hasStreet, URIRef(config.URI_STREET_INSTANCE_BASE + str(row[22]))))
+
+                    # RDF: GNAF confidence
+                    if row[29] == 0:
+                        confidence = URIRef('http://gnafld.net/def/gnaf/GnafConfidence/GnafConfidence_0')
+                    elif row[29] == 1:
+                        confidence = URIRef('http://gnafld.net/def/gnaf/GnafConfidence/GnafConfidence_1')
+                    elif row[29] == 2:
+                        confidence = URIRef('http://gnafld.net/def/gnaf/GnafConfidence/GnafConfidence_2')
+                    else:
+                        confidence = URIRef('http://gnafld.net/def/gnaf/GnafConfidence/GnafConfidence_-1')
+
+                    g.add((a, GNAF.hasGnafConfidence, confidence))
+
+                    # RDF: address site
+                    if row[30] is not None:
+                        g.add((a, GNAF.hasAddressSite, URIRef('http://gnafld.net/addresssite/' + str(row[30]))))
+
+                    # RDF: Numbers
+                    # lot_number
+                    if row[6] is not None:
+                        lot_number = BNode()
+                        g.add((lot_number, RDF.type, GNAF.LotNumber))
+                        g.add((lot_number, PROV.value, Literal(int(row[6]), datatype=XSD.integer)))
+                        g.add((a, GNAF.hasNumber, lot_number))
+                        if row[5] is not None:
+                            g.add((lot_number, GNAF.hasPrefix, Literal(str(row[5]), datatype=XSD.string)))
+                        if row[7] is not None:
+                            g.add((lot_number, GNAF.hasSuffix, Literal(str(row[5]), datatype=XSD.string)))
+
+                    # TODO: represent flat_type_code
+
+                    # flat_number
+                    if row[10] is not None:
+                        flat_number = BNode()
+                        g.add((flat_number, RDF.type, GNAF.FlatNumber))
+                        g.add((flat_number, PROV.value, Literal(int(row[10]), datatype=XSD.integer)))
+                        g.add((a, GNAF.hasNumber, flat_number))
+                        if row[9] is not None:
+                            g.add((flat_number, GNAF.hasPrefix, Literal(str(row[9]), datatype=XSD.string)))
+                        if row[11] is not None:
+                            g.add((flat_number, GNAF.hasSuffix, Literal(str(row[11]), datatype=XSD.string)))
+                    # level_number
+                    if row[14] is not None:
+                        level_number = BNode()
+                        g.add((level_number, RDF.type, GNAF.LevelNumber))
+                        g.add((level_number, PROV.value, Literal(int(row[14]), datatype=XSD.integer)))
+                        g.add((a, GNAF.hasNumber, level_number))
+                        if row[13] is not None:
+                            g.add((level_number, GNAF.hasPrefix, Literal(str(row[13]), datatype=XSD.string)))
+                        if row[15] is not None:
+                            g.add((level_number, GNAF.hasSuffix, Literal(str(row[15]), datatype=XSD.string)))
+                    # number_first
+                    if row[17] is not None:
+                        number_first = BNode()
+                        g.add((number_first, RDF.type, GNAF.FirstStreetNumber))
+                        g.add((number_first, PROV.value, Literal(int(row[17]), datatype=XSD.integer)))
+                        g.add((a, GNAF.hasNumber, number_first))
+                        if row[16] is not None:
+                            g.add((number_first, GNAF.hasPrefix, Literal(str(row[16]), datatype=XSD.string)))
+                        if row[18] is not None:
+                            g.add((number_first, GNAF.hasSuffix, Literal(str(row[18]), datatype=XSD.string)))
+                    # number_last
+                    if row[20] is not None:
+                        number_last = BNode()
+                        g.add((number_last, RDF.type, GNAF.LastStreetNumber))
+                        g.add((number_last, PROV.value, Literal(int(row[20]), datatype=XSD.integer)))
+                        g.add((a, GNAF.hasNumber, number_last))
+                        if row[19] is not None:
+                            g.add((number_last, GNAF.hasPrefix, Literal(str(row[19]), datatype=XSD.string)))
+                        if row[21] is not None:
+                            g.add((number_last, GNAF.hasSuffix, Literal(str(row[21]), datatype=XSD.string)))
+
+                    # RDF: locality
+                    g.add((a, GNAF.hasLocality, URIRef(config.URI_LOCALITY_INSTANCE_BASE + row[24])))
+
+                    # RDF: data properties
+                    if row[23] is not None:
+                        g.add((a, DCT.description, Literal(row[23], datatype=XSD.string)))
+
+                    g.add((a, GNAF.hasPostcode, Literal(row[26], datatype=XSD.integer)))
+
+                    if row[4] is not None:
+                        g.add((a, GNAF.hasBuldingName, Literal(row[4], datatype=XSD.string)))
+
+                    g.add((a, GNAF.hasDateCreated, Literal(row[1], datatype=XSD.date)))
+                    g.add((a, GNAF.hasDateLastModified, Literal(row[2], datatype=XSD.date)))
+                    if row[3] is not None:
+                        g.add((a, GNAF.hasDateRetired, Literal(row[3], datatype=XSD.date)))
+
+                # RDF: aliases
+                # alias type code to URI mapping
+                alias_types = {
+                    'SYN': 'SynonymAlias',
+                    'CD': 'ContributorDefinedAlias',
+                    'RA': 'RangedAddressAlias',
+                    'LD': 'LevelDuplicationAlias',
+                    'FNNFS': 'FlatNumberNoFirstSuffixCorrelationAlias',
+                    'MR': 'MaintenanceReferenceAlias',
+                    'FPS': 'FlatPrefixSuffixDeduplication',
+                    'AL': 'alternativeLocality'
+                }
+
+                s2 = sql.SQL('''SELECT * FROM {dbschema}.address_alias WHERE principal_pid = {id}''')\
+                    .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
+                cursor.execute(s2)
+                rows2 = cursor.fetchall()
+                for row in rows2:
+                    alias = BNode()
+                    this_alias_type = alias_types.get(row[5])
+                    print(this_alias_type)
+                    g.add((alias, RDF.type, URIRef('http://gnafld.org/def/gnaf/' + this_alias_type)))
+                    g.add((a, GNAF.hasAlias, alias))
+                    g.add((alias, GNAF.aliasOf, URIRef(config.URI_ADDRESS_INSTANCE_BASE + str(row[4]))))
+
+            except Exception as e:
+                print("DB can't connect to DB for query {}. Invalid dbname, user or password?".format(s))
+                print(e)
+
         return g.serialize(format=LDAPI.get_rdf_parser_for_mimetype(format))

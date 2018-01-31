@@ -30,7 +30,7 @@ def addresses():
         )
 
         # if alternates model, return this info from file
-        class_uri = 'http://transport.data.gov.au/def/ont/gnaf#Address'
+        class_uri = 'http://reference.data.gov.au/def/ont/iso19160-1-address#Address'
 
         if view == 'alternates':
             del views_formats['renderer']
@@ -154,7 +154,6 @@ def address_sites():
 
         if view == 'alternates':
             del views_formats['renderer']
-            print(views_formats)
             return render_alternates_view(
                 class_uri,
                 uparse.quote_plus(class_uri),
@@ -252,7 +251,6 @@ def address_site_geocodes():
 
         if view == 'alternates':
             del views_formats['renderer']
-            print(views_formats)
             return render_alternates_view(
                 class_uri,
                 uparse.quote_plus(class_uri),
@@ -350,7 +348,6 @@ def streets():
 
         if view == 'alternates':
             del views_formats['renderer']
-            print(views_formats)
             return render_alternates_view(
                 class_uri,
                 uparse.quote_plus(class_uri),
@@ -448,7 +445,6 @@ def street_locality_aliases():
 
         if view == 'alternates':
             del views_formats['renderer']
-            print(views_formats)
             return render_alternates_view(
                 class_uri,
                 uparse.quote_plus(class_uri),
@@ -546,7 +542,6 @@ def localities():
 
         if view == 'alternates':
             del views_formats['renderer']
-            print(views_formats)
             return render_alternates_view(
                 class_uri,
                 uparse.quote_plus(class_uri),
@@ -644,7 +639,6 @@ def locality_aliases():
 
         if view == 'alternates':
             del views_formats['renderer']
-            print(views_formats)
             return render_alternates_view(
                 class_uri,
                 uparse.quote_plus(class_uri),
@@ -880,7 +874,7 @@ def street(street_id):
                 request.args.get('_format')
             )
         else:
-            from model.street import StreetRenderer
+            from model.streetLocality import StreetRenderer
             try:
                 s = StreetRenderer(street_id)
                 return s.render(view, mimetype)
