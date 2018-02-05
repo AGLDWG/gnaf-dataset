@@ -30,6 +30,9 @@ class AddressSiteRenderer(Renderer):
             return Response('The requested model model is not valid for this class', status=400, mimetype='text/plain')
 
     def export_html(self, view='gnaf'):
+        # connect to DB
+        cursor = config.get_db_cursor()
+
         if view == 'gnaf':
             # make a human-readable address
             s = sql.SQL('''SELECT 
@@ -39,25 +42,12 @@ class AddressSiteRenderer(Renderer):
                     WHERE address_site_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
-            try:
-                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
-                    .format(
-                        config.DB_HOST,
-                        config.DB_DBNAME,
-                        config.DB_USR,
-                        config.DB_PWD
-                    )
-                conn = psycopg2.connect(connect_str)
-                cursor = conn.cursor()
-                # get just IDs, ordered, from the address_detail table, paginated by class init args
-                cursor.execute(s)
-                rows = cursor.fetchall()
-                for row in rows:
-                    address_type = row[0]
-                    address_site_name = row[1]
-            except Exception as e:
-                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
-                print(e)
+            # get just IDs, ordered, from the address_detail table, paginated by class init args
+            cursor.execute(s)
+            rows = cursor.fetchall()
+            for row in rows:
+                address_type = row[0]
+                address_site_name = row[1]
 
             # get a list of addressSiteGeocodeIds from the address_site_geocode table
             s2 = sql.SQL('''SELECT 
@@ -67,24 +57,11 @@ class AddressSiteRenderer(Renderer):
                     WHERE address_site_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
-            try:
-                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
-                    .format(
-                        config.DB_HOST,
-                        config.DB_DBNAME,
-                        config.DB_USR,
-                        config.DB_PWD
-                    )
-                conn = psycopg2.connect(connect_str)
-                cursor = conn.cursor()
-                # get just IDs, ordered, from the address_detail table, paginated by class init args
-                cursor.execute(s2)
-                rows = cursor.fetchall()
-                for row in rows:
-                    self.address_site_geocode_ids[row[0]] = row[1].title()
-            except Exception as e:
-                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
-                print(e)
+            # get just IDs, ordered, from the address_detail table, paginated by class init args
+            cursor.execute(s2)
+            rows = cursor.fetchall()
+            for row in rows:
+                self.address_site_geocode_ids[row[0]] = row[1].title()
 
             view_html = render_template(
                 'class_addressSite_gnaf.html',
@@ -107,24 +84,11 @@ class AddressSiteRenderer(Renderer):
                     WHERE address_site_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
-            try:
-                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
-                    .format(
-                        config.DB_HOST,
-                        config.DB_DBNAME,
-                        config.DB_USR,
-                        config.DB_PWD
-                    )
-                conn = psycopg2.connect(connect_str)
-                cursor = conn.cursor()
-                # get just IDs, ordered, from the address_detail table, paginated by class init args
-                cursor.execute(s)
-                for record in cursor:
-                    address_type = record[0]
-                    address_site_name = record[1]
-            except Exception as e:
-                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
-                print(e)
+            # get just IDs, ordered, from the address_detail table, paginated by class init args
+            cursor.execute(s)
+            for record in cursor:
+                address_type = record[0]
+                address_site_name = record[1]
 
             view_html = render_template(
                 'class_addressSite_dct.html',

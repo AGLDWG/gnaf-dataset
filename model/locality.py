@@ -58,8 +58,10 @@ class LocalityRenderer(Renderer):
                 geocode_type = r.geocode_type.title()
                 locality_pid = r.locality_pid
                 state_pid = r.state_pid
-                geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(latitude, longitude)
-
+                geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(
+                    latitude,
+                    longitude
+                )
 
             # get a list of localityAliasIds from the locality_alias table
             s2 = sql.SQL('''SELECT 
@@ -81,7 +83,7 @@ class LocalityRenderer(Renderer):
                         a.neighbour_locality_pid,
                         b.locality_name                
                     FROM {dbschema}.locality_neighbour a
-                      INNER JOIN {dbschema}.locality_view b ON a.neighbour_locality_pid = b.locality_pid
+                    INNER JOIN {dbschema}.locality_view b ON a.neighbour_locality_pid = b.locality_pid
                     WHERE a.locality_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
