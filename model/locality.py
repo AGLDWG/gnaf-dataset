@@ -32,6 +32,9 @@ class LocalityRenderer(Renderer):
 
     def export_html(self, view='gnaf'):
         if view == 'gnaf':
+            # connect to DB
+            cursor = config.get_db_cursor()
+
             locality_name = None
             # make a human-readable street
             s = sql.SQL('''SELECT 
@@ -45,57 +48,33 @@ class LocalityRenderer(Renderer):
                     WHERE locality_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
-            try:
-                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
-                    .format(
-                        config.DB_HOST,
-                        config.DB_DBNAME,
-                        config.DB_USR,
-                        config.DB_PWD
-                    )
-                conn = psycopg2.connect(connect_str)
-                cursor = conn.cursor()
-                # get just IDs, ordered, from the address_detail table, paginated by class init args
-                cursor.execute(s)
-                rows = cursor.fetchall()
-                for row in rows:
-                    locality_name = row[0].title()
-                    latitude = row[1]
-                    longitude = row[2]
-                    geocode_type = row[3].title()
-                    locality_pid = row[4]
-                    state_pid = row[5]
-                    geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(latitude, longitude)
-            except Exception as e:
-                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
-                print(e)
+            cursor.execute(s)
+            rows = cursor.fetchall()
+            for row in rows:
+                r = config.reg(cursor, row)
+                locality_name = r.locality_name.title()
+                latitude = r.latitude
+                longitude = r.longitude
+                geocode_type = r.geocode_type.title()
+                locality_pid = r.locality_pid
+                state_pid = r.state_pid
+                geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(latitude, longitude)
+
 
             # get a list of localityAliasIds from the locality_alias table
             s2 = sql.SQL('''SELECT 
                         locality_alias_pid,
-                        "name"                
+                        "name"           
                     FROM {dbschema}.locality_alias
                     WHERE locality_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
-            try:
-                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
-                    .format(
-                    config.DB_HOST,
-                    config.DB_DBNAME,
-                    config.DB_USR,
-                    config.DB_PWD
-                )
-                conn = psycopg2.connect(connect_str)
-                cursor = conn.cursor()
-                # get just IDs, ordered, from the address_detail table, paginated by class init args
-                cursor.execute(s2)
-                rows = cursor.fetchall()
-                for row in rows:
-                    self.locality_aliases[row[0]] = row[1].title()
-            except Exception as e:
-                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
-                print(e)
+            # get just IDs, ordered, from the address_detail table, paginated by class init args
+            cursor.execute(s2)
+            rows = cursor.fetchall()
+            for row in rows:
+                r = config.reg(cursor, row)
+                self.locality_aliases[r.locality_alias_pid] = r.name.title()
 
             # get a list of localityNeighbourIds from the locality_alias table
             s2 = sql.SQL('''SELECT 
@@ -106,24 +85,12 @@ class LocalityRenderer(Renderer):
                     WHERE a.locality_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
-            try:
-                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
-                    .format(
-                    config.DB_HOST,
-                    config.DB_DBNAME,
-                    config.DB_USR,
-                    config.DB_PWD
-                )
-                conn = psycopg2.connect(connect_str)
-                cursor = conn.cursor()
-                # get just IDs, ordered, from the address_detail table, paginated by class init args
-                cursor.execute(s2)
-                rows = cursor.fetchall()
-                for row in rows:
-                    self.locality_neighbours[row[0]] = row[1].title()
-            except Exception as e:
-                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
-                print(e)
+            # get just IDs, ordered, from the address_detail table, paginated by class init args
+            cursor.execute(s2)
+            rows = cursor.fetchall()
+            for row in rows:
+                r = config.reg(cursor, row)
+                self.locality_neighbours[r.neighbour_locality_pid] = r.locality_name.title()
 
             view_html = render_template(
                 'class_locality_gnaf.html',
@@ -134,8 +101,8 @@ class LocalityRenderer(Renderer):
                 geometry_wkt=geometry_wkt,
                 locality_pid=locality_pid,
                 state_pid=state_pid,
-                locality_aliases = self.locality_aliases,
-                locality_neighbours = self.locality_neighbours
+                locality_aliases=self.locality_aliases,
+                locality_neighbours=self.locality_neighbours
             )
 
         elif view == 'ISO19160':

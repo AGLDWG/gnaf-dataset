@@ -3,112 +3,94 @@
     <tr><th>Property</th><th>Value</th></tr>
     <tr><td>Address Line</td><td><code>{{ address_string }}</code></td></tr>
     {% if building_name is not none %}
-    <tr><td>Building Name</td><td><code>{{ building_name }}</code></td></tr>
+    <tr><td><a href="http://gnafld.net/def/gnaf/hasBuildingName">Building Name</a></td><td><code>{{ building_name }}</code></td></tr>
     {% endif %}
-    {% if lot_number_prefix is not none %}
-    <tr><td>Lot Number Prefix</td><td><code>{{ lot_number_prefix }}</code></td></tr>
+
+    {% if number_lot is not none %}
+        <tr>
+            <td><a href="http://gnafld.net/def/gnaf/FirstStreetNumber">Lot Number</a></td>
+            <td><code>{{ number_lot_prefix if number_lot_prefix else '' }}{{ number_lot }}{{ number_lot_suffix if number_lot_suffix else '' }}</code></td>
+        </tr>
     {% endif %}
-    {% if lot_number is not none %}
-    <tr><td>Lot Number</td><td><code>{{ lot_number }}</code></td></tr>
-    {% endif %}
-    {% if lot_number_suffix is not none %}
-    <tr><td>Lot Number Suffix</td><td><code>{{ lot_number_suffix }}</code></td></tr>
-    {% endif %}
+
     {% if flat_type_code is not none %}
-    <tr><td>Flat Type Code</td><td><code>{{ flat_type_code }}</code></td></tr>
+    <tr><td><a href="http://gnafld.net/def/gnaf/">Flat Type Code</a></td><td><code>{{ flat_type_code }}</code></td></tr>
     {% endif %}
-    {% if flat_number_prefix is not none %}
-    <tr><td>Flat Number Prefix</td><td><code>{{ flat_number_prefix }}</code></td></tr>
+
+    {% if number_flat is not none %}
+        <tr>
+            <td><a href="http://gnafld.net/def/gnaf/FirstStreetNumber">First Number</a></td>
+            <td><code>{{ number_flat_prefix if number_flat_prefix else '' }}{{ number_flat }}{{ number_flat_suffix if number_flat_suffix else '' }}</code></td>
+        </tr>
     {% endif %}
-    {% if flat_number is not none %}
-    <tr><td>Flat Number</td><td><code>{{ flat_number }}</code></td></tr>
-    {% endif %}
-    {% if flat_number_suffix is not none %}
-    <tr><td>Flat Number Suffix</td><td><code>{{ flat_number_suffix }}</code></td></tr>
-    {% endif %}
+
     {% if level_type_code is not none %}
-    <tr><td>Level Type Code</td><td><code>{{ level_type_code }}</code></td></tr>
+    <tr><td><a href="http://gnafld.net/def/gnaf/">Level Type Code</a></td><td><code>{{ level_type_code }}</code></td></tr>
     {% endif %}
-    {% if level_number_prefix is not none %}
-    <tr><td>Level Number Prefix</td><td><code>{{ level_number_prefix }}</code></td></tr>
+
+
+    {% if number_level is not none %}
+        <tr>
+            <td><a href="http://gnafld.net/def/gnaf/FirstStreetNumber">Level Number</a></td>
+            <td><code>{{ number_level_prefix if number_level_prefix else '' }}{{ number_level }}{{ number_level_suffix if number_level_suffix else '' }}</code></td>
+        </tr>
     {% endif %}
-    {% if level_number is not none %}
-    <tr><td>Level Number</td><td><code>{{ level_number }}</code></td></tr>
+
+    {% if number_first is not none %}
+        <tr>
+            <td><a href="http://gnafld.net/def/gnaf/FirstStreetNumber">First Street Number</a></td>
+            <td><code>{{ number_first_prefix if number_first_prefix else '' }}{{ number_first }}{{ number_first_suffix if number_first_suffix else '' }}</code></td>
+        </tr>
     {% endif %}
-    {% if level_number_suffix is not none %}
-    <tr><td>Level Number Suffix</td><td><code>{{ level_number_suffix }}</code></td></tr>
-    {% endif %}
-    {% if number_first_prefix is not none %}
-    <tr><td>Number First Prefix</td><td><code>{{ number_first_prefix }}</code></td></tr>
-    {% endif %}
-    {% if street_number_1 is not none %}
-    <tr><td>Number First</td><td><code>{{ street_number_1 }}</code></td></tr>
-    {% endif %}
-    {% if number_first_suffix is not none %}
-    <tr><td>Number First Suffix</td><td><code>{{ number_first_suffix }}</code></td></tr>
-    {% endif %}
-    {% if number_last_prefix is not none %}
-    <tr><td>Number Last Prefix</td><td><code>{{ number_last_prefix }}</code></td></tr>
-    {% endif %}
+
     {% if number_last is not none %}
-    <tr><td>Number Last</td><td><code>{{ number_last }}</code></td></tr>
+        <tr>
+            <td><a href="http://gnafld.net/def/gnaf/FirstStreetNumber">Last Street Number</a></td>
+            <td><code>{{ number_last_prefix if number_last_prefix else '' }}{{ number_last }}{{ number_last_suffix if number_last_suffix else '' }}</code></td>
+        </tr>
     {% endif %}
-    {% if number_last_suffix is not none %}
-    <tr><td>Number Last Suffix</td><td><code>{{ number_last_suffix }}</code></td></tr>
-    {% endif %}
+
     {% if street_string is not none %}
-    <tr><td>Street Locality</td><td><code><a href="{{ url_for('classes.street', street_id=street_locality_pid) }}">{{ street_string }}</a></code></td></tr>
+    <tr><td><a href="http://gnafld.net/def/gnaf/hasStreetLocality">Street Locality</a></td><td><code><a href="{{ url_for('classes.street', street_id=street_locality_pid) }}">{{ street_string }}</a></code></td></tr>
     {% endif %}
     {% if locality_name is not none %}
-    <tr><td>Locality</td><td><code><a href="{{ url_for('classes.locality', locality_id=locality_pid) }}">{{ locality_name }}</a></code></td></tr>
+    <tr><td><a href="http://gnafld.net/def/gnaf/hasLocality">Locality</a></td><td><code><a href="{{ url_for('classes.locality', locality_id=locality_pid) }}">{{ locality_name }}</a></code></td></tr>
     {% endif %}
     {% if state_territory is not none %}
-    <tr><td>State/Territory</td><td><code>{{ state_territory }}</code></td></tr>
+    <tr><td><a href="http://gnafld.net/def/gnaf/hasState">State/Territory</a></td><td><code>{{ state_territory }}</code></td></tr>
     {% endif %}
     {% if postcode is not none %}
-    <tr><td>Postcode</td><td><code>{{ postcode }}</code></td></tr>
-    {% endif %}
-    {% if alias_principal is not none %}
-    <tr><td>Alias Principal</td><td><code>{{ alias_principal }}</code></td></tr>
+    <tr><td><a href="http://gnafld.net/def/gnaf/hasPostCode">Postcode</a></td><td><code>{{ postcode }}</code></td></tr>
     {% endif %}
     {% if legal_parcel_id is not none %}
-    <tr><td>Legal Parcel ID</td><td><code>{{ legal_parcel_id }}</code></td></tr>
+    <tr><td><a href="http://gnafld.net/def/gnaf/hasLegalParcelId">Legal Parcel ID</a></td><td><code>{{ legal_parcel_id }}</code></td></tr>
     {% endif %}
     {% if address_site_pid is not none %}
-    <tr><td>Address Site PID</td><td><code><a href="{{ url_for('classes.address_site', address_site_id=address_site_pid) }}">{{ address_site_pid }}</a></code></td></tr>
+    <tr><td><a href="http://gnafld.net/def/gnaf/hasAddressSite">Address Site PID</a></td><td><code><a href="{{ url_for('classes.address_site', address_site_id=address_site_pid) }}">{{ address_site_pid }}</a></code></td></tr>
     {% endif %}
     {% if level_geocoded_code is not none %}
-    <tr><td>Level Geocoded Code</td><td><code>{{ level_geocoded_code }}</code></td></tr>
+    <tr><td><a href="http://gnafld.net/def/gnaf/">Level Geocoded Code</a></td><td><code>{{ level_geocoded_code }}</code></td></tr>
     {% endif %}
     {% if property_pid is not none %}
-    <tr><td>Property PID</td><td><code>{{ property_pid }}</code></td></tr>
-    {% endif %}
-    {% if primary_secondary is not none %}
-    <tr><td>Primary Secondary</td><td><code>{{ primary_secondary }}</code></td></tr>
+    <tr><td><a href="http://gnafld.net/def/gnaf/">Property PID</a></td><td><code>{{ property_pid }}</code></td></tr>
     {% endif %}
     {% if confidence is not none %}
-    <tr><td>Confidence</td><td><code>{{ confidence }}</code></td></tr>
+    <tr><td><a href="http://gnafld.net/def/gnaf/hasGnafConfidence">GNAF Confidence</a></td><td><code>{{ confidence }}</code></td></tr>
     {% endif %}
     {% if date_created is not none %}
-    <tr><td>Date Created</td><td><code>{{ date_created }}</code></td></tr>
+    <tr><td><a href="http://gnafld.net/def/gnaf/hasCreatedDate">Date Created</a></td><td><code>{{ date_created }}</code></td></tr>
     {% endif %}
     {% if date_last_modified is not none %}
-    <tr><td>Date Last Modified</td><td><code>{{ date_last_modified }}</code></td></tr>
+    <tr><td><a href="http://gnafld.net/def/gnaf/hasModifiedDate">Date Last Modified</a></td><td><code>{{ date_last_modified }}</code></td></tr>
     {% endif %}
     {% if date_retired is not none %}
-    <tr><td>Date Retired</td><td><code>{{ date_retired }}</code></td></tr>
+    <tr><td><a href="http://gnafld.net/def/gnaf/hasDetiredDate">Date Retired</a></td><td><code>{{ date_retired }}</code></td></tr>
     {% endif %}
     {% if geometry_wkt is not none %}
-    <tr><td>Default Geometry</td><td><code>{{ geometry_wkt }}</code></td></tr>
-    {% endif %}
-    {% if latitude is not none %}
-    <tr><td>Default Latitude</td><td><code>{{ latitude }}</code></td></tr>
-    {% endif %}
-    {% if longitude is not none %}
-    <tr><td>Default Longitude</td><td><code>{{ longitude }}</code></td></tr>
+    <tr><td><a href="http://www.opengis.net/ont/geosparql#hasGeometry">Geometry</a> (<a href="http://www.opengis.net/ont/geosparql#asWKT">WKT</a>)</td><td><code>{{ geometry_wkt }}</code></td></tr>
     {% endif %}
     {% if geocode_type is not none %}
-    <tr><td>Default Geocode Type</td><td><code>{{ geocode_type }}</code></td></tr>
+        <tr><td><a href="http://gnafld.net/def/gnaf/">Geocode Type</a></td><td><code><a href="{{ geocode_type_uri }}">{{ geocode_type }}</a></code></td></tr>
     {% endif %}
     {% if principal_addresses.items()|length > 0 %}
     <tr>
@@ -148,7 +130,7 @@
     {% endif %}
     {% if mesh_block_2011s|length > 0 %}
     <tr>
-        <td>Mesh Block 2011</td><td>
+        <td><a href="http://gnafld.net/def/gnaf/2011MB">Mesh Block 2011</a></td><td>
             {% for mesh_block_2011 in mesh_block_2011s %}
                 <code><a href="{{ mesh_block_2011_uri%mesh_block_2011|urlencode }}">{{ mesh_block_2011 }}</a></code><br />
             {% endfor %}
@@ -157,7 +139,7 @@
     {% endif %}
     {% if mesh_block_2016s|length > 0 %}
     <tr>
-        <td>Mesh Block 2016</td><td>
+        <td><a href="http://gnafld.net/def/gnaf/2016MB">Mesh Block 2016</a></td><td>
             {% for mesh_block_2016 in mesh_block_2016s %}
                 <code><a href="{{ mesh_block_2016_uri%mesh_block_2016|urlencode }}">{{ mesh_block_2016 }}</a></code><br />
             {% endfor %}

@@ -1,4 +1,5 @@
 from os.path import dirname, realpath, join, abspath
+import psycopg2
 
 APP_DIR = dirname(dirname(realpath(__file__)))
 TEMPLATES_DIR = join(dirname(dirname(abspath(__file__))), 'view', 'templates')
@@ -8,29 +9,67 @@ DEBUG = True
 
 PAGE_SIZE = 100
 
-URI_MB_2011_CLASS = 'http://reference.data.gov.au/def/ont/asgs#MB2011'
+URI_MB_2011_CLASS = 'http://gnafld.net/def/2011MB'
 URI_MB_2011_INSTANCE_BASE = 'http://reference.data.gov.au/asgs/MB2011/'
 
-URI_MB_2016_CLASS = 'http://reference.data.gov.au/def/ont/asgs#MB2016'
+URI_MB_2016_CLASS = 'http://gnafld.net/def/MB2016MB'
 URI_MB_2016_INSTANCE_BASE = 'http://reference.data.gov.au/asgs/MB2016/'
 
-URI_ADDRESS_CLASS = 'http://reference.data.gov.au/def/ont/gnaf/Address'
-URI_ADDRESS_INSTANCE_BASE = 'http://reference.data.gov.au/id/address/gnaf/'
+URI_ADDRESS_CLASS = 'http://gnafld.net/def/gnaf/Address'
+URI_ADDRESS_INSTANCE_BASE = 'http://gnafld.net/address/'
 
-URI_ADDRESS_SITE_CLASS = 'http://reference.data.gov.au/def/ont/gnaf#AddressSite'
-URI_ADDRESS_SITE_INSTANCE_BASE = 'http://transport.data.gov.au/addressSite/'
+URI_ADDRESS_SITE_CLASS = 'http://gnafld.net/def/gnaf/AddressSite'
+URI_ADDRESS_SITE_INSTANCE_BASE = 'http://gnafld.net/addressSite/'
 
-URI_ADDRESS_SITE_GEOCODE_CLASS = 'http://reference.data.gov.au/def/ont/gnaf/AddressSiteGeocode'
-URI_ADDRESS_SITE_GEOCODE_INSTANCE_BASE = 'http://transport.data.gov.au/addressSiteGeocode/'
+URI_STREET_CLASS = 'http://gnafld.net/def/gnaf/StreetLocality'
+URI_STREET_INSTANCE_BASE = 'http://gnafld.net/streetLocality/'
 
-URI_STREET_CLASS = 'http://reference.data.gov.au/def/ont/gnaf/Street'
-URI_STREET_INSTANCE_BASE = 'http://transport.data.gov.au/street/'
-
-URI_LOCALITY_CLASS = 'http://reference.data.gov.au/def/ont/gnaf/Locality'
-URI_LOCALITY_INSTANCE_BASE = 'http://transport.data.gov.au/locality/'
+URI_LOCALITY_CLASS = 'http://gnafld.net/def/gnaf/Locality'
+URI_LOCALITY_INSTANCE_BASE = 'http://gnafld.net/locality/'
 
 DB_HOST = 'localhost'
 DB_DBNAME = 'gnaf'
 DB_USR = 'gnafusr'
 DB_PWD = 'joschmo'
 DB_SCHEMA = 'gnaf'
+
+
+def get_db_cursor():
+    try:
+        connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
+            .format(
+            DB_HOST,
+            DB_DBNAME,
+            DB_USR,
+            DB_PWD
+        )
+        return psycopg2.connect(connect_str).cursor()
+    except Exception as e:
+        print("Can't connect to DB {}".format(DB_DBNAME))
+        print(e)
+
+
+class reg(object):
+    def __init__(self, cursor, row):
+        for (attr, val) in zip((d[0] for d in cursor.description), row):
+            setattr(self, attr, val)
+
+
+def get_vocab_term(vocab, alt_label):
+    import rdflib
+
+    g = rdflib.Graph()
+    g.load('/Users/car587/work/gnaf-ont/codes/' + vocab + '.ttl', format='turtle')
+    q = '''
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        SELECT ?uri ?prefLabel
+        WHERE {{
+            ?uri    skos:prefLabel  ?prefLabel ;
+                    skos:altLabel   ?altLabel . 
+            FILTER(?altLabel == '{}')
+        }}
+    '''.format(alt_label)
+    print(q)
+    for r in g.query(q):
+        return r['uri'], r['prefLabel']
