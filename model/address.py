@@ -40,39 +40,43 @@ class AddressRenderer(Renderer):
         if locality is None:
             address_string = street_string
         else:
-            flatNum = '{}{}{}'.format(flat_number_prefix if flat_number_prefix is not None else '',
+            flat_num = '{}{}{}'.format(flat_number_prefix if flat_number_prefix is not None else '',
                                       flat_number if flat_number is not None else '',
                                       flat_number_suffix if flat_number_suffix is not None else '')
-            levelNum = '{}{}{}'.format(level_number_prefix if level_number_prefix is not None else '',
+            level_num = '{}{}{}'.format(level_number_prefix if level_number_prefix is not None else '',
                                        level_number if level_number is not None else '',
                                        level_number_suffix if level_number_suffix is not None else '')
-            lotNum = '{}{}{}'.format(lot_number_prefix if lot_number_prefix is not None else '',
+            lot_num = '{}{}{}'.format(lot_number_prefix if lot_number_prefix is not None else '',
                                      lot_number if lot_number is not None else '',
                                      lot_number_suffix if lot_number_suffix is not None else '')
-            num1 = '{}{}{}'.format(number_first_prefix if number_first_prefix is not None else '',
+            num_first = '{}{}{}'.format(number_first_prefix if number_first_prefix is not None else '',
                                    number_first if number_first is not None else '',
                                    number_first_suffix if number_first_suffix is not None else '')
-            num2 = '{}{}{}'.format(number_last_prefix if number_last_prefix is not None else '',
+            num_last = '{}{}{}'.format(number_last_prefix if number_last_prefix is not None else '',
                                    number_last if number_last is not None else '',
                                    number_last_suffix if number_last_suffix is not None else '')
             if level_type_code is not None:
                 address_string += level_type_code.title() + ' '
-            if levelNum is not '':
-                address_string += levelNum + ' '
-            if flatNum is not '':
-                address_string += '{flattype} {flatnum} '.format(flattype=flat_type_code.title(),
-                                                                 flatnum=flatNum) if flat_type_code is not None else flatNum + ' '
+            if level_num is not '':
+                address_string += level_num + ' '
+            if flat_num is not '':
+                if flat_type_code is not None:
+                    address_string += '{flattype} {flatnum} '\
+                        .format(flattype=flat_type_code.title(), flatnum=flat_num)
+                else:
+                    address_string += flat_num + ' '
             if building is not None:
                 address_string += building.title() + ' '
-            if num1 is not '':
-                address_string += num1
-                if num2 is not '':
-                    address_string += '-' + num2
+            if num_first is not '':
+                address_string += num_first
+                if num_last is not '':
+                    address_string += '-' + num_last
                 address_string += ' '
             else:
-                address_string += 'LOT {lotnum} '.format(lotnum=lotNum)
+                address_string += 'LOT {lotnum} '.format(lotnum=lot_num)
             address_string += '{st}, {loc}, {state} {postcode}' \
                 .format(st=street_string, loc=locality, state=state_territory, postcode=postcode)
+
         return address_string, street_string
 
     def render(self, view, format):
@@ -126,6 +130,21 @@ class AddressRenderer(Renderer):
             primary_secondary = None
             geometry_wkt = None
 
+            # DB connection
+            try:
+                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
+                    .format(
+                        config.DB_HOST,
+                        config.DB_DBNAME,
+                        config.DB_USR,
+                        config.DB_PWD
+                    )
+                conn = psycopg2.connect(connect_str)
+                cursor = conn.cursor()
+            except Exception as e:
+                print("Can't connect to DB {}".format(config.DB_DBNAME))
+                print(e)
+
             address_string = None
             # make a human-readable address
             s = sql.SQL('''SELECT 
@@ -167,66 +186,54 @@ class AddressRenderer(Renderer):
                         b.level_geocoded_code,
                         b.property_pid,
                         b.primary_secondary                        
-                    FROM {dbschema}.address_view a INNER JOIN {dbschema}.address_detail b ON a.address_detail_pid = b.address_detail_pid
+                    FROM {dbschema}.address_view a 
+                    INNER JOIN {dbschema}.address_detail b ON a.address_detail_pid = b.address_detail_pid
                     WHERE a.address_detail_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
-            try:
-                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
-                    .format(
-                        config.DB_HOST,
-                        config.DB_DBNAME,
-                        config.DB_USR,
-                        config.DB_PWD
-                    )
-                conn = psycopg2.connect(connect_str)
-                cursor = conn.cursor()
-                # get just IDs, ordered, from the address_detail table, paginated by class init args
-                cursor.execute(s)
-                rows = cursor.fetchall()
-                for row in rows:
-                    street_locality_pid = row[0]
-                    locality_pid = row[1]
-                    street_number_1 = row[2]
-                    street_name = row[3].title()
-                    street_type = row[4]
-                    locality_name = row[5].title()
-                    state_territory = row[6]
-                    postcode = row[7]
-                    latitude = row[8]
-                    longitude = row[9]
-                    geocode_type = row[10].title()
-                    confidence = row[11]
-                    date_created = row[12]
-                    date_last_modified = row[13]
-                    date_retired = row[14]
-                    building_name = row[15]
-                    lot_number_prefix = row[16]
-                    lot_number = row[17]
-                    lot_number_suffix = row[18]
-                    flat_type_code = row[19]
-                    flat_number_prefix = row[20]
-                    flat_number = row[21]
-                    flat_number_suffix = row[22]
-                    level_type_code = row[23]
-                    level_number_prefix = row[24]
-                    level_number = row[25]
-                    level_number_suffix = row[26]
-                    number_first_prefix = row[27]
-                    number_first_suffix = row[28]
-                    number_last_prefix = row[29]
-                    number_last = row[30]
-                    number_last_suffix = row[31]
-                    alias_principal = row[32]
-                    legal_parcel_id = row[33]
-                    address_site_pid = row[34]
-                    level_geocoded_code = row[35]
-                    property_pid = row[36]
-                    primary_secondary = row[37]
-                    geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(latitude, longitude)
-            except Exception as e:
-                print("DB conn 1 can't connect to DB for query s. Invalid dbname, user or password?")
-                print(e)
+            # get just IDs, ordered, from the address_detail table, paginated by class init args
+            cursor.execute(s)
+            rows = cursor.fetchall()
+            for row in rows:
+                street_locality_pid = row[0]
+                locality_pid = row[1]
+                street_number_1 = row[2]
+                street_name = row[3].title()
+                street_type = row[4]
+                locality_name = row[5].title()
+                state_territory = row[6]
+                postcode = row[7]
+                latitude = row[8]
+                longitude = row[9]
+                geocode_type = row[10].title()
+                confidence = row[11]
+                date_created = row[12]
+                date_last_modified = row[13]
+                date_retired = row[14]
+                building_name = row[15]
+                lot_number_prefix = row[16]
+                lot_number = row[17]
+                lot_number_suffix = row[18]
+                flat_type_code = row[19]
+                flat_number_prefix = row[20]
+                flat_number = row[21]
+                flat_number_suffix = row[22]
+                level_type_code = row[23]
+                level_number_prefix = row[24]
+                level_number = row[25]
+                level_number_suffix = row[26]
+                number_first_prefix = row[27]
+                number_first_suffix = row[28]
+                number_last_prefix = row[29]
+                number_last = row[30]
+                number_last_suffix = row[31]
+                alias_principal = row[32]
+                legal_parcel_id = row[33]
+                address_site_pid = row[34]
+                level_geocoded_code = row[35]
+                property_pid = row[36]
+                primary_secondary = row[37]
+                geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(latitude, longitude)
 
             this_address_string, this_street_string = self.format_address(
                 level_type_code=level_type_code, level_number_prefix=level_number_prefix,
@@ -278,31 +285,22 @@ class AddressRenderer(Renderer):
                         a.number_last_suffix,
                         c.alias_pid,
                         c.alias_type_code                                        
-                    FROM 
-                        {dbschema}.address_alias c
-                          INNER JOIN {dbschema}.address_detail a ON c.alias_pid = a.address_detail_pid
-                          INNER JOIN {dbschema}.address_default_geocode g ON a.address_detail_pid = g.address_detail_pid
-                          INNER JOIN {dbschema}.geocode_type_aut gt ON g.geocode_type_code = gt.code
-                          INNER JOIN {dbschema}.street_locality s ON a.street_locality_pid = s.street_locality_pid
-                          INNER JOIN {dbschema}.locality l ON s.locality_pid = l.locality_pid
-                          INNER JOIN {dbschema}.state st ON l.state_pid = st.state_pid
+                    FROM {dbschema}.address_alias c
+                    INNER JOIN {dbschema}.address_detail a ON c.alias_pid = a.address_detail_pid
+                    INNER JOIN {dbschema}.address_default_geocode g ON a.address_detail_pid = g.address_detail_pid
+                    INNER JOIN {dbschema}.geocode_type_aut gt ON g.geocode_type_code = gt.code
+                    INNER JOIN {dbschema}.street_locality s ON a.street_locality_pid = s.street_locality_pid
+                    INNER JOIN {dbschema}.locality l ON s.locality_pid = l.locality_pid
+                    INNER JOIN {dbschema}.state st ON l.state_pid = st.state_pid
                     WHERE principal_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
-            try:
-                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
-                    .format(
-                        config.DB_HOST,
-                        config.DB_DBNAME,
-                        config.DB_USR,
-                        config.DB_PWD
-                    )
-                conn = psycopg2.connect(connect_str)
-                cursor = conn.cursor()
-                # get just IDs, ordered, from the address_detail table, paginated by class init args
-                cursor.execute(s2)
-                rows = cursor.fetchall()
-                for row in rows:
+            conn = psycopg2.connect(connect_str)
+            cursor = conn.cursor()
+            # get just IDs, ordered, from the address_detail table, paginated by class init args
+            cursor.execute(s2)
+            rows = cursor.fetchall()
+            for row in rows:
                     al_street_locality_pid = row[0]
                     al_locality_pid = row[1]
                     al_street_number_1 = row[2]
@@ -351,9 +349,6 @@ class AddressRenderer(Renderer):
                         locality=al_locality_name, state_territory=al_state_territory, postcode=al_postcode
                     )
                     self.alias_addresses[row[32]] = alias_address_string
-            except Exception as e:
-                print("DB conn 2, can't connect to DB for query s2. Invalid dbname, user or password?")
-                print(e)
 
             # get a list of principalIds from the address_alias table
             s3 = sql.SQL('''SELECT 
@@ -391,31 +386,22 @@ class AddressRenderer(Renderer):
                         a.number_last_suffix,
                         c.principal_pid,
                         c.alias_type_code                                        
-                    FROM 
-                        {dbschema}.address_alias c
-                          INNER JOIN {dbschema}.address_detail a ON c.principal_pid = a.address_detail_pid
-                          INNER JOIN {dbschema}.address_default_geocode g ON a.address_detail_pid = g.address_detail_pid
-                          INNER JOIN {dbschema}.geocode_type_aut gt ON g.geocode_type_code = gt.code
-                          INNER JOIN {dbschema}.street_locality s ON a.street_locality_pid = s.street_locality_pid
-                          INNER JOIN {dbschema}.locality l ON s.locality_pid = l.locality_pid
-                          INNER JOIN {dbschema}.state st ON l.state_pid = st.state_pid
+                    FROM {dbschema}.address_alias c
+                    INNER JOIN {dbschema}.address_detail a ON c.principal_pid = a.address_detail_pid
+                    INNER JOIN {dbschema}.address_default_geocode g ON a.address_detail_pid = g.address_detail_pid
+                    INNER JOIN {dbschema}.geocode_type_aut gt ON g.geocode_type_code = gt.code
+                    INNER JOIN {dbschema}.street_locality s ON a.street_locality_pid = s.street_locality_pid
+                    INNER JOIN {dbschema}.locality l ON s.locality_pid = l.locality_pid
+                    INNER JOIN {dbschema}.state st ON l.state_pid = st.state_pid
                     WHERE alias_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
-            try:
-                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
-                    .format(
-                        config.DB_HOST,
-                        config.DB_DBNAME,
-                        config.DB_USR,
-                        config.DB_PWD
-                    )
-                conn = psycopg2.connect(connect_str)
-                cursor = conn.cursor()
-                # get just IDs, ordered, from the address_detail table, paginated by class init args
-                cursor.execute(s3)
-                rows = cursor.fetchall()
-                for row in rows:
+            conn = psycopg2.connect(connect_str)
+            cursor = conn.cursor()
+            # get just IDs, ordered, from the address_detail table, paginated by class init args
+            cursor.execute(s3)
+            rows = cursor.fetchall()
+            for row in rows:
                     pc_street_locality_pid = row[0]
                     pc_locality_pid = row[1]
                     pc_street_number_1 = row[2]
@@ -464,9 +450,6 @@ class AddressRenderer(Renderer):
                         locality=pc_locality_name, state_territory=pc_state_territory, postcode=pc_postcode
                     )
                     self.principal_addresses[row[32]] = principal_address_string
-            except Exception as e:
-                print("DB conn 3, can't connect to DB for query s3. Invalid dbname, user or password?")
-                print(e)
 
             # get a list of secondaryIds from the primary_secondary table
             s4 = sql.SQL('''SELECT 
@@ -504,31 +487,22 @@ class AddressRenderer(Renderer):
                         a.number_last_suffix,
                         c.secondary_pid,
                         c.ps_join_type_code                                        
-                    FROM 
-                        {dbschema}.primary_secondary c
-                          INNER JOIN {dbschema}.address_detail a ON c.secondary_pid = a.address_detail_pid
-                          INNER JOIN {dbschema}.address_default_geocode g ON a.address_detail_pid = g.address_detail_pid
-                          INNER JOIN {dbschema}.geocode_type_aut gt ON g.geocode_type_code = gt.code
-                          INNER JOIN {dbschema}.street_locality s ON a.street_locality_pid = s.street_locality_pid
-                          INNER JOIN {dbschema}.locality l ON s.locality_pid = l.locality_pid
-                          INNER JOIN {dbschema}.state st ON l.state_pid = st.state_pid
+                    FROM {dbschema}.primary_secondary c
+                    INNER JOIN {dbschema}.address_detail a ON c.secondary_pid = a.address_detail_pid
+                    INNER JOIN {dbschema}.address_default_geocode g ON a.address_detail_pid = g.address_detail_pid
+                    INNER JOIN {dbschema}.geocode_type_aut gt ON g.geocode_type_code = gt.code
+                    INNER JOIN {dbschema}.street_locality s ON a.street_locality_pid = s.street_locality_pid
+                    INNER JOIN {dbschema}.locality l ON s.locality_pid = l.locality_pid
+                    INNER JOIN {dbschema}.state st ON l.state_pid = st.state_pid
                     WHERE primary_pid = {id}''') \
                 .format(dbschema=sql.Identifier(config.DB_SCHEMA), id=sql.Literal(self.id))
 
-            try:
-                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
-                    .format(
-                        config.DB_HOST,
-                        config.DB_DBNAME,
-                        config.DB_USR,
-                        config.DB_PWD
-                    )
-                conn = psycopg2.connect(connect_str)
-                cursor = conn.cursor()
-                # get just IDs, ordered, from the address_detail table, paginated by class init args
-                cursor.execute(s4)
-                rows = cursor.fetchall()
-                for row in rows:
+            conn = psycopg2.connect(connect_str)
+            cursor = conn.cursor()
+            # get just IDs, ordered, from the address_detail table, paginated by class init args
+            cursor.execute(s4)
+            rows = cursor.fetchall()
+            for row in rows:
                     sc_street_locality_pid = row[0]
                     sc_locality_pid = row[1]
                     sc_street_number_1 = row[2]
@@ -577,9 +551,6 @@ class AddressRenderer(Renderer):
                         locality=sc_locality_name, state_territory=sc_state_territory, postcode=sc_postcode
                     )
                     self.secondary_addresses[row[32]] = secondary_address_string
-            except Exception as e:
-                print("DB conn 4, can't connect to DB for query s4. Invalid dbname, user or password?")
-                print(e)
 
             # get a list of primaryIds from the primary_secondary table
             s5 = sql.SQL('''SELECT 
@@ -617,82 +588,68 @@ class AddressRenderer(Renderer):
                         a.number_last_suffix,
                         c.primary_pid,
                         c.ps_join_type_code                                        
-                    FROM 
-                        {dbschema}.primary_secondary c
-                          INNER JOIN {dbschema}.address_detail a ON c.primary_pid = a.address_detail_pid
-                          INNER JOIN {dbschema}.address_default_geocode g ON a.address_detail_pid = g.address_detail_pid
-                          INNER JOIN {dbschema}.geocode_type_aut gt ON g.geocode_type_code = gt.code
-                          INNER JOIN {dbschema}.street_locality s ON a.street_locality_pid = s.street_locality_pid
-                          INNER JOIN {dbschema}.locality l ON s.locality_pid = l.locality_pid
-                          INNER JOIN {dbschema}.state st ON l.state_pid = st.state_pid
+                    FROM {dbschema}.primary_secondary c
+                    INNER JOIN {dbschema}.address_detail a ON c.primary_pid = a.address_detail_pid
+                    INNER JOIN {dbschema}.address_default_geocode g ON a.address_detail_pid = g.address_detail_pid
+                    INNER JOIN {dbschema}.geocode_type_aut gt ON g.geocode_type_code = gt.code
+                    INNER JOIN {dbschema}.street_locality s ON a.street_locality_pid = s.street_locality_pid
+                    INNER JOIN {dbschema}.locality l ON s.locality_pid = l.locality_pid
+                    INNER JOIN {dbschema}.state st ON l.state_pid = st.state_pid
                     WHERE secondary_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
-            try:
-                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
-                    .format(
-                        config.DB_HOST,
-                        config.DB_DBNAME,
-                        config.DB_USR,
-                        config.DB_PWD
-                    )
-                conn = psycopg2.connect(connect_str)
-                cursor = conn.cursor()
-                # get just IDs, ordered, from the address_detail table, paginated by class init args
-                cursor.execute(s5)
-                rows = cursor.fetchall()
-                for row in rows:
-                    pr_street_locality_pid = row[0]
-                    pr_locality_pid = row[1]
-                    pr_street_number_1 = row[2]
-                    pr_street_name = row[3].title()
-                    pr_street_type = row[4]
-                    pr_locality_name = row[5].title()
-                    pr_state_territory = row[6]
-                    pr_postcode = row[7]
-                    pr_latitude = row[8]
-                    pr_longitude = row[9]
-                    pr_geocode_type = row[10].title()
-                    pr_confidence = row[11]
-                    pr_date_created = row[12]
-                    pr_date_last_modified = row[13]
-                    pr_date_retired = row[14]
-                    pr_building_name = row[15]
-                    pr_lot_number_prefix = row[16]
-                    pr_lot_number = row[17]
-                    pr_lot_number_suffix = row[18]
-                    pr_flat_type_code = row[19]
-                    pr_flat_number_prefix = row[20]
-                    pr_flat_number = row[21]
-                    pr_flat_number_suffix = row[22]
-                    pr_level_type_code = row[23]
-                    pr_level_number_prefix = row[24]
-                    pr_level_number = row[25]
-                    pr_level_number_suffix = row[26]
-                    pr_number_first_prefix = row[27]
-                    pr_number_first_suffix = row[28]
-                    pr_number_last_prefix = row[29]
-                    pr_number_last = row[30]
-                    pr_number_last_suffix = row[31]
+            # get just IDs, ordered, from the address_detail table, paginated by class init args
+            cursor.execute(s5)
+            rows = cursor.fetchall()
+            for row in rows:
+                pr_street_locality_pid = row[0]
+                pr_locality_pid = row[1]
+                pr_street_number_1 = row[2]
+                pr_street_name = row[3].title()
+                pr_street_type = row[4]
+                pr_locality_name = row[5].title()
+                pr_state_territory = row[6]
+                pr_postcode = row[7]
+                pr_latitude = row[8]
+                pr_longitude = row[9]
+                pr_geocode_type = row[10].title()
+                pr_confidence = row[11]
+                pr_date_created = row[12]
+                pr_date_last_modified = row[13]
+                pr_date_retired = row[14]
+                pr_building_name = row[15]
+                pr_lot_number_prefix = row[16]
+                pr_lot_number = row[17]
+                pr_lot_number_suffix = row[18]
+                pr_flat_type_code = row[19]
+                pr_flat_number_prefix = row[20]
+                pr_flat_number = row[21]
+                pr_flat_number_suffix = row[22]
+                pr_level_type_code = row[23]
+                pr_level_number_prefix = row[24]
+                pr_level_number = row[25]
+                pr_level_number_suffix = row[26]
+                pr_number_first_prefix = row[27]
+                pr_number_first_suffix = row[28]
+                pr_number_last_prefix = row[29]
+                pr_number_last = row[30]
+                pr_number_last_suffix = row[31]
 
-                    primary_address_string, primary_street_string = self.format_address(
-                        level_type_code=pr_level_type_code, level_number_prefix=pr_level_number_prefix,
-                        level_number=pr_level_number, level_number_suffix=pr_level_number_suffix,
-                        flat_type_code=pr_flat_type_code, flat_number_prefix=pr_flat_number_prefix, flat_number=pr_flat_number,
-                        flat_number_suffix=pr_flat_number_suffix,
-                        number_first_prefix=pr_number_first_prefix, number_first=pr_street_number_1,
-                        number_first_suffix=pr_number_first_suffix,
-                        number_last_prefix=pr_number_last_prefix, number_last=pr_number_last,
-                        number_last_suffix=pr_number_last_suffix,
-                        building=pr_building_name, lot_number_prefix=pr_lot_number_prefix, lot_number=pr_lot_number,
-                        lot_number_suffix=pr_lot_number_suffix,
-                        street_name=pr_street_name, street_type=pr_street_type,
-                        locality=pr_locality_name, state_territory=pr_state_territory, postcode=pr_postcode
-                    )
-                    self.primary_addresses[row[32]] = primary_address_string
-            except Exception as e:
-                print("DB conn 5, can't connect to DB for query s5. Invalid dbname, user or password?")
-                print(e)
+                primary_address_string, primary_street_string = self.format_address(
+                    level_type_code=pr_level_type_code, level_number_prefix=pr_level_number_prefix,
+                    level_number=pr_level_number, level_number_suffix=pr_level_number_suffix,
+                    flat_type_code=pr_flat_type_code, flat_number_prefix=pr_flat_number_prefix, flat_number=pr_flat_number,
+                    flat_number_suffix=pr_flat_number_suffix,
+                    number_first_prefix=pr_number_first_prefix, number_first=pr_street_number_1,
+                    number_first_suffix=pr_number_first_suffix,
+                    number_last_prefix=pr_number_last_prefix, number_last=pr_number_last,
+                    number_last_suffix=pr_number_last_suffix,
+                    building=pr_building_name, lot_number_prefix=pr_lot_number_prefix, lot_number=pr_lot_number,
+                    lot_number_suffix=pr_lot_number_suffix,
+                    street_name=pr_street_name, street_type=pr_street_type,
+                    locality=pr_locality_name, state_territory=pr_state_territory, postcode=pr_postcode
+                )
+                self.primary_addresses[row[32]] = primary_address_string
 
             # get a list of mb2011s from the address_mesh_block_2011 and mb_2011 tables
             s6 = sql.SQL('''SELECT 
@@ -702,24 +659,11 @@ class AddressRenderer(Renderer):
                     WHERE address_detail_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
-            try:
-                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
-                    .format(
-                        config.DB_HOST,
-                        config.DB_DBNAME,
-                        config.DB_USR,
-                        config.DB_PWD
-                    )
-                conn = psycopg2.connect(connect_str)
-                cursor = conn.cursor()
-                # get just IDs, ordered, from the address_detail table, paginated by class init args
-                cursor.execute(s6)
-                rows = cursor.fetchall()
-                for row in rows:
-                    self.mesh_block_2011s.append(row[0])
-            except Exception as e:
-                print("DB conn 6, can't connect to DB for query s6. Invalid dbname, user or password?")
-                print(e)
+            # get just IDs, ordered, from the address_detail table, paginated by class init args
+            cursor.execute(s6)
+            rows = cursor.fetchall()
+            for row in rows:
+                self.mesh_block_2011s.append(row[0])
 
             # get a list of mb2016s from the address_mesh_block_2016 and mb_2016 tables
             s7 = sql.SQL('''SELECT 
@@ -729,24 +673,12 @@ class AddressRenderer(Renderer):
                     WHERE address_detail_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
-            try:
-                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
-                    .format(
-                        config.DB_HOST,
-                        config.DB_DBNAME,
-                        config.DB_USR,
-                        config.DB_PWD
-                    )
-                conn = psycopg2.connect(connect_str)
-                cursor = conn.cursor()
-                # get just IDs, ordered, from the address_detail table, paginated by class init args
-                cursor.execute(s7)
-                rows = cursor.fetchall()
-                for row in rows:
-                    self.mesh_block_2016s.append(row[0])
-            except Exception as e:
-                print("DB conn 7, can't connect to DB for query s7. Invalid dbname, user or password?")
-                print(e)
+            cursor = conn.cursor()
+            # get just IDs, ordered, from the address_detail table, paginated by class init args
+            cursor.execute(s7)
+            rows = cursor.fetchall()
+            for row in rows:
+                self.mesh_block_2016s.append(row[0])
 
             view_html = render_template(
                 'class_address_gnaf.html',
