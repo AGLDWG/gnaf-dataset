@@ -31,7 +31,6 @@ class StreetRenderer(Renderer):
 
     def export_html(self, view='gnaf'):
         if view == 'gnaf':
-
             # initialise parameters in case no results are returned from SQL
             street_name = None
             street_type = None
@@ -59,73 +58,56 @@ class StreetRenderer(Renderer):
                     WHERE street_locality_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
-            try:
-                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
-                    .format(
-                        config.DB_HOST,
-                        config.DB_DBNAME,
-                        config.DB_USR,
-                        config.DB_PWD
-                    )
-                conn = psycopg2.connect(connect_str)
-                cursor = conn.cursor()
-                # get just IDs, ordered, from the address_detail table, paginated by class init args
-                cursor.execute(s)
-                rows = cursor.fetchall()
-                for row in rows:
-                    street_name = row[0].title()
-                    street_type = row[1].title() if row[1] != None else row[1]
-                    street_suffix = row[2].title() if row[2] != None else row[2]
-                    latitude = row[3]
-                    longitude = row[4]
-                    geocode_type = row[5].title() if row[5] != None else row[5]
-                    locality_pid = row[6]
-                    locality_name = row[7].title()
-                    geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(latitude, longitude) if latitude != None else None
-                    street_string = '{}{}{}'.format(street_name,
-                                                    ' ' + street_type.title() if street_type != None else '',
-                                                    ' ' + street_suffix.title() if street_suffix != None else '')
-            except Exception as e:
-                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
-                print(e)
+            cursor = config.get_db_cursor()
 
-            # get a list of addressSiteGeocodeIds from the address_site_geocode table
+            # get just IDs, ordered, from the address_detail table, paginated by class init args
+            cursor.execute(s)
+            rows = cursor.fetchall()
+            for row in rows:
+                r = config.reg(cursor, row)
+                street_name = r.street_name.title()
+                street_type = r.street_type_code.title()
+                street_suffix = r.street_suffix_code.title() if r.street_suffix_code is not None else None
+                latitude = r.latitude
+                longitude = r.longitude
+                geocode_type = r.geocode_type.title() if r.geocode_type is not None else None
+                locality_pid = r.locality_pid
+                locality_name = r.locality_name.title()
+                geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(
+                    latitude,
+                    longitude
+                ) if latitude is not None else None
+
+                street_string = '{}{}{}'.format(
+                    street_name,
+                    ' ' + street_type.title() if street_type is not None else '',
+                    ' ' + street_suffix.title() if street_suffix is not None else ''
+                )
+
+            # aliases
             s2 = sql.SQL('''SELECT 
-                        street_locality_alias_pid,
-                        street_name, 
-                        street_type_code, 
-                        street_suffix_code                
-                    FROM {dbschema}.street_locality_alias
-                    WHERE street_locality_pid = {id}''') \
+                          street_locality_alias_pid,
+                          street_name,
+                          street_type_code,
+                          street_suffix_code,
+                          alias_type_code
+                        FROM {dbschema}.street_locality_alias 
+                        WHERE street_locality_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
-            try:
-                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
-                    .format(
-                    config.DB_HOST,
-                    config.DB_DBNAME,
-                    config.DB_USR,
-                    config.DB_PWD
+            cursor.execute(s2)
+            rows = cursor.fetchall()
+            for row in rows:
+                r = config.reg(cursor, row)
+                street_string = '{}{}{}'.format(
+                    r.street_name,
+                    ' ' + r.street_type_code.title() if r.street_type_code is not None else '',
+                    ' ' + r.street_suffix_code.title() if r.street_suffix_code is not None else ''
                 )
-                conn = psycopg2.connect(connect_str)
-                cursor = conn.cursor()
-                # get just IDs, ordered, from the address_detail table, paginated by class init args
-                cursor.execute(s2)
-                rows = cursor.fetchall()
-                for row in rows:
-                    alias_street_name = row[1].title()
-                    alias_street_type = row[2]
-                    alias_street_suffix = row[3]
-                    alias_street_string = '{}{}{}'.format(alias_street_name,
-                                                    ' ' + alias_street_type.title() if alias_street_type != None else '',
-                                                    ' ' + alias_street_suffix.title() if alias_street_suffix != None else '')
-                    self.street_locality_aliases[row[0]] = alias_street_string
-            except Exception as e:
-                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
-                print(e)
+                self.street_locality_aliases[r.street_locality_alias_pid] = street_string
 
             view_html = render_template(
-                'class_street_gnaf.html',
+                'class_streetLocality_gnaf.html',
                 street_string=street_string,
                 street_locality_pid=self.id,
                 street_name=street_name,
@@ -142,7 +124,7 @@ class StreetRenderer(Renderer):
 
         elif view == 'ISO19160':
             view_html = render_template(
-                'class_street_ISO19160.html',
+                'class_streetLocality_ISO19160.html',
             )
 
         elif view == 'dct':
@@ -186,7 +168,7 @@ class StreetRenderer(Renderer):
                 print(e)
 
             view_html = render_template(
-                'class_street_dct.html',
+                'class_streetLocality_dct.html',
                 identifier=self.id,
                 title='Street ' + self.id,
                 description=street_string,
@@ -196,7 +178,7 @@ class StreetRenderer(Renderer):
             )
 
         return render_template(
-            'class_street.html',
+            'class_streetLocality.html',
             view_html=view_html,
             street_id=self.id,
             street_uri=self.uri,
@@ -220,28 +202,16 @@ class StreetRenderer(Renderer):
                     WHERE street_locality_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
-            try:
-                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
-                    .format(
-                        config.DB_HOST,
-                        config.DB_DBNAME,
-                        config.DB_USR,
-                        config.DB_PWD
-                    )
-                conn = psycopg2.connect(connect_str)
-                cursor = conn.cursor()
-                # get just IDs, ordered, from the address_detail table, paginated by class init args
-                cursor.execute(s)
-                for record in cursor:
-                    ac_street_value = record[0].title()
-                    if(record[1] != None):
-                        ac_street_value += ' {}'.format(record[1].title())
-                    if(record[2] != None):
-                        ac_street_value += ' {}'.format(record[2].title())
-                    geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(record[3], record[4])
-            except Exception as e:
-                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
-                print(e)
+            cursor = config.get_db_cursor()
+            # get just IDs, ordered, from the address_detail table, paginated by class init args
+            cursor.execute(s)
+            for record in cursor:
+                ac_street_value = record[0].title()
+                if(record[1] is not None):
+                    ac_street_value += ' {}'.format(record[1].title())
+                if(record[2] is not None):
+                    ac_street_value += ' {}'.format(record[2].title())
+                geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(record[3], record[4])
 
             AddressComponentTypeUriBase = 'http://def.isotc211.org/iso19160/-1/2015/Address/code/AddressComponentType/'
             AddressPositionTypeUriBase = 'http://def.isotc211.org/iso19160/-1/2015/Address/code/AddressPositionType/'

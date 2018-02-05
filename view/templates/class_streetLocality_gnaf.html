@@ -1,12 +1,9 @@
 <h2>G-NAF View</h2>
 <table class="content">
     <tr><th>Property</th><th>Value</th></tr>
-    {% if street_name is not none %}
+    <tr><td>Street Line</td><td><code>{{ street_string }}</code></td></tr>
     <tr><td>Street Name</td><td><code>{{ street_name }}</code></td></tr>
-    {% endif %}
-    {% if street_type is not none %}
     <tr><td>Street Type</td><td><code>{{ street_type }}</code></td></tr>
-    {% endif %}
     {% if street_suffix is not none %}
     <tr><td>Street Suffix</td><td><code>{{ street_suffix }}</code></td></tr>
     {% endif %}
@@ -25,15 +22,12 @@
     {% if geocode_type is not none %}
     <tr><td>Default Geocode Type</td><td><code>{{ geocode_type }}</code></td></tr>
     {% endif %}
-    {% if street_string is not none %}
-    <tr><td>Street</td><td><code>{{ street_string }}</code></td></tr>
-    {% endif %}
     {% if street_locality_aliases.items()|length > 0 %}
     <tr>
         <td>Street Locality Aliases</td><td>
             <ul>
-                {% for street_locality_alias_id, street_locality_alias in street_locality_aliases.items() %}
-                    <li><code><a href="{{ url_for('classes.street_locality_alias', street_locality_alias_id=street_locality_alias_id) }}">{{ street_locality_alias }}</a></code></li>
+                {% for street_locality_alias_id, street_locality_alias_string in street_locality_aliases.items() %}
+                    <li><code><a href="{{ url_for('classes.streets', street_locality_alias_id=street_locality_alias_id) }}">{{ street_locality_alias_string }}</a></code></li>
                 {% endfor %}
             </ul>
         </td>
