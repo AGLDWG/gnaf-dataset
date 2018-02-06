@@ -95,26 +95,30 @@
     {% if principal_addresses.items()|length > 0 %}
     <tr>
         <td>Principal Address</td><td>
-            {% for principal_address_id, principal_address in principal_addresses.items() %}
-                <code><a href="{{ url_for('classes.address', address_id=principal_address_id) }}">{{ principal_address }}</a></code><br />
+            {% for alias_address_id, alias in principal_addresses.items() %}
+                <code>
+                    <a href="{{ url_for('classes.address', address_id=alias_address_id) }}">{{ alias['address_string'] }}</a> (<a href="{{ alias['subclass_uri'] }}">{{ alias['subclass_label'] }}</a>)
+                </code><br />
             {% endfor %}
         </td>
     </tr>
     {% endif %}
     {% if alias_addresses.items()|length > 0 %}
     <tr>
-        <td>Alias Addresses</td><td>
-            {% for alias_address_id, alias_address in alias_addresses.items() %}
-                <code><a href="{{ url_for('classes.address', address_id=alias_address_id) }}">{{ alias_address }}</a></code><br />
+        <td><a href="http://gnafld.net/def/gnaf/hasAlias">Has Alias</a></td><td>
+            {% for alias_address_id, alias in alias_addresses.items() %}
+                <code>
+                    <a href="{{ url_for('classes.address', address_id=alias_address_id) }}">{{ alias['address_string'] }}</a> (<a href="{{ alias['subclass_uri'] }}">{{ alias['subclass_label'] }}</a>)
+                </code><br />
             {% endfor %}
         </td>
     </tr>
     {% endif %}
     {% if primary_addresses.items()|length > 0 %}
     <tr>
-        <td>Primary Address</td><td>
+        <td>Primary Addresses</td><td>
             {% for primary_address_id, primary_address in primary_addresses.items() %}
-                <code><a href="{{ url_for('classes.address', address_id=primary_address_id) }}">{{ primary_address }}</a></code><br />
+                <code><a href="{{ url_for('classes.address', address_id=secondary_address_id) }}">{{ secondary_address }}</a></code><br />
             {% endfor %}
         </td>
     </tr>

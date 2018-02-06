@@ -71,11 +71,11 @@
     {% if legal_parcel_id is not none %}
     <tr><td>Legal Parcel ID</td><td><code>{{ legal_parcel_id }}</code></td></tr>
     {% endif %}
-    {% if address_positions.items()|length > 0 %}
+    {% if positions.items()|length > 0 %}
     <tr>
         <td><a href="http://reference.data.gov.au/def/ont/iso19160-1-address#Address.position">Position</a>(s)</td><td>
-            {% for address_site_geocode_id, address_position_type in address_positions.items() %}
-                <code><a href="{{ url_for('classes.address_site_geocode', address_site_geocode_id=address_site_geocode_id) }}">{{ address_position_type }}</a></code><br />
+            {% for name, wkt in positions.items() %}
+                <code>{{ name }}: {{ wkt }}</code><br />
             {% endfor %}
         </td>
     </tr>
