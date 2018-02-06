@@ -456,7 +456,7 @@ def address(address_id):
         else:
             from model.address import AddressRenderer
             try:
-                s = AddressRenderer(address_id)
+                s = AddressRenderer(address_id, True)
                 return s.render(view, mimetype)
             except ValueError:
                 return render_template('address_no_record.html')

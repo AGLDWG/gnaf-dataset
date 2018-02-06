@@ -1,6 +1,6 @@
 ﻿-- DROP VIEW gnaf.address_mesh_block_2011_view;
 
-CREATE OR REPLACE VIEW gnaf.address_mesh_block_2011_view AS 
+CREATE OR REPLACE VIEW gnaf.address_mesh_block_2011_view AS
  SELECT a.address_mesh_block_2011_pid,
     a.address_detail_pid,
     a.mb_2011_pid,

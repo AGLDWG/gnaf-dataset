@@ -55,21 +55,23 @@ class reg(object):
             setattr(self, attr, val)
 
 
-def get_vocab_term(vocab, alt_label):
+def get_vocab_term(vocab_ttl_file, alt_label):
     import rdflib
 
     g = rdflib.Graph()
-    g.load('/Users/car587/work/gnaf-ont/codes/' + vocab + '.ttl', format='turtle')
+    g.load('C:/Users/car587/work/gnaf-ont/codes/' + vocab_ttl_file + '.ttl', format='turtle')
     q = '''
-        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         SELECT ?uri ?prefLabel
         WHERE {{
             ?uri    skos:prefLabel  ?prefLabel ;
                     skos:altLabel   ?altLabel . 
-            FILTER(?altLabel == '{}')
+            FILTER(?altLabel = "{}")
         }}
     '''.format(alt_label)
-    print(q)
     for r in g.query(q):
         return r['uri'], r['prefLabel']
+
+
+if __name__ == '__main__':
+    print(get_vocab_term('AliasSubclasses', 'RA'))
