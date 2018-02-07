@@ -4,7 +4,6 @@ from rdflib import Graph, URIRef, RDF, XSD, Namespace, Literal, BNode
 import _config as config
 from _ldapi import LDAPI
 from psycopg2 import sql
-import model.gnaf_ont_lookups as LOOKUPS
 
 
 class AddressRenderer(Renderer):
@@ -578,7 +577,7 @@ class AddressRenderer(Renderer):
             g.add((a, ISO.position, position))
 
         elif view == 'gnaf':
-            GNAF = Namespace('http://gnafld.org/def/gnaf/')
+            GNAF = Namespace('http://gnafld.org/def/gnaf#')
             g.bind('gnaf', GNAF)
 
             GEO = Namespace('http://www.opengis.net/ont/geosparql#')

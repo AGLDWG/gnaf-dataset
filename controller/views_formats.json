@@ -5,7 +5,7 @@
     "   alternates  -- a list of all available views and formats",
     "   gnaf  -- the gnaf-specific view based on the GNAF Ontology",
     ""],
-  "http://gnafld.net/def/gnaf/Address": {
+  "http://gnafld.net/def/gnaf#Address": {
     "renderer": "AddressRenderer",
     "default": "gnaf",
     "alternates": {
@@ -33,7 +33,7 @@
       "description": "The OWL ontology view of the ISO 19160-1:2015 Address standard from the OGC's TC211 UML to OWL mapping: https://github.com/ISO-TC211/GOM/tree/master/isotc211_GOM_harmonizedOntology/19160-1/2015 "
     }
   },
-  "http://gnafld.net/def/gnaf/AddressSite": {
+  "http://gnafld.net/def/gnaf#AddressSite": {
     "renderer": "AddressSiteRenderer",
     "default": "gnaf",
     "alternates": {
@@ -55,7 +55,7 @@
       "description": "G-NAF web page view. A simple human-readable, web page-only view, based on the data model of PSMA's G-NAF as of August, 2017"
     }
   },
-  "http://gnafld.net/def/gnaf/StreetLocality": {
+  "http://gnafld.net/def/gnaf#StreetLocality": {
     "renderer": "StreetRenderer",
     "default": "gnaf",
     "alternates": {
@@ -77,7 +77,7 @@
       "description": "G-NAF web page view. A simple human-readable, web page-only view, based on the data model of PSMA's G-NAF as of August, 2017"
     }
   },
-  "http://gnafld.net/def/gnaf/Locality": {
+  "http://gnafld.net/def/gnaf#Locality": {
     "renderer": "LocalityRenderer",
     "default": "gnaf",
     "alternates": {
