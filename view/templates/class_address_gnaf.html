@@ -90,7 +90,7 @@
     <tr><td><a href="http://www.opengis.net/ont/geosparql#hasGeometry">Geometry</a> (<a href="http://www.opengis.net/ont/geosparql#asWKT">WKT</a>)</td><td><code>{{ geometry_wkt }}</code></td></tr>
     {% endif %}
     {% if geocode_type is not none %}
-        <tr><td><a href="http://gnafld.net/def/gnaf/">Geocode Type</a></td><td><code><a href="{{ geocode_type_uri }}">{{ geocode_type }}</a></code></td></tr>
+        <tr><td><a href="http://gnafld.net/def/gnaf/">Geocode Type</a></td><td><code><a href="{{ geocode_type_uri }}">{{ geocode_type_label }}</a></code></td></tr>
     {% endif %}
     {% if principal_addresses.items()|length > 0 %}
     <tr>
@@ -132,20 +132,20 @@
         </td>
     </tr>
     {% endif %}
-    {% if mesh_block_2011s|length > 0 %}
+    {% if mesh_block_2011s.items()|length > 0 %}
     <tr>
         <td><a href="http://gnafld.net/def/gnaf/2011MB">Mesh Block 2011</a></td><td>
-            {% for mesh_block_2011 in mesh_block_2011s %}
-                <code><a href="{{ mesh_block_2011_uri%mesh_block_2011|urlencode }}">{{ mesh_block_2011 }}</a></code><br />
+            {% for mb_uri, mb in mesh_block_2011s.items() %}
+                <a href="{{ mb_uri }}">{{ mb['string'] }}</a> (<a href="{{ mb['subclass_uri'] }}">{{ mb['subclass_label'] }}</a>)
             {% endfor %}
         </td>
     </tr>
     {% endif %}
-    {% if mesh_block_2016s|length > 0 %}
+    {% if mesh_block_2016s.items()|length > 0 %}
     <tr>
         <td><a href="http://gnafld.net/def/gnaf/2016MB">Mesh Block 2016</a></td><td>
-            {% for mesh_block_2016 in mesh_block_2016s %}
-                <code><a href="{{ mesh_block_2016_uri%mesh_block_2016|urlencode }}">{{ mesh_block_2016 }}</a></code><br />
+            {% for mb_uri, mb in mesh_block_2016s.items() %}
+                <a href="{{ mb_uri }}">{{ mb['string'] }}</a> (<a href="{{ mb['subclass_uri'] }}">{{ mb['subclass_label'] }}</a>)
             {% endfor %}
         </td>
     </tr>
