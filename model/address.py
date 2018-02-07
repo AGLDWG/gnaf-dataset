@@ -35,8 +35,6 @@ class AddressRenderer(Renderer):
                     b.postcode ,
                     a.latitude,
                     a.longitude,
-                    a.geocode_type,
-                    g.geocode_type_code,
                     CAST(b.confidence AS text),
                     CAST(b.date_created AS text),
                     CAST(b.date_last_modified AS text),
@@ -63,19 +61,21 @@ class AddressRenderer(Renderer):
                     b.address_site_pid,
                     b.level_geocoded_code,
                     b.property_pid,
-                    b.primary_secondary                        
+                    b.primary_secondary ,
+                    u.uri, 
+                    u.prefLabel                      
                 FROM {dbschema}.address_view a 
                 INNER JOIN {dbschema}.address_detail b ON a.address_detail_pid = b.address_detail_pid
-                INNER JOIN {dbschema}.address_default_geocode g ON a.address_detail_pid = g.address_detail_pid
-                WHERE a.address_detail_pid = {id}''') \
+                INNER JOIN {dbschema}.address_default_geocode g ON a.address_detail_pid = g.address_detail_pid                
+                LEFT JOIN code_uris u ON g.geocode_type_code = u.code 
+                WHERE u.vocab = 'Geocode'
+                AND a.address_detail_pid = {id}''') \
             .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
         # get just IDs, ordered, from the address_detail table, paginated by class init args
         self.cursor.execute(s)
         for row in self.cursor.fetchall():
             r = config.reg(self.cursor, row)
-            geocode_type_uri = LOOKUPS.geocode_subclass.get(r.geocode_type_code)
-
             # assign this Address' instance variables
             self.street_name = r.street_name.title()
             self.street_type = r.street_type_code
@@ -84,7 +84,8 @@ class AddressRenderer(Renderer):
             self.postcode = r.postcode
             self.latitude = r.latitude
             self.longitude = r.longitude
-            self.geocode_type = r.geocode_type.title()
+            self.geocode_type_label = r.preflabel
+            self.geocode_type_uri = r.uri
             self.confidence = r.confidence
             self.date_created = r.date_created
             self.date_last_modified = r.date_last_modified
@@ -144,26 +145,28 @@ class AddressRenderer(Renderer):
 
         # get aliases
         self.alias_addresses = dict()
-        s2 = sql.SQL('''SELECT alias_pid, alias_type_code FROM {dbschema}.address_alias WHERE principal_pid = {id}''') \
+        s2 = sql.SQL('''SELECT alias_pid, uri, prefLabel 
+                        FROM {dbschema}.address_alias 
+                        LEFT JOIN code_uris ON {dbschema}.address_alias.alias_type_code = code_uris.code 
+                        WHERE code_uris.vocab = 'Alias' AND principal_pid = {id}''') \
             .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
         self.cursor.execute(s2)
         for row in self.cursor.fetchall():
             r = config.reg(self.cursor, row)
-            a = AddressRenderer(r.alias_pid, focus=False)
-            vocab_term = config.get_vocab_term('AliasSubclasses', r.alias_type_code)
             self.alias_addresses[r.alias_pid] = {
-                'address_string': a.address_string,
-                'subclass_uri': vocab_term[0],
-                'subclass_label': vocab_term[1]
+                'address_string': AddressRenderer(r.alias_pid, focus=False).address_string,
+                'subclass_uri': r.uri,
+                'subclass_label': r.preflabel  # note use of preflabel, not prefLabel: capital letter dies in reg
             }
 
         # get alternates for address if in focus
         if focus:
             # get principals
             self.principal_addresses = dict()
-            s3 = sql.SQL('''SELECT principal_pid, alias_type_code 
+            s3 = sql.SQL('''SELECT principal_pid, uri, prefLabel  
                             FROM {dbschema}.address_alias 
-                            WHERE alias_pid = {id}''') \
+                            LEFT JOIN code_uris ON {dbschema}.address_alias.alias_type_code = code_uris.code 
+                            WHERE code_uris.vocab = 'Alias' AND alias_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
             self.cursor.execute(s3)
             for row in self.cursor.fetchall():
@@ -197,29 +200,40 @@ class AddressRenderer(Renderer):
                 a = AddressRenderer(r.secondary_pid, focus=False)
                 self.secondary_addresses[r.secondary_pid] = a.address_string
 
-            # MBs 2011
-            self.mesh_block_2011s = []
-            s6 = sql.SQL('''SELECT mb_2011_code, mb_match_code                
-                    FROM {dbschema}.address_mesh_block_2011_view
-                    WHERE address_detail_pid = {id}''') \
+            # MBs
+            self.mesh_block_2011s = {}
+            self.mesh_block_2016s = {}
+            s6 = sql.SQL('''SELECT 
+                              mb_2011_code,
+                              mb_2016_code, 
+                              a.uri mb2011_uri, 
+                              a.prefLabel mb2011_prefLabel,
+                              b.uri mb2016_uri, 
+                              b.prefLabel mb2016_prefLabel  
+                            FROM gnaf.address_mesh_block_2016_view
+                            INNER JOIN gnaf.address_mesh_block_2011_view 
+                            ON {dbschema}.address_mesh_block_2016_view.address_detail_pid 
+                            = {dbschema}.address_mesh_block_2011_view.address_detail_pid
+                            LEFT JOIN code_uris a ON gnaf.address_mesh_block_2011_view.mb_match_code = a.code 
+                            LEFT JOIN code_uris b ON gnaf.address_mesh_block_2016_view.mb_match_code = b.code 
+                            WHERE a.vocab = 'MeshBlockMatch' 
+                            AND b.vocab = 'MeshBlockMatch' 
+                            AND {dbschema}.address_mesh_block_2016_view.address_detail_pid = {id};''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
             self.cursor.execute(s6)
             for row in self.cursor.fetchall():
                 r = config.reg(self.cursor, row)
-                self.mesh_block_2011s.append(r.mb_2011_code)
-
-            # MBs 2016
-            self.mesh_block_2016s = []
-            s7 = sql.SQL('''SELECT mb_2016_code, mb_match_code                
-                    FROM {dbschema}.address_mesh_block_2016_view
-                    WHERE address_detail_pid = {id}''') \
-                .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
-
-            self.cursor.execute(s7)
-            for row in self.cursor.fetchall():
-                r = config.reg(self.cursor, row)
-                self.mesh_block_2016s.append(r.mb_2016_code)
+                self.mesh_block_2011s[config.URI_MB_2011_INSTANCE_BASE + r.mb_2011_code] = {
+                    'string': r.mb_2011_code,
+                    'subclass_uri': r.mb2011_uri,
+                    'subclass_label': r.mb2011_preflabel  # note use of preflabel, not prefLabel
+                }
+                self.mesh_block_2016s[config.URI_MB_2016_INSTANCE_BASE + r.mb_2016_code] = {
+                    'string': r.mb_2016_code,
+                    'subclass_uri': r.mb2016_uri,
+                    'subclass_label': r.mb2016_preflabel  # note use of preflabel, not prefLabel
+                }
 
     def render(self, view, format):
         if format == 'text/html':
@@ -240,8 +254,8 @@ class AddressRenderer(Renderer):
                 postcode=self.postcode,
                 latitude=self.latitude,
                 longitude=self.longitude,
-                geocode_type=self.geocode_type,
-                geocode_type_uri='http://broken.com',
+                geocode_type_label=self.geocode_type_label,
+                geocode_type_uri=self.geocode_type_uri,
                 confidence=self.confidence,
                 geometry_wkt=make_wkt(self.longitude, self.latitude),
                 date_created=self.date_created,
