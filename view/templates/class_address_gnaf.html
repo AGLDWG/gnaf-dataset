@@ -86,11 +86,11 @@
     {% if date_retired is not none %}
     <tr><td><a href="http://gnafld.net/def/gnaf#hasDetiredDate">Date Retired</a></td><td><code>{{ date_retired }}</code></td></tr>
     {% endif %}
-    {% if geometry_wkt is not none %}
-    <tr><td><a href="http://www.opengis.net/ont/geosparql#hasGeometry">Geometry</a> (<a href="http://www.opengis.net/ont/geosparql#asWKT">WKT</a>)</td><td><code>{{ geometry_wkt }}</code></td></tr>
-    {% endif %}
     {% if geocode_type is not none %}
-        <tr><td><a href="http://gnafld.net/def/gnaf#">Geocode Type</a></td><td><code><a href="{{ geocode_type_uri }}">{{ geocode_type_label }}</a></code></td></tr>
+        <tr>
+            <td><a href="http://www.opengis.net/ont/geosparql#hasGeometry">Geometry</a></td>
+            <td><code><a href="{{ geocode_type_uri }}">{{ geocode_type_label }}</a> &rarr;<br />{{ geometry_wkt }}</code></td>
+        </tr>
     {% endif %}
     {% if principal_addresses.items()|length > 0 %}
     <tr>
@@ -116,7 +116,7 @@
     {% endif %}
     {% if primary_addresses.items()|length > 0 %}
     <tr>
-        <td>Primary Addresses</td><td>
+        <td><a href="http://gnafld.net/def/gnaf#hasAddressPrimary">Primary Addresses</a></td><td>
             {% for primary_address_id, primary_address in primary_addresses.items() %}
                 <code><a href="{{ url_for('classes.address', address_id=secondary_address_id) }}">{{ secondary_address }}</a></code><br />
             {% endfor %}
@@ -125,7 +125,7 @@
     {% endif %}
     {% if secondary_addresses.items()|length > 0 %}
     <tr>
-        <td>Secondary Addresses</td><td>
+        <td><a href="http://gnafld.net/def/gnaf#hasAddressSecondary">Secondary Addresses</a></td><td>
             {% for secondary_address_id, secondary_address in secondary_addresses.items() %}
                 <code><a href="{{ url_for('classes.address', address_id=secondary_address_id) }}">{{ secondary_address }}</a></code><br />
             {% endfor %}
@@ -134,18 +134,18 @@
     {% endif %}
     {% if mesh_block_2011s.items()|length > 0 %}
     <tr>
-        <td><a href="http://gnafld.net/def/gnaf#2011MB">Mesh Block 2011</a></td><td>
+        <td><a href="http://gnafld.net/def/gnaf#hasMeshBlockMatch">Mesh Blocks 2011</a></td><td>
             {% for mb_uri, mb in mesh_block_2011s.items() %}
-                <a href="{{ mb_uri }}">{{ mb['string'] }}</a> (<a href="{{ mb['subclass_uri'] }}">{{ mb['subclass_label'] }}</a>)
+                <code><a href="{{ mb['subclass_uri'] }}">{{ mb['subclass_label'] }}</a> &rarr; <a href="{{ mb_uri }}">{{ mb['string'] }}</a></code><br />
             {% endfor %}
         </td>
     </tr>
     {% endif %}
     {% if mesh_block_2016s.items()|length > 0 %}
     <tr>
-        <td><a href="http://gnafld.net/def/gnaf#2016MB">Mesh Block 2016</a></td><td>
+        <td><a href="http://gnafld.net/def/gnaf#hasMeshBlockMatch">Mesh Blocks 2016</a></td><td>
             {% for mb_uri, mb in mesh_block_2016s.items() %}
-                <a href="{{ mb_uri }}">{{ mb['string'] }}</a> (<a href="{{ mb['subclass_uri'] }}">{{ mb['subclass_label'] }}</a>)
+                <code><a href="{{ mb['subclass_uri'] }}">{{ mb['subclass_label'] }}</a> &rarr; <a href="{{ mb_uri }}">{{ mb['string'] }}</a></code><br />
             {% endfor %}
         </td>
     </tr>
