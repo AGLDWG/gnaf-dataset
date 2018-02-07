@@ -15,16 +15,16 @@ URI_MB_2011_INSTANCE_BASE = 'http://reference.data.gov.au/asgs/MB2011/'
 URI_MB_2016_CLASS = 'http://gnafld.net/def/MB2016MB'
 URI_MB_2016_INSTANCE_BASE = 'http://reference.data.gov.au/asgs/MB2016/'
 
-URI_ADDRESS_CLASS = 'http://gnafld.net/def/gnaf/Address'
+URI_ADDRESS_CLASS = 'http://gnafld.net/def/gnaf#Address'
 URI_ADDRESS_INSTANCE_BASE = 'http://gnafld.net/address/'
 
-URI_ADDRESS_SITE_CLASS = 'http://gnafld.net/def/gnaf/AddressSite'
+URI_ADDRESS_SITE_CLASS = 'http://gnafld.net/def/gnaf#AddressSite'
 URI_ADDRESS_SITE_INSTANCE_BASE = 'http://gnafld.net/addressSite/'
 
-URI_STREET_CLASS = 'http://gnafld.net/def/gnaf/StreetLocality'
+URI_STREET_CLASS = 'http://gnafld.net/def/gnaf#StreetLocality'
 URI_STREET_INSTANCE_BASE = 'http://gnafld.net/streetLocality/'
 
-URI_LOCALITY_CLASS = 'http://gnafld.net/def/gnaf/Locality'
+URI_LOCALITY_CLASS = 'http://gnafld.net/def/gnaf#Locality'
 URI_LOCALITY_INSTANCE_BASE = 'http://gnafld.net/locality/'
 
 DB_HOST = 'localhost'
