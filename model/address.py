@@ -24,9 +24,9 @@ class AddressRenderer(Renderer):
 
         # get basic properties
         s = sql.SQL('''SELECT 
+                    b.location_description,
                     b.street_locality_pid, 
-                    b.locality_pid, 
-                    CAST(b.number_first AS text), 
+                    b.locality_pid,                     
                     a.street_name, 
                     a.street_type_code, 
                     a.locality_name, 
@@ -34,7 +34,6 @@ class AddressRenderer(Renderer):
                     b.postcode ,
                     a.latitude,
                     a.longitude,
-                    CAST(b.confidence AS text),
                     CAST(b.date_created AS text),
                     CAST(b.date_last_modified AS text),
                     CAST(b.date_retired AS text),
@@ -51,6 +50,7 @@ class AddressRenderer(Renderer):
                     CAST(b.level_number AS text),
                     b.level_number_suffix,
                     b.number_first_prefix,
+                    CAST(b.number_first AS text), 
                     b.number_first_suffix,
                     b.number_last_prefix,
                     CAST(b.number_last AS text),
@@ -62,11 +62,14 @@ class AddressRenderer(Renderer):
                     b.property_pid,
                     b.primary_secondary ,
                     u.uri, 
-                    u.prefLabel                      
+                    u.prefLabel,
+                    u2.uri uri2,
+                    u2.prefLabel prefLabel2                      
                 FROM {dbschema}.address_view a 
                 INNER JOIN {dbschema}.address_detail b ON a.address_detail_pid = b.address_detail_pid
                 INNER JOIN {dbschema}.address_default_geocode g ON a.address_detail_pid = g.address_detail_pid                
-                LEFT JOIN code_uris u ON g.geocode_type_code = u.code 
+                LEFT JOIN code_uris u ON g.geocode_type_code = u.code           
+                LEFT JOIN code_uris u2 ON CAST(b.confidence AS text) = u2.code 
                 WHERE u.vocab = 'Geocode'
                 AND a.address_detail_pid = {id}''') \
             .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
@@ -76,6 +79,7 @@ class AddressRenderer(Renderer):
         for row in self.cursor.fetchall():
             r = config.reg(self.cursor, row)
             # assign this Address' instance variables
+            self.description = r.location_description.title() if r.location_description is not None else None
             self.street_name = r.street_name.title()
             self.street_type = r.street_type_code
             self.locality_name = r.locality_name.title()
@@ -85,11 +89,12 @@ class AddressRenderer(Renderer):
             self.longitude = r.longitude
             self.geocode_type_label = r.preflabel
             self.geocode_type_uri = r.uri
-            self.confidence = r.confidence
+            self.confidence_uri = r.uri2
+            self.confidence_prefLabel = r.preflabel2
             self.date_created = r.date_created
             self.date_last_modified = r.date_last_modified
             self.date_retired = r.date_retired
-            self.building_name = r.building_name.title() if r.building_name else None
+            self.building_name = r.building_name.title() if r.building_name is not None else None
             self.number_lot_prefix = r.lot_number_prefix
             self.number_lot = r.lot_number
             self.number_lot_suffix = r.lot_number_suffix
@@ -255,7 +260,8 @@ class AddressRenderer(Renderer):
                 longitude=self.longitude,
                 geocode_type_label=self.geocode_type_label,
                 geocode_type_uri=self.geocode_type_uri,
-                confidence=self.confidence,
+                confidence_uri=self.confidence_uri,
+                confidence_prefLabel=self.confidence_prefLabel,
                 geometry_wkt=make_wkt(self.longitude, self.latitude),
                 date_created=self.date_created,
                 date_last_modified=self.date_last_modified,
@@ -577,6 +583,9 @@ class AddressRenderer(Renderer):
             g.add((a, ISO.position, position))
 
         elif view == 'gnaf':
+            RDFS = Namespace('http://www.w3.org/2000/01/rdf-schema#')
+            g.bind('rdfs', RDFS)
+
             GNAF = Namespace('http://gnafld.org/def/gnaf#')
             g.bind('gnaf', GNAF)
 
@@ -608,7 +617,8 @@ class AddressRenderer(Renderer):
 
                 # RDF: geometry
                 geocode = BNode()
-                g.add((geocode, RDF.type, URIRef(LOOKUPS.geocode_subclass.get(r.geocode_type_code))))
+                g.add((geocode, RDF.type, URIRef(self.geocode_type_uri)))
+                g.add((geocode, RDFS.label, Literal(self.geocode_type_label, datatype=XSD.string)))
                 g.add((geocode, GEO.asWKT, Literal(make_wkt(r.longitude, r.latitude), datatype=GEO.wktLiteral)))
                 g.add((a, GEO.hasGeometry, geocode))
 
@@ -619,10 +629,11 @@ class AddressRenderer(Renderer):
 
                 g.add((a, GNAF.hasStreet, URIRef(config.URI_STREET_INSTANCE_BASE + str(r.street_locality_pid))))
 
-                g.add((a, GNAF.hasGnafConfidence, URIRef(LOOKUPS.confidence.get(r.confidence))))
+                g.add((a, GNAF.hasGnafConfidence, URIRef(self.confidence_uri)))
+                g.add((URIRef(self.confidence_uri), RDFS.label, Literal(self.confidence_prefLabel, datatype=XSD.string)))
 
                 if r.address_site_pid is not None:
-                    g.add((a, GNAF.hasAddressSite, URIRef('http://gnafld.net/addressSite/' + str(r.address_site_pid))))
+                    g.add((a, GNAF.hasAddressSite, URIRef(config.URI_ADDRESS_SITE_INSTANCE_BASE + str(r.address_site_pid))))
 
                 # RDF: Numbers
                 # lot_number
@@ -683,19 +694,26 @@ class AddressRenderer(Renderer):
                 g.add((a, GNAF.hasLocality, URIRef(config.URI_LOCALITY_INSTANCE_BASE + row[24])))
 
                 # RDF: data properties
-                if r.location_description is not None:
-                    g.add((a, DCT.description, Literal(r.location_description, datatype=XSD.string)))
+                if self.description is not None:
+                    g.add((a, DCT.description, Literal(self.description, datatype=XSD.string)))
 
-                g.add((a, GNAF.hasPostcode, Literal(r.postcode, datatype=XSD.integer)))
+                g.add((a, GNAF.hasPostcode, Literal(self.postcode, datatype=XSD.integer)))
 
-                if r.building_name is not None:
-                    g.add((a, GNAF.hasBuldingName, Literal(r.building_name, datatype=XSD.string)))
+                if self.building_name is not None:
+                    g.add((a, GNAF.hasBuldingName, Literal(self.building_name, datatype=XSD.string)))
 
-                g.add((a, GNAF.hasDateCreated, Literal(r.date_created, datatype=XSD.date)))
-                g.add((a, GNAF.hasDateLastModified, Literal(r.date_last_modified, datatype=XSD.date)))
-                if r.date_retired is not None:
-                    g.add((a, GNAF.hasDateRetired, Literal(r.date_retired, datatype=XSD.date)))
+                g.add((a, GNAF.hasDateCreated, Literal(self.date_created, datatype=XSD.date)))
+                g.add((a, GNAF.hasDateLastModified, Literal(self.date_last_modified, datatype=XSD.date)))
+                if self.date_retired is not None:
+                    g.add((a, GNAF.hasDateRetired, Literal(self.date_retired, datatype=XSD.date)))
 
+                print(len(self.alias_addresses))
+                for k, v in self.alias_addresses.items():
+                    a = BNode()
+                    g.add((URIRef(self.uri), GNAF.hasAlias, a))
+                    g.add((a, RDF.type, URIRef(v['subclass_uri'])))
+                    g.add((a, RDFS.label, Literal(v['subclass_label'], datatype=XSD.string)))
+                    g.add((a, GNAF.aliasOf, URIRef(config.URI_ADDRESS_INSTANCE_BASE + k)))
             # RDF: aliases
             # # alias type code to URI mapping
             # s2 = sql.SQL('''SELECT * FROM {dbschema}.address_alias WHERE principal_pid = {id}''')\

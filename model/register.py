@@ -25,18 +25,17 @@ class RegisterRenderer(Renderer):
         self.next_page = next_page
         self.last_page = last_page
 
-        self._get_data_from_db(page, per_page)
+        self._get_contained_items_from_db(page, per_page)
 
     def render(self, view, mimetype, extra_headers=None):
         if view == 'reg':
             # is an RDF format requested?
+            print('mimetype: ' + mimetype)
             if mimetype in LDAPI.get_rdf_mimetypes_list():
                 # it is an RDF format so make the graph for serialization
                 self._make_reg_graph(view)
-                rdflib_format = LDAPI.get_rdf_parser_for_mimetype(mimetype)
                 return Response(
-                    self.g.serialize(format=rdflib_format),
-                    status=200,
+                    self.g.serialize(format=LDAPI.get_rdf_parser_for_mimetype(mimetype)),
                     mimetype=mimetype,
                     headers=extra_headers
                 )
@@ -59,7 +58,7 @@ class RegisterRenderer(Renderer):
         else:
             return Response('The requested model model is not valid for this class', status=400, mimetype='text/plain')
 
-    def _get_data_from_db(self, page, per_page):
+    def _get_contained_items_from_db(self, page, per_page):
         try:
             connect_str = "host='{}' dbname='{}' user='{}' password='{}'"\
                 .format(
@@ -70,7 +69,6 @@ class RegisterRenderer(Renderer):
                 )
             conn = psycopg2.connect(connect_str)
             cursor = conn.cursor()
-            # get just IDs, ordered, from the address_detail table, paginated by class init args
             id_query = sql.SQL('''
                 SELECT address_detail_pid
                 FROM {dbschema}.address_detail
@@ -103,6 +101,7 @@ class RegisterRenderer(Renderer):
             register_uri = URIRef(self.request.base_url)
             self.g.add((register_uri, RDF.type, REG.Register))
             self.g.add((register_uri, RDFS.label, Literal('Address Register', datatype=XSD.string)))
+            self.g.add((register_uri, REG.containedItemClass, URIRef(self.uri)))
 
             page_uri_str = self.request.base_url
             if self.per_page is not None:
@@ -123,12 +122,12 @@ class RegisterRenderer(Renderer):
 
             # links to other pages
             self.g.add((page_uri, XHV.first, URIRef(page_uri_str_no_page_no + '1')))
-            self.g.add((page_uri, XHV.last, URIRef(page_uri_str_no_page_no + str(self.last_page_no))))
+            self.g.add((page_uri, XHV.last, URIRef(page_uri_str_no_page_no + str(self.last_page))))
 
             if self.page != 1:
                 self.g.add((page_uri, XHV.prev, URIRef(page_uri_str_no_page_no + str(self.page - 1))))
 
-            if self.page != self.last_page_no:
+            if self.page != self.last_page:
                 self.g.add((page_uri, XHV.next, URIRef(page_uri_str_no_page_no + str(self.page + 1))))
 
             # add all the items
