@@ -117,7 +117,7 @@ class LDAPI:
             return 'text/html'
 
     @staticmethod
-    def get_valid_view_and_format(view, format, views_formats):
+    def get_valid_view_and_format(request, views_formats):
         """
         If both the model and the format are valid, return them
 
@@ -127,15 +127,23 @@ class LDAPI:
         :param views_formats: the allowed model and their formats in this instance
         :return: valid model and format
         """
-        view = LDAPI.valid_view(view, views_formats)
-        if format is not None:
-            format = LDAPI.valid_format(format, view, views_formats)
-        else:
-            format = views_formats[view]['default_mimetype']
+        v = request.values.get('_view')
+        f = request.values.get('_format')
+        # if no given _format, check for MIME types
+        if f is None:
+            f = request.accept_mimetypes.best_match(
+                ['text/turtle', 'application/rdf+json', 'application/rdf+xml', 'text/html']
+            )
 
-        if view and format:
+        v = LDAPI.valid_view(v, views_formats)
+        if f is not None:
+            f = LDAPI.valid_format(f, v, views_formats)
+        else:
+            f = views_formats[v]['default_mimetype']
+
+        if v and f:
             # return valid model and format
-            return view, format
+            return v, f
 
     @staticmethod
     def client_error_Response(error_message):
