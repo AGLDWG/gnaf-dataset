@@ -25,18 +25,15 @@ def addresses():
     try:
         requested_view = request.values.get('_view')
         requested_format = request.values.get('_format')
-        best_mime_match = request.accept_mimetypes.best_match(
+        if requested_format is None:
+            requested_format = request.accept_mimetypes.best_match(
                 ['text/turtle', 'application/rdf+json', 'application/rdf+xml', 'text/html']
-        )
-        if best_mime_match != requested_format:
-            requested_format = best_mime_match
-
+            )
         view, mime_format = LDAPI.get_valid_view_and_format(
             requested_view,
             requested_format,
             views_formats
         )
-
         # if alternates model, return this info from file
         class_uri = 'http://reference.data.gov.au/def/ont/iso19160-1-address#Address'
 
@@ -64,35 +61,27 @@ def addresses():
                     mimetype='text/plain'
                 )
 
-            links = list()
+            links = []
             links.append('<http://www.w3.org/ns/ldp#Resource>; rel="type"')
             # signalling that this is, in fact, a resource described in pages
             links.append('<http://www.w3.org/ns/ldp#Page>; rel="type"')
             links.append('<{}?per_page={}>; rel="first"'.format(config.URI_ADDRESS_INSTANCE_BASE, per_page))
 
-            # if this isn't the first page, add a link to "prev"
-            if page != 1:
-                links.append('<{}?per_page={}&page={}>; rel="prev"'.format(
-                    config.URI_ADDRESS_INSTANCE_BASE,
-                    per_page,
-                    (page - 1)
-                ))
-
-            # if this isn't the first page, add a link to "prev"
-            if page != 1:
+            # if this is the first page, don't ad a prev link
+            if page == 1:
+                prev_page = 0
+            else:
                 prev_page = page - 1
                 links.append('<{}?per_page={}&page={}>; rel="prev"'.format(
                     config.URI_ADDRESS_INSTANCE_BASE,
                     per_page,
                     prev_page
                 ))
-            else:
-                prev_page = None
 
             # add a link to "next" and "last"
             try:
-                no_of_samples = 13000000  # TODO: remove this outrageous magic number
-                last_page = int(round(no_of_samples / per_page, 0)) + 1  # same as math.ceil()
+                no_of_addresses = 14000000  # TODO: remove this outrageous magic number
+                last_page = int(round(no_of_addresses / per_page, 0)) + 1  # same as math.ceil()
 
                 # if we've gotten the last page value successfully, we can choke if someone enters a larger value
                 if page > last_page:
@@ -103,7 +92,7 @@ def addresses():
                         mimetype='text/plain'
                     )
 
-                # add a link to "next"
+                # if this is not the last page, add a link to "next"
                 if page != last_page:
                     next_page = page + 1
                     links.append('<{}?per_page={}&page={}>; rel="next"'
@@ -114,7 +103,8 @@ def addresses():
                 # add a link to "last"
                 links.append('<{}?per_page={}&page={}>; rel="last"'
                              .format(config.URI_ADDRESS_INSTANCE_BASE, per_page, last_page))
-            except:
+            except Exception as e:
+                print(e)
                 # if there's some error in getting the no of samples, add the "next" link but not the "last" link
                 next_page = page + 1
                 links.append('<{}?per_page={}&page={}>; rel="next"'
