@@ -24,55 +24,60 @@ class AddressRenderer(Renderer):
 
         # get basic properties
         s = sql.SQL('''SELECT 
-                    b.location_description,
-                    b.street_locality_pid, 
-                    b.locality_pid,                     
-                    a.street_name, 
-                    a.street_type_code, 
-                    a.locality_name, 
-                    a.state_abbreviation, 
-                    b.postcode ,
-                    a.latitude,
-                    a.longitude,
-                    CAST(b.date_created AS text),
-                    CAST(b.date_last_modified AS text),
-                    CAST(b.date_retired AS text),
-                    b.building_name,
-                    b.lot_number_prefix,
-                    b.lot_number,
-                    b.lot_number_suffix,
-                    b.flat_type_code,
-                    b.flat_number_prefix,
-                    CAST(b.flat_number AS text),
-                    b.flat_number_suffix,
-                    b.level_type_code,
-                    b.level_number_prefix,
-                    CAST(b.level_number AS text),
-                    b.level_number_suffix,
-                    b.number_first_prefix,
-                    CAST(b.number_first AS text), 
-                    b.number_first_suffix,
-                    b.number_last_prefix,
-                    CAST(b.number_last AS text),
-                    b.number_last_suffix,
-                    b.alias_principal,
-                    b.legal_parcel_id,
-                    b.address_site_pid,
-                    b.level_geocoded_code,
-                    b.property_pid,
-                    b.primary_secondary ,
-                    u.uri, 
-                    u.prefLabel,
-                    u2.uri uri2,
-                    u2.prefLabel prefLabel2                      
-                FROM {dbschema}.address_view a 
-                INNER JOIN {dbschema}.address_detail b ON a.address_detail_pid = b.address_detail_pid
-                INNER JOIN {dbschema}.address_default_geocode g ON a.address_detail_pid = g.address_detail_pid                
-                LEFT JOIN code_uris u ON g.geocode_type_code = u.code           
-                LEFT JOIN code_uris u2 ON CAST(b.confidence AS text) = u2.code 
-                WHERE u.vocab = 'Geocode'
-                AND a.address_detail_pid = {id}''') \
-            .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
+                            d.location_description,
+                            d.street_locality_pid, 
+                            s.street_name, 
+                            s.street_type_code, 
+                            d.locality_pid,
+                            l.locality_name, 
+                            l.locality_class_code,
+                            TRIM(BOTH '0123456789' FROM d.locality_pid) state_abbreviation,
+                            d.postcode,
+                            g.latitude,
+                            g.longitude,
+                            CAST(d.date_created AS text),
+                            CAST(d.date_last_modified AS text),
+                            CAST(d.date_retired AS text),
+                            d.building_name,
+                            d.lot_number_prefix,
+                            d.lot_number,
+                            d.lot_number_suffix,
+                            d.flat_type_code,
+                            d.flat_number_prefix,
+                            CAST(d.flat_number AS text),
+                            d.flat_number_suffix,
+                            d.level_type_code,
+                            d.level_number_prefix,
+                            CAST(d.level_number AS text),
+                            d.level_number_suffix,
+                            d.number_first_prefix,
+                            CAST(d.number_first AS text), 
+                            d.number_first_suffix,
+                            d.number_last_prefix,
+                            CAST(d.number_last AS text),
+                            d.number_last_suffix,
+                            d.alias_principal,
+                            d.legal_parcel_id,
+                            d.address_site_pid,
+                            d.level_geocoded_code,
+                            d.property_pid,
+                            d.primary_secondary ,
+                            u.uri, 
+                            u.prefLabel,
+                            u2.uri uri2,
+                            u2.prefLabel prefLabel2,
+                            u3.uri uri3,
+                            u3.prefLabel prefLabel3
+                            FROM gnaf.address_detail d
+                            INNER JOIN gnaf.street_locality s ON d.street_locality_pid = s.street_locality_pid
+                            INNER JOIN gnaf.locality l ON d.locality_pid = l.locality_pid
+                            INNER JOIN gnaf.address_default_geocode g ON d.address_detail_pid = g.address_detail_pid                
+                            LEFT JOIN code_uris u ON g.geocode_type_code = u.code           
+                            LEFT JOIN code_uris u2 ON CAST(d.confidence AS text) = u2.code 
+                            LEFT JOIN code_uris u3 ON l.locality_class_code = u3.code 
+                            WHERE u.vocab = 'Geocode'
+                            AND d.address_detail_pid = {id};
+                            ''').format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
         # get just IDs, ordered, from the address_detail table, paginated by class init args
         self.cursor.execute(s)
@@ -122,29 +127,29 @@ class AddressRenderer(Renderer):
             self.is_primary = True if r.primary_secondary == 'P' else False
 
             self.address_string, self.street_string = make_address_street_strings(
-                level_type_code=r.level_type_code,
-                level_number_prefix=r.level_number_prefix,
-                level_number=r.level_number,
-                level_number_suffix=r.level_number_suffix,
-                flat_type_code=r.flat_type_code,
-                flat_number_prefix=r.flat_number_prefix,
-                flat_number=r.flat_number,
-                flat_number_suffix=r.flat_number_suffix,
-                number_first_prefix=r.number_first_prefix,
-                number_first=r.number_first,
-                number_first_suffix=r.number_first_suffix,
-                number_last_prefix=r.number_last_prefix,
-                number_last=r.number_last,
-                number_last_suffix=r.number_last_suffix,
-                building=r.building_name,
-                lot_number_prefix=r.lot_number_prefix,
-                lot_number=r.lot_number,
-                lot_number_suffix=r.lot_number_suffix,
-                street_name=r.street_name.title(),
-                street_type=r.street_type_code,
-                locality=r.locality_name.title(),
-                state_territory=r.state_abbreviation,
-                postcode=r.postcode
+                level_type_code=self.level_type_code,
+                level_number_prefix=self.number_level_prefix,
+                level_number=self.number_level,
+                level_number_suffix=self.number_level_suffix,
+                flat_type_code=self.flat_type_code,
+                flat_number_prefix=self.number_flat_prefix,
+                flat_number=self.number_flat,
+                flat_number_suffix=self.number_flat_suffix,
+                number_first_prefix=self.number_first_prefix,
+                number_first=self.number_first,
+                number_first_suffix=self.number_first_suffix,
+                number_last_prefix=self.number_last_prefix,
+                number_last=self.number_last,
+                number_last_suffix=self.number_last_suffix,
+                building=self.building_name,
+                lot_number_prefix=self.number_lot_prefix,
+                lot_number=self.number_lot,
+                lot_number_suffix=self.number_lot_suffix,
+                street_name=self.street_name,
+                street_type=self.street_type,
+                locality=self.locality_name,
+                state_territory=self.state_territory,
+                postcode=self.postcode
             )
 
         # get aliases
@@ -762,10 +767,10 @@ def make_address_street_strings(
         locality=None,
         state_territory=None,
         postcode=None):
-        street_string = '{} {} {}'.format(
+        street_string = '{} {}{}'.format(
             street_name,
             street_type.title(),
-            street_suffix_code if street_suffix_code is not None else ''
+            ' ' + street_suffix_code if street_suffix_code is not None else ''
         )
         address_string = ''
         if locality is None:

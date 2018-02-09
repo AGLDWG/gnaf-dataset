@@ -30,7 +30,6 @@ class RegisterRenderer(Renderer):
     def render(self, view, mimetype, extra_headers=None):
         if view == 'reg':
             # is an RDF format requested?
-            print('mimetype: ' + mimetype)
             if mimetype in LDAPI.get_rdf_mimetypes_list():
                 # it is an RDF format so make the graph for serialization
                 self._make_reg_graph(view)
