@@ -7,7 +7,7 @@ STATIC_DIR = join(dirname(dirname(abspath(__file__))), 'view', 'static')
 LOGFILE = APP_DIR + '/flask.log'
 DEBUG = True
 
-PAGE_SIZE = 100
+PAGE_SIZE = 10000
 
 URI_MB_2011_CLASS = 'http://gnafld.net/def/2011MB'
 URI_MB_2011_INSTANCE_BASE = 'http://reference.data.gov.au/asgs/MB2011/'
