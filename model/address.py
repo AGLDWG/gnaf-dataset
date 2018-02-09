@@ -712,7 +712,6 @@ class AddressRenderer(Renderer):
                 if self.date_retired is not None:
                     g.add((a, GNAF.hasDateRetired, Literal(self.date_retired, datatype=XSD.date)))
 
-                print(len(self.alias_addresses))
                 for k, v in self.alias_addresses.items():
                     a = BNode()
                     g.add((URIRef(self.uri), GNAF.hasAlias, a))

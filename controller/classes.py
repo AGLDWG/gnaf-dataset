@@ -23,17 +23,8 @@ def addresses():
         .get('http://purl.org/linked-data/registry#Register')
 
     try:
-        requested_view = request.values.get('_view')
-        requested_format = request.values.get('_format')
-        if requested_format is None:
-            requested_format = request.accept_mimetypes.best_match(
-                ['text/turtle', 'application/rdf+json', 'application/rdf+xml', 'text/html']
-            )
-        view, mime_format = LDAPI.get_valid_view_and_format(
-            requested_view,
-            requested_format,
-            views_formats
-        )
+        view, mime_format = LDAPI.get_valid_view_and_format(request, views_formats)
+
         # if alternates model, return this info from file
         class_uri = 'http://reference.data.gov.au/def/ont/iso19160-1-address#Address'
 
@@ -141,11 +132,7 @@ def address_sites():
         .get('http://purl.org/linked-data/registry#Register')
 
     try:
-        view, mime_format = LDAPI.get_valid_view_and_format(
-            request.args.get('_view'),
-            request.args.get('_format'),
-            views_formats
-        )
+        view, mime_format = LDAPI.get_valid_view_and_format(request, views_formats)
 
         # if alternates model, return this info from file
         class_uri = 'http://purl.org/linked-data/registry#Register'
@@ -227,7 +214,7 @@ def address_sites():
 
 
 @classes.route('/streetLocality/')
-def streets():
+def street_localities():
     """
     Register of all streets
 
@@ -238,11 +225,7 @@ def streets():
         .get('http://purl.org/linked-data/registry#Register')
 
     try:
-        view, mime_format = LDAPI.get_valid_view_and_format(
-            request.args.get('_view'),
-            request.args.get('_format'),
-            views_formats
-        )
+        view, mime_format = LDAPI.get_valid_view_and_format(request, views_formats)
 
         # if alternates model, return this info from file
         class_uri = 'http://purl.org/linked-data/registry#Register'
@@ -335,11 +318,7 @@ def localities():
         .get('http://purl.org/linked-data/registry#Register')
 
     try:
-        view, mime_format = LDAPI.get_valid_view_and_format(
-            request.args.get('_view'),
-            request.args.get('_format'),
-            views_formats
-        )
+        view, mime_format = LDAPI.get_valid_view_and_format(request, views_formats)
 
         # if alternates model, return this info from file
         class_uri = 'http://purl.org/linked-data/registry#Register'
@@ -433,19 +412,7 @@ def address(address_id):
     views_formats = LDAPI.get_classes_views_formats().get(c)
 
     try:
-        requested_view = request.values.get('_view')
-        requested_format = request.values.get('_format')
-        best_mime_match = request.accept_mimetypes.best_match(
-                ['text/turtle', 'application/rdf+json', 'application/rdf+xml', 'text/html']
-        )
-        if best_mime_match != requested_format:
-            requested_format = best_mime_match
-
-        view, mimetype = LDAPI.get_valid_view_and_format(
-            requested_view,
-            requested_format,
-            views_formats
-        )
+        view, mime_format = LDAPI.get_valid_view_and_format(request, views_formats)
 
         # if alternates model, return this info from file
         if view == 'alternates':
@@ -463,7 +430,7 @@ def address(address_id):
             from model.address import AddressRenderer
             try:
                 s = AddressRenderer(address_id, True)
-                return s.render(view, mimetype)
+                return s.render(view, mime_format)
             except ValueError:
                 return render_template('address_no_record.html')
 
@@ -484,11 +451,7 @@ def address_site(address_site_id):
     views_formats = LDAPI.get_classes_views_formats().get(c)
 
     try:
-        view, mimetype = LDAPI.get_valid_view_and_format(
-            request.args.get('_view'),
-            request.args.get('_format'),
-            views_formats
-        )
+        view, mime_format = LDAPI.get_valid_view_and_format(request, views_formats)
 
         # if alternates model, return this info from file
         if view == 'alternates':
@@ -527,11 +490,7 @@ def street_locality(street_id):
     views_formats = LDAPI.get_classes_views_formats().get(c)
 
     try:
-        view, mimetype = LDAPI.get_valid_view_and_format(
-            request.args.get('_view'),
-            request.args.get('_format'),
-            views_formats
-        )
+        view, mime_format = LDAPI.get_valid_view_and_format(request, views_formats)
 
         # if alternates model, return this info from file
         if view == 'alternates':
@@ -570,11 +529,7 @@ def locality(locality_id):
     views_formats = LDAPI.get_classes_views_formats().get(c)
 
     try:
-        view, mimetype = LDAPI.get_valid_view_and_format(
-            request.args.get('_view'),
-            request.args.get('_format'),
-            views_formats
-        )
+        view, mime_format = LDAPI.get_valid_view_and_format(request, views_formats)
 
         # if alternates model, return this info from file
         if view == 'alternates':
