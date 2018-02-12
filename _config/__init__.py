@@ -9,21 +9,27 @@ DEBUG = True
 
 PAGE_SIZE = 10000
 
+MB_2011_COUNT = 347627
 URI_MB_2011_CLASS = 'http://gnafld.net/def/2011MB'
 URI_MB_2011_INSTANCE_BASE = 'http://reference.data.gov.au/asgs/MB2011/'
 
+MB_2016_COUNT = 358122
 URI_MB_2016_CLASS = 'http://gnafld.net/def/MB2016MB'
 URI_MB_2016_INSTANCE_BASE = 'http://reference.data.gov.au/asgs/MB2016/'
 
+ADDRESS_COUNT = 14500797
 URI_ADDRESS_CLASS = 'http://gnafld.net/def/gnaf#Address'
 URI_ADDRESS_INSTANCE_BASE = 'http://gnafld.net/address/'
 
+ADDRESS_SITE_COUNT = 14500797
 URI_ADDRESS_SITE_CLASS = 'http://gnafld.net/def/gnaf#AddressSite'
 URI_ADDRESS_SITE_INSTANCE_BASE = 'http://gnafld.net/addressSite/'
 
+STREET_LOCALITY_COUNT = 707075
 URI_STREET_CLASS = 'http://gnafld.net/def/gnaf#StreetLocality'
 URI_STREET_INSTANCE_BASE = 'http://gnafld.net/streetLocality/'
 
+LOCALITY_COUNT = 16445
 URI_LOCALITY_CLASS = 'http://gnafld.net/def/gnaf#Locality'
 URI_LOCALITY_INSTANCE_BASE = 'http://gnafld.net/locality/'
 
@@ -55,23 +61,5 @@ class reg(object):
             setattr(self, attr, val)
 
 
-def get_vocab_term(vocab_ttl_file, alt_label):
-    import rdflib
-
-    g = rdflib.Graph()
-    g.load('C:/Users/car587/work/gnaf-ont/codes/' + vocab_ttl_file + '.ttl', format='turtle')
-    q = '''
-        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-        SELECT ?uri ?prefLabel
-        WHERE {{
-            ?uri    skos:prefLabel  ?prefLabel ;
-                    skos:altLabel   ?altLabel . 
-            FILTER(?altLabel = "{}")
-        }}
-    '''.format(alt_label)
-    for r in g.query(q):
-        return r['uri'], r['prefLabel']
-
-
 if __name__ == '__main__':
-    print(get_vocab_term('AliasSubclasses', 'RA'))
+    pass

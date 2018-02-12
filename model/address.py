@@ -67,7 +67,9 @@ class AddressRenderer(Renderer):
                             u2.uri uri2,
                             u2.prefLabel prefLabel2,
                             u3.uri uri3,
-                            u3.prefLabel prefLabel3
+                            u3.prefLabel prefLabel3,
+                            u4.uri uri4,
+                            u4.prefLabel prefLabel4
                             FROM gnaf.address_detail d
                             INNER JOIN gnaf.street_locality s ON d.street_locality_pid = s.street_locality_pid
                             INNER JOIN gnaf.locality l ON d.locality_pid = l.locality_pid
@@ -75,8 +77,9 @@ class AddressRenderer(Renderer):
                             LEFT JOIN code_uris u ON g.geocode_type_code = u.code           
                             LEFT JOIN code_uris u2 ON CAST(d.confidence AS text) = u2.code 
                             LEFT JOIN code_uris u3 ON l.locality_class_code = u3.code 
-                            WHERE u.vocab = 'Geocode'
-                            AND d.address_detail_pid = {id};
+                            INNER JOIN gnaf.address_site a ON d.address_site_pid = a.address_site_pid
+                            LEFT JOIN code_uris u4 ON a.address_type = u4.code 
+                            WHERE d.address_detail_pid = {id};
                             ''').format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
         # get just IDs, ordered, from the address_detail table, paginated by class init args
@@ -84,6 +87,8 @@ class AddressRenderer(Renderer):
         for row in self.cursor.fetchall():
             r = config.reg(self.cursor, row)
             # assign this Address' instance variables
+            self.address_subclass_uri = r.uri4
+            self.address_subclass_label = r.preflabel4
             self.description = r.location_description.title() if r.location_description is not None else None
             self.street_name = r.street_name.title()
             self.street_type = r.street_type_code
@@ -124,6 +129,7 @@ class AddressRenderer(Renderer):
             self.property_pid = r.property_pid
             self.street_locality_pid = r.street_locality_pid
             self.locality_pid = r.locality_pid
+            # self.private_street = True r.private_street private street seemingly unused in address_detail
             self.is_primary = True if r.primary_secondary == 'P' else False
 
             self.address_string, self.street_string = make_address_street_strings(
@@ -181,11 +187,10 @@ class AddressRenderer(Renderer):
             for row in self.cursor.fetchall():
                 r = config.reg(self.cursor, row)
                 a = AddressRenderer(r.principal_pid, focus=False)
-                vocab_term = config.get_vocab_term('AliasSubclasses', r.alias_type_code)
                 self.principal_addresses[r.principal_pid] = {
                     'address_string': a.address_string,
-                    'subclass_uri': vocab_term[0],
-                    'subclass_label': vocab_term[1]
+                    'subclass_uri': r.uri,
+                    'subclass_label': r.preflabel
                 }
 
             # get primary
@@ -398,7 +403,7 @@ class AddressRenderer(Renderer):
             for record in self.cursor:
                 address_string = '{} {} {}, {}, {} {}' \
                     .format(record[2], record[3].title(), record[4].title(), record[5].title(), record[6], record[7])
-                coverage_wkt = make_wkt(r.longitude, r.latitude)
+                coverage_wkt = make_wkt(self.longitude, self.latitude)
 
             view_html = render_template(
                 'class_address_dct.html',
@@ -605,137 +610,105 @@ class AddressRenderer(Renderer):
 
             # RDF: declare Address instance
             g.add((a, RDF.type, GNAF.Address))
+            g.add((a, RDF.type, URIRef(self.address_subclass_uri)))
+            g.add((a, RDFS.label, Literal(self.address_subclass_label, datatype=XSD.string)))
 
-            # get the details from DB
-            s = sql.SQL('''SELECT * 
-                           FROM {dbschema}.address_detail d
-                           INNER JOIN gnaf.address_default_geocode g
-                           ON d.address_detail_pid = g.address_detail_pid
-                           WHERE d.address_detail_pid = {id}''') \
-                .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
+            # RDF: geometry
+            geocode = BNode()
+            g.add((geocode, RDF.type, URIRef(self.geocode_type_uri)))
+            g.add((geocode, RDFS.label, Literal(self.geocode_type_label, datatype=XSD.string)))
+            g.add((geocode, GEO.asWKT, Literal(make_wkt(self.longitude, self.latitude), datatype=GEO.wktLiteral)))
+            g.add((a, GEO.hasGeometry, geocode))
 
-            # get just IDs, ordered, from the address_detail table, paginated by class init args
-            self.cursor.execute(s)
-            rows = self.cursor.fetchall()
-            for row in rows:
-                r = config.reg(self.cursor, row)
+            # g.add((a, GNAF.hasPrivateStreet, Literal(True if self.private_street is not None else False, datatype=XSD.boolean)))
+            g.add((a, GNAF.hasStreet, URIRef(config.URI_STREET_INSTANCE_BASE + str(self.street_locality_pid))))
 
-                # RDF: geometry
-                geocode = BNode()
-                g.add((geocode, RDF.type, URIRef(self.geocode_type_uri)))
-                g.add((geocode, RDFS.label, Literal(self.geocode_type_label, datatype=XSD.string)))
-                g.add((geocode, GEO.asWKT, Literal(make_wkt(r.longitude, r.latitude), datatype=GEO.wktLiteral)))
-                g.add((a, GEO.hasGeometry, geocode))
+            g.add((a, GNAF.hasGnafConfidence, URIRef(self.confidence_uri)))
+            g.add((URIRef(self.confidence_uri), RDFS.label, Literal(self.confidence_prefLabel, datatype=XSD.string)))
 
-                if r.private_street is not None:
-                    g.add((a, GNAF.hasPrivateStreet, Literal(True, datatype=XSD.boolean)))
-                else:
-                    g.add((a, GNAF.hasPrivateStreet, Literal(False, datatype=XSD.boolean)))
+            if self.address_site_pid is not None:
+                g.add((a, GNAF.hasAddressSite, URIRef(config.URI_ADDRESS_SITE_INSTANCE_BASE + str(self.address_site_pid))))
 
-                g.add((a, GNAF.hasStreet, URIRef(config.URI_STREET_INSTANCE_BASE + str(r.street_locality_pid))))
+            # RDF: Numbers
+            # lot_number
+            if self.number_lot is not None:
+                lot_number = BNode()
+                g.add((lot_number, RDF.type, GNAF.LotNumber))
+                g.add((lot_number, PROV.value, Literal(int(self.number_lot), datatype=XSD.integer)))
+                g.add((a, GNAF.hasNumber, lot_number))
+                if self.number_lot_prefix is not None:
+                    g.add((lot_number, GNAF.hasPrefix, Literal(str(self.number_lot_prefix), datatype=XSD.string)))
+                if self.number_lot_suffix is not None:
+                    g.add((lot_number, GNAF.hasSuffix, Literal(str(self.number_lot_suffix), datatype=XSD.string)))
 
-                g.add((a, GNAF.hasGnafConfidence, URIRef(self.confidence_uri)))
-                g.add((URIRef(self.confidence_uri), RDFS.label, Literal(self.confidence_prefLabel, datatype=XSD.string)))
+            # TODO: represent flat_type_code
 
-                if r.address_site_pid is not None:
-                    g.add((a, GNAF.hasAddressSite, URIRef(config.URI_ADDRESS_SITE_INSTANCE_BASE + str(r.address_site_pid))))
+            # flat_number
+            if self.number_flat is not None:
+                flat_number = BNode()
+                g.add((flat_number, RDF.type, GNAF.FlatNumber))
+                g.add((flat_number, PROV.value, Literal(int(self.number_flat), datatype=XSD.integer)))
+                g.add((a, GNAF.hasNumber, flat_number))
+                if self.number_flat_prefix is not None:
+                    g.add((flat_number, GNAF.hasPrefix, Literal(str(self.number_flat_prefix), datatype=XSD.string)))
+                if self.number_flat_suffix is not None:
+                    g.add((flat_number, GNAF.hasSuffix, Literal(str(self.number_flat_suffix), datatype=XSD.string)))
+            # level_number
+            if self.number_level is not None:
+                level_number = BNode()
+                g.add((level_number, RDF.type, GNAF.LevelNumber))
+                g.add((level_number, PROV.value, Literal(int(self.number_level), datatype=XSD.integer)))
+                g.add((a, GNAF.hasNumber, level_number))
+                if self.number_level_prefix is not None:
+                    g.add((level_number, GNAF.hasPrefix, Literal(str(self.number_level_prefix), datatype=XSD.string)))
+                if self.number_level_suffix is not None:
+                    g.add((level_number, GNAF.hasSuffix, Literal(str(self.number_level_suffix), datatype=XSD.string)))
+            # number_first
+            if self.number_first is not None:
+                number_first = BNode()
+                g.add((number_first, RDF.type, GNAF.FirstStreetNumber))
+                g.add((number_first, PROV.value, Literal(int(self.number_first), datatype=XSD.integer)))
+                g.add((a, GNAF.hasNumber, number_first))
+                if self.number_first_prefix is not None:
+                    g.add((number_first, GNAF.hasPrefix, Literal(str(self.number_first_prefix), datatype=XSD.string)))
+                if self.number_first_suffix is not None:
+                    g.add((number_first, GNAF.hasSuffix, Literal(str(self.number_first_suffix), datatype=XSD.string)))
+            # number_last
+            if self.number_last is not None:
+                number_last = BNode()
+                g.add((number_last, RDF.type, GNAF.LastStreetNumber))
+                g.add((number_last, PROV.value, Literal(int(self.number_last), datatype=XSD.integer)))
+                g.add((a, GNAF.hasNumber, number_last))
+                if self.number_last_prefix is not None:
+                    g.add((number_last, GNAF.hasPrefix, Literal(str(self.number_last_prefix), datatype=XSD.string)))
+                if self.number_last_suffix is not None:
+                    g.add((number_last, GNAF.hasSuffix, Literal(str(self.number_last_suffix), datatype=XSD.string)))
 
-                # RDF: Numbers
-                # lot_number
-                if r.lot_number is not None:
-                    lot_number = BNode()
-                    g.add((lot_number, RDF.type, GNAF.LotNumber))
-                    g.add((lot_number, PROV.value, Literal(int(r.lot_number), datatype=XSD.integer)))
-                    g.add((a, GNAF.hasNumber, lot_number))
-                    if r.lot_number_prefix is not None:
-                        g.add((lot_number, GNAF.hasPrefix, Literal(str(r.lot_number_prefix), datatype=XSD.string)))
-                    if r.lot_number_suffix is not None:
-                        g.add((lot_number, GNAF.hasSuffix, Literal(str(r.lot_number_suffix), datatype=XSD.string)))
+            # RDF: locality
+            g.add((a, GNAF.hasLocality, URIRef(config.URI_LOCALITY_INSTANCE_BASE + self.locality_pid)))
 
-                # TODO: represent flat_type_code
+            # RDF: data properties
+            if self.description is not None:
+                g.add((a, DCT.description, Literal(self.description, datatype=XSD.string)))
 
-                # flat_number
-                if r.flat_number is not None:
-                    flat_number = BNode()
-                    g.add((flat_number, RDF.type, GNAF.FlatNumber))
-                    g.add((flat_number, PROV.value, Literal(int(r.flat_number), datatype=XSD.integer)))
-                    g.add((a, GNAF.hasNumber, flat_number))
-                    if r.flat_number_prefix is not None:
-                        g.add((flat_number, GNAF.hasPrefix, Literal(str(r.flat_number_prefix), datatype=XSD.string)))
-                    if r.flat_number_suffix is not None:
-                        g.add((flat_number, GNAF.hasSuffix, Literal(str(r.flat_number_suffix), datatype=XSD.string)))
-                # level_number
-                if r.level_number is not None:
-                    level_number = BNode()
-                    g.add((level_number, RDF.type, GNAF.LevelNumber))
-                    g.add((level_number, PROV.value, Literal(int(r.level_number), datatype=XSD.integer)))
-                    g.add((a, GNAF.hasNumber, level_number))
-                    if r.level_number_prefix is not None:
-                        g.add((level_number, GNAF.hasPrefix, Literal(str(r.level_number_prefix), datatype=XSD.string)))
-                    if r.level_number_suffix is not None:
-                        g.add((level_number, GNAF.hasSuffix, Literal(str(r.level_number_suffix), datatype=XSD.string)))
-                # number_first
-                if r.number_first is not None:
-                    number_first = BNode()
-                    g.add((number_first, RDF.type, GNAF.FirstStreetNumber))
-                    g.add((number_first, PROV.value, Literal(int(r.number_first), datatype=XSD.integer)))
-                    g.add((a, GNAF.hasNumber, number_first))
-                    if r.number_first_prefix is not None:
-                        g.add((number_first, GNAF.hasPrefix, Literal(str(r.number_first_prefix), datatype=XSD.string)))
-                    if r.number_first_suffix is not None:
-                        g.add((number_first, GNAF.hasSuffix, Literal(str(r.number_first_suffix), datatype=XSD.string)))
-                # number_last
-                if r.number_last is not None:
-                    number_last = BNode()
-                    g.add((number_last, RDF.type, GNAF.LastStreetNumber))
-                    g.add((number_last, PROV.value, Literal(int(r.number_last), datatype=XSD.integer)))
-                    g.add((a, GNAF.hasNumber, number_last))
-                    if r.number_last_prefix is not None:
-                        g.add((number_last, GNAF.hasPrefix, Literal(str(r.number_last_prefix), datatype=XSD.string)))
-                    if r.number_last_suffix is not None:
-                        g.add((number_last, GNAF.hasSuffix, Literal(str(r.number_last_suffix), datatype=XSD.string)))
+            g.add((a, GNAF.hasPostcode, Literal(self.postcode, datatype=XSD.integer)))
 
-                # RDF: locality
-                g.add((a, GNAF.hasLocality, URIRef(config.URI_LOCALITY_INSTANCE_BASE + row[24])))
+            if self.building_name is not None:
+                g.add((a, GNAF.hasBuldingName, Literal(self.building_name, datatype=XSD.string)))
 
-                # RDF: data properties
-                if self.description is not None:
-                    g.add((a, DCT.description, Literal(self.description, datatype=XSD.string)))
+            g.add((a, GNAF.hasDateCreated, Literal(self.date_created, datatype=XSD.date)))
+            g.add((a, GNAF.hasDateLastModified, Literal(self.date_last_modified, datatype=XSD.date)))
+            if self.date_retired is not None:
+                g.add((a, GNAF.hasDateRetired, Literal(self.date_retired, datatype=XSD.date)))
 
-                g.add((a, GNAF.hasPostcode, Literal(self.postcode, datatype=XSD.integer)))
+            for k, v in self.alias_addresses.items():
+                a = BNode()
+                g.add((URIRef(self.uri), GNAF.hasAlias, a))
+                g.add((a, RDF.type, URIRef(v['subclass_uri'])))
+                g.add((a, RDFS.label, Literal(v['subclass_label'], datatype=XSD.string)))
+                g.add((a, GNAF.aliasOf, URIRef(config.URI_ADDRESS_INSTANCE_BASE + k)))
 
-                if self.building_name is not None:
-                    g.add((a, GNAF.hasBuldingName, Literal(self.building_name, datatype=XSD.string)))
-
-                g.add((a, GNAF.hasDateCreated, Literal(self.date_created, datatype=XSD.date)))
-                g.add((a, GNAF.hasDateLastModified, Literal(self.date_last_modified, datatype=XSD.date)))
-                if self.date_retired is not None:
-                    g.add((a, GNAF.hasDateRetired, Literal(self.date_retired, datatype=XSD.date)))
-
-                for k, v in self.alias_addresses.items():
-                    a = BNode()
-                    g.add((URIRef(self.uri), GNAF.hasAlias, a))
-                    g.add((a, RDF.type, URIRef(v['subclass_uri'])))
-                    g.add((a, RDFS.label, Literal(v['subclass_label'], datatype=XSD.string)))
-                    g.add((a, GNAF.aliasOf, URIRef(config.URI_ADDRESS_INSTANCE_BASE + k)))
-            # RDF: aliases
-            # # alias type code to URI mapping
-            # s2 = sql.SQL('''SELECT * FROM {dbschema}.address_alias WHERE principal_pid = {id}''')\
-            #     .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
-            # self.cursor.execute(s2)
-            # for row in self.cursor.fetchall():
-            #     r = config.reg(self.cursor, row)
-            #     alias = BNode()
-            #     g.add((alias, RDF.type, URIRef(LOOKUPS.alias_subclasses.get(r.alias_type_code))))
-            #     g.add((a, GNAF.hasAlias, alias))
-            #     g.add((alias, GNAF.aliasOf, URIRef(config.URI_ADDRESS_INSTANCE_BASE + str(r.alias_pid))))
-
-            # for k, v in self.alias_addresses:
-            #     print('hello')
-                # a = BNode()
-                # g.add((a, RDF.type, v['subclass_uri']))
-                # g.add((a, GNAF.hasAlias, URIRef(config.URI_ADDRESS_INSTANCE_BASE + str(k))))
-                # g.add((a, GNAF.aliasOf, URIRef(self.uri)))
+            # TODO: primary/secondary addresses
 
         return g.serialize(format=LDAPI.get_rdf_parser_for_mimetype(format))
 
