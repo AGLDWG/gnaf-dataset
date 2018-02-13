@@ -13,14 +13,17 @@ class AddressRenderer(Renderer):
     expression of the Dublin Core ontology, HTML, XML in the form according to the AS4590 XML schema.
     """
 
-    def __init__(self, id, focus=False):
+    def __init__(self, id, focus=False, db_cursor=None):
         # TODO: why doesn't this super thing work?
         # super(AddressRenderer, self).__init__(id)
         self.id = id
         self.uri = config.URI_ADDRESS_INSTANCE_BASE + id
 
         # DB connection
-        self.cursor = config.get_db_cursor()
+        if db_cursor is not None:
+            self.cursor = db_cursor
+        else:
+            self.cursor = config.get_db_cursor()
 
         # get basic properties
         s = sql.SQL('''SELECT 
@@ -701,12 +704,13 @@ class AddressRenderer(Renderer):
             if self.date_retired is not None:
                 g.add((a, GNAF.hasDateRetired, Literal(self.date_retired, datatype=XSD.date)))
 
-            for k, v in self.alias_addresses.items():
-                a = BNode()
-                g.add((URIRef(self.uri), GNAF.hasAlias, a))
-                g.add((a, RDF.type, URIRef(v['subclass_uri'])))
-                g.add((a, RDFS.label, Literal(v['subclass_label'], datatype=XSD.string)))
-                g.add((a, GNAF.aliasOf, URIRef(config.URI_ADDRESS_INSTANCE_BASE + k)))
+            if hasattr(self, 'alias_addresses'):
+                for k, v in self.alias_addresses.items():
+                    a = BNode()
+                    g.add((URIRef(self.uri), GNAF.hasAlias, a))
+                    g.add((a, RDF.type, URIRef(v['subclass_uri'])))
+                    g.add((a, RDFS.label, Literal(v['subclass_label'], datatype=XSD.string)))
+                    g.add((a, GNAF.aliasOf, URIRef(config.URI_ADDRESS_INSTANCE_BASE + k)))
 
             # TODO: primary/secondary addresses
 
