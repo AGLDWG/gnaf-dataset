@@ -90,7 +90,7 @@ class AddressRenderer(Renderer):
         for row in self.cursor.fetchall():
             r = config.reg(self.cursor, row)
             # assign this Address' instance variables
-            self.address_subclass_uri = r.uri4
+            self.address_subclass_uri = r.uri4 if r.uri4 is not None else 'http://gnafld.net/def/gnaf#Address'
             self.address_subclass_label = r.preflabel4
             self.description = r.location_description.title() if r.location_description is not None else None
             self.street_name = r.street_name.title()
