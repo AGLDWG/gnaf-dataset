@@ -451,7 +451,7 @@ def address_site(address_site_id):
     views_formats = LDAPI.get_classes_views_formats().get(c)
 
     try:
-        view, mime_format = LDAPI.get_valid_view_and_format(request, views_formats)
+        view, mimetype = LDAPI.get_valid_view_and_format(request, views_formats)
 
         # if alternates model, return this info from file
         if view == 'alternates':
@@ -490,7 +490,7 @@ def street_locality(street_id):
     views_formats = LDAPI.get_classes_views_formats().get(c)
 
     try:
-        view, mime_format = LDAPI.get_valid_view_and_format(request, views_formats)
+        view, mimetype = LDAPI.get_valid_view_and_format(request, views_formats)
 
         # if alternates model, return this info from file
         if view == 'alternates':
