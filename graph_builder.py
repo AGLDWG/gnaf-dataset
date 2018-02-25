@@ -2,6 +2,7 @@ import logging
 import _config as config
 from psycopg2 import sql
 import model.address
+import sys
 
 
 if __name__ == '__main__':
@@ -18,17 +19,18 @@ if __name__ == '__main__':
     DATA_FILE_LENGTH_MAX = 100000
 
     cursor = config.get_db_cursor()
-    #  s = sql.SQL('SELECT address_detail_pid FROM gnaf.address_detail ORDER BY address_detail_pid;')
-    s = sql.SQL(
-        'SELECT address_detail_pid '
-        'FROM gnaf.address_detail '
-        'WHERE address_detail_pid >= \'GANSW704750163\' '
-        'ORDER BY address_detail_pid;')
-    cursor.execute(s)
+    # #  s = sql.SQL('SELECT address_detail_pid FROM gnaf.address_detail ORDER BY address_detail_pid;')
+    # s = sql.SQL(
+    #     'SELECT address_detail_pid '
+    #     'FROM gnaf.address_detail '
+    #     'WHERE address_detail_pid >= \'{}\' '
+    #     'ORDER BY address_detail_pid;'.format(sys.argv[1]))
+    # cursor.execute(s)
 
     data_file_stem = 'data-'
-    data_file_count = 1
-    for idx, addr in enumerate(cursor.fetchall()):
+    data_file_count = int(sys.argv[1])
+    # for idx, addr in enumerate(cursor.fetchall()):
+    for idx, addr in enumerate(open('faulty.log','r').readlines()):
         try:
             # record the Address being processed in case of failure
             # every DATA_FILE_LENGTH_MAXth URI, create a new destination file
@@ -36,11 +38,14 @@ if __name__ == '__main__':
                 data_file_count += 1
             with open(data_file_stem + str(data_file_count).zfill(4) + '.nt', 'a') as fl:
                 fl.write(
-                    model.address.AddressRenderer(addr[0], focus=True, db_cursor=cursor)
+                    model.address.AddressRenderer(addr.strip(), focus=True, db_cursor=cursor)
                         .export_rdf(view='gnaf', format='text/n3').decode('utf-8')
                 )
         except Exception as e:
-            logging.log(logging.DEBUG, e)
+            logging.log(logging.DEBUG, 'address ' + addr, e)
+            print('address ' + addr + '\n')
             print(e)
+            with open('faulty2.log', 'a') as f:
+                f.write(addr + '\n')
         finally:
-            logging.log(logging.INFO, 'Last accessed Address: ' + addr[0])
+            logging.log(logging.INFO, 'Last accessed Address: ' + addr)

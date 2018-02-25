@@ -1,4 +1,4 @@
-from .renderer import Renderer
+from model.renderer import Renderer
 from flask import Response, render_template
 from rdflib import Graph, URIRef, RDF, XSD, Namespace, Literal, BNode
 import _config as config
@@ -77,13 +77,13 @@ class AddressRenderer(Renderer):
                             INNER JOIN gnaf.street_locality s ON d.street_locality_pid = s.street_locality_pid
                             INNER JOIN gnaf.locality l ON d.locality_pid = l.locality_pid
                             INNER JOIN gnaf.address_default_geocode g ON d.address_detail_pid = g.address_detail_pid                
-                            LEFT JOIN code_uris u ON g.geocode_type_code = u.code           
-                            LEFT JOIN code_uris u2 ON CAST(d.confidence AS text) = u2.code 
-                            LEFT JOIN code_uris u3 ON l.locality_class_code = u3.code 
+                            LEFT JOIN codes_geocode u ON g.geocode_type_code = u.code           
+                            LEFT JOIN codes_gnafconfidence u2 ON CAST(d.confidence AS text) = u2.code 
+                            LEFT JOIN codes_locality u3 ON l.locality_class_code = u3.code 
                             INNER JOIN gnaf.address_site a ON d.address_site_pid = a.address_site_pid
-                            LEFT JOIN code_uris u4 ON a.address_type = u4.code 
+                            LEFT JOIN codes_address u4 ON a.address_type = u4.code 
                             WHERE d.address_detail_pid = {id};
-                            ''').format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
+                            ''').format(id=sql.Literal(self.id))
 
         # get just IDs, ordered, from the address_detail table, paginated by class init args
         self.cursor.execute(s)
@@ -164,10 +164,10 @@ class AddressRenderer(Renderer):
         # get aliases
         self.alias_addresses = dict()
         s2 = sql.SQL('''SELECT alias_pid, uri, prefLabel 
-                        FROM {dbschema}.address_alias 
-                        LEFT JOIN code_uris ON {dbschema}.address_alias.alias_type_code = code_uris.code 
-                        WHERE code_uris.vocab = 'Alias' AND principal_pid = {id}''') \
-            .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
+                        FROM gnaf.address_alias 
+                        LEFT JOIN codes_alias ON gnaf.address_alias.alias_type_code = codes_alias.code 
+                        WHERE principal_pid = {id}''') \
+            .format(id=sql.Literal(self.id))
         self.cursor.execute(s2)
         for row in self.cursor.fetchall():
             r = config.reg(self.cursor, row)
@@ -182,10 +182,10 @@ class AddressRenderer(Renderer):
             # get principals
             self.principal_addresses = dict()
             s3 = sql.SQL('''SELECT principal_pid, uri, prefLabel  
-                            FROM {dbschema}.address_alias 
-                            LEFT JOIN code_uris ON {dbschema}.address_alias.alias_type_code = code_uris.code 
-                            WHERE code_uris.vocab = 'Alias' AND alias_pid = {id}''') \
-                .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
+                            FROM gnaf.address_alias 
+                            LEFT JOIN codes_alias ON gnaf.address_alias.alias_type_code = codes_alias.code 
+                            WHERE alias_pid = {id}''') \
+                .format(id=sql.Literal(self.id))
             self.cursor.execute(s3)
             for row in self.cursor.fetchall():
                 r = config.reg(self.cursor, row)
@@ -198,8 +198,8 @@ class AddressRenderer(Renderer):
 
             # get primary
             self.primary_addresses = dict()
-            s4 = sql.SQL('''SELECT primary_pid FROM {dbschema}.primary_secondary WHERE secondary_pid = {id}''') \
-                .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
+            s4 = sql.SQL('''SELECT primary_pid FROM gnaf.primary_secondary WHERE secondary_pid = {id}''') \
+                .format(id=sql.Literal(self.id))
             self.cursor.execute(s4)
             for row in self.cursor.fetchall():
                 r = config.reg(self.cursor, row)
@@ -208,8 +208,8 @@ class AddressRenderer(Renderer):
 
             # get secondaries
             self.secondary_addresses = dict()
-            s5 = sql.SQL('''SELECT secondary_pid FROM {dbschema}.primary_secondary WHERE primary_pid = {id}''') \
-                .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
+            s5 = sql.SQL('''SELECT secondary_pid FROM gnaf.primary_secondary WHERE primary_pid = {id}''') \
+                .format(id=sql.Literal(self.id))
             self.cursor.execute(s5)
             rows = self.cursor.fetchall()
             for row in rows:
@@ -229,14 +229,12 @@ class AddressRenderer(Renderer):
                               b.prefLabel mb2016_prefLabel  
                             FROM gnaf.address_mesh_block_2016_view
                             INNER JOIN gnaf.address_mesh_block_2011_view 
-                            ON {dbschema}.address_mesh_block_2016_view.address_detail_pid 
-                            = {dbschema}.address_mesh_block_2011_view.address_detail_pid
-                            LEFT JOIN code_uris a ON gnaf.address_mesh_block_2011_view.mb_match_code = a.code 
-                            LEFT JOIN code_uris b ON gnaf.address_mesh_block_2016_view.mb_match_code = b.code 
-                            WHERE a.vocab = 'MeshBlockMatch' 
-                            AND b.vocab = 'MeshBlockMatch' 
-                            AND {dbschema}.address_mesh_block_2016_view.address_detail_pid = {id};''') \
-                .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
+                            ON gnaf.address_mesh_block_2016_view.address_detail_pid 
+                            = gnaf.address_mesh_block_2011_view.address_detail_pid
+                            LEFT JOIN codes_meshblockmatch a ON gnaf.address_mesh_block_2011_view.mb_match_code = a.code 
+                            LEFT JOIN codes_meshblockmatch b ON gnaf.address_mesh_block_2016_view.mb_match_code = b.code 
+                            WHERE gnaf.address_mesh_block_2016_view.address_detail_pid = {id};''') \
+                .format(id=sql.Literal(self.id))
 
             self.cursor.execute(s6)
             for row in self.cursor.fetchall():
@@ -317,9 +315,9 @@ class AddressRenderer(Renderer):
 
         elif view == 'ISO19160':
             s8 = sql.SQL('''SELECT longitude, latitude, c.name
-                            FROM {dbschema}.address_site_geocode g 
-                            INNER JOIN {dbschema}.address_detail det ON g.address_site_pid = det.address_site_pid
-                            INNER JOIN {dbschema}.geocode_type_aut c ON g.geocode_type_code = c.code
+                            FROM gnaf.address_site_geocode g 
+                            INNER JOIN gnaf.address_detail det ON g.address_site_pid = det.address_site_pid
+                            INNER JOIN gnaf.geocode_type_aut c ON g.geocode_type_code = c.code
                             WHERE address_detail_pid = {id}''').format(
                 id=sql.Literal(self.id),
                 dbschema=sql.Identifier(config.DB_SCHEMA)
@@ -397,9 +395,9 @@ class AddressRenderer(Renderer):
                          postcode,
                          longitude,
                          latitude
-                     FROM {dbschema}.address_view 
+                     FROM gnaf.address_view 
                      WHERE address_detail_pid = {id}''') \
-                .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
+                .format(id=sql.Literal(self.id))
 
             # get just IDs, ordered, from the address_detail table, paginated by class init args
             self.cursor.execute(s)
@@ -448,9 +446,9 @@ class AddressRenderer(Renderer):
                         postcode,
                         longitude,
                         latitude
-                    FROM {dbschema}.address_view 
+                    FROM gnaf.address_view 
                     WHERE address_detail_pid = {id}''') \
-                .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
+                .format(id=sql.Literal(self.id))
 
             # get just IDs, ordered, from the address_detail table, paginated by class init args
             self.cursor.execute(s)
@@ -599,7 +597,7 @@ class AddressRenderer(Renderer):
             RDFS = Namespace('http://www.w3.org/2000/01/rdf-schema#')
             g.bind('rdfs', RDFS)
 
-            GNAF = Namespace('http://gnafld.org/def/gnaf#')
+            GNAF = Namespace('http://gnafld.net/def/gnaf#')
             g.bind('gnaf', GNAF)
 
             GEO = Namespace('http://www.opengis.net/ont/geosparql#')
@@ -637,7 +635,7 @@ class AddressRenderer(Renderer):
             if self.number_lot is not None:
                 lot_number = BNode()
                 g.add((lot_number, RDF.type, GNAF.LotNumber))
-                g.add((lot_number, PROV.value, Literal(int(self.number_lot), datatype=XSD.integer)))
+                g.add((lot_number, PROV.value, Literal(str(self.number_lot), datatype=XSD.integer)))
                 g.add((a, GNAF.hasNumber, lot_number))
                 if self.number_lot_prefix is not None:
                     g.add((lot_number, GNAF.hasPrefix, Literal(str(self.number_lot_prefix), datatype=XSD.string)))
@@ -712,7 +710,15 @@ class AddressRenderer(Renderer):
                     g.add((a, RDFS.label, Literal(v['subclass_label'], datatype=XSD.string)))
                     g.add((a, GNAF.aliasOf, URIRef(config.URI_ADDRESS_INSTANCE_BASE + k)))
 
-            # TODO: primary/secondary addresses
+            if hasattr(self, 'primary_addresses'):
+                for k, v in self.primary_addresses.items():
+                    g.add((URIRef(self.uri), GNAF.hasAddressPrimary, URIRef(config.URI_ADDRESS_INSTANCE_BASE + k)))
+                    # g.add((URIRef(k), RDFS.label, Literal(v, datatype=XSD.string)))
+
+            if hasattr(self, 'secondary_addresses'):
+                for k, v in self.secondary_addresses.items():
+                    g.add((URIRef(self.uri), GNAF.hasAddressSecondary, URIRef(config.URI_ADDRESS_INSTANCE_BASE + k)))
+                    # g.add((URIRef(k), RDFS.label, Literal(v, datatype=XSD.string)))
 
         return g.serialize(format=LDAPI.get_rdf_parser_for_mimetype(format))
 
@@ -743,9 +749,9 @@ def make_address_street_strings(
         locality=None,
         state_territory=None,
         postcode=None):
-        street_string = '{} {}{}'.format(
+        street_string = '{}{}{}'.format(
             street_name,
-            street_type.title(),
+            ' ' + street_type.title() if street_type is not None else '',
             ' ' + street_suffix_code if street_suffix_code is not None else ''
         )
         address_string = ''
@@ -808,3 +814,11 @@ def make_wkt(longitude, latitude):
     return '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(
         longitude, latitude
     )
+
+
+if __name__ == '__main__':
+    a = AddressRenderer('GANSW703902211', focus=True)
+    print(a.export_rdf().decode('utf-8'))
+
+# has alias for which it can't get address subclass: GAACT715069724. Alias is GAACT718348352
+# GAACT718348352 has subclass UnknownVillaAddress
