@@ -8,7 +8,7 @@
 
     {% if number_lot is not none %}
         <tr>
-            <td><a href="http://gnafld.net/def/gnaf#FirstStreetNumber">Lot Number</a></td>
+            <td><a href="http://gnafld.net/def/gnaf#Number">Lot Number</a></td>
             <td><code>{{ number_lot_prefix if number_lot_prefix else '' }}{{ number_lot }}{{ number_lot_suffix if number_lot_suffix else '' }}</code></td>
         </tr>
     {% endif %}
@@ -25,9 +25,8 @@
     {% endif %}
 
     {% if level_type_code is not none %}
-    <tr><td><a href="http://gnafld.net/def/gnaf#">Level Type Code</a></td><td><code>{{ level_type_code }}</code></td></tr>
+    <tr><td>Level Type Code</td><td><code>{{ level_type_code }}</code></td></tr>
     {% endif %}
-
 
     {% if number_level is not none %}
         <tr>

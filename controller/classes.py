@@ -469,7 +469,7 @@ def address_site(address_site_id):
             from model.addressSite import AddressSiteRenderer
             try:
                 s = AddressSiteRenderer(address_site_id)
-                return s.render(view, mimetype)
+                return s.render(view, mime_format)
             except ValueError:
                 return render_template('addressSite_no_record.html')
 
@@ -508,7 +508,7 @@ def street_locality(street_id):
             from model.streetLocality import StreetRenderer
             try:
                 s = StreetRenderer(street_id)
-                return s.render(view, mimetype)
+                return s.render(view, mime_format)
             except ValueError:
                 return render_template('street_no_record.html')
 
@@ -524,9 +524,8 @@ def locality(locality_id):
     :param locality_id:
     :return: LDAPI views of a single Locality
     """
-    # lists the views and formats available for class type C
-    c = config.URI_LOCALITY_CLASS
-    views_formats = LDAPI.get_classes_views_formats().get(c)
+    # lists the views and formats available for class type config.URI_LOCALITY_CLASS
+    views_formats = LDAPI.get_classes_views_formats().get(config.URI_LOCALITY_CLASS)
 
     try:
         view, mime_format = LDAPI.get_valid_view_and_format(request, views_formats)
@@ -536,8 +535,8 @@ def locality(locality_id):
             instance_uri = config.URI_LOCALITY_INSTANCE_BASE + locality_id
             del views_formats['renderer']
             return render_alternates_view(
-                c,
-                uparse.quote_plus(c),
+                config.URI_LOCALITY_CLASS,
+                uparse.quote_plus(config.URI_LOCALITY_CLASS),
                 instance_uri,
                 uparse.quote_plus(instance_uri),
                 views_formats,
