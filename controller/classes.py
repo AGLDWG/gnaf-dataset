@@ -547,7 +547,7 @@ def locality(locality_id):
             from model.locality import LocalityRenderer
             try:
                 s = LocalityRenderer(locality_id)
-                return s.render(view, mimetype)
+                return s.render(view, mime_format)
             except ValueError:
                 return render_template('locality_no_record.html')
 

@@ -10,7 +10,7 @@ class LDAPI:
 
     This class is issued as a Python file, rather than a Git submodule so check the version number before use!
 
-    Version 2.1
+    Version 2.2
     """
 
     # maps HTTP MIMETYPES to rdflib's RDF parsing formats
