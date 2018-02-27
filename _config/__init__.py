@@ -33,11 +33,16 @@ LOCALITY_COUNT = 16445
 URI_LOCALITY_CLASS = 'http://gnafld.net/def/gnaf#Locality'
 URI_LOCALITY_INSTANCE_BASE = 'http://gnafld.net/locality/'
 
-DB_HOST = 'localhost'
-DB_DBNAME = 'gnaf'
-DB_USR = 'gnafusr'
-DB_PWD = 'joschmo'
-DB_SCHEMA = 'gnaf'
+DB_HOST = ''
+DB_DBNAME = ''
+DB_USR = ''
+DB_PWD = ''
+DB_SCHEMA = ''
+
+
+SPARQL_AUTH_USR = ''
+SPARQL_AUTH_PWD = ''
+SPARQL_QUERY_URI = ''
 
 
 def get_db_cursor():
