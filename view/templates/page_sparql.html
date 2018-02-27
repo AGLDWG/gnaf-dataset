@@ -1,0 +1,29 @@
+{% extends "template_layout.html" %}
+
+{% block content %}
+    <h1>G-NAF LDAPI</h1>
+    <h2>SPARQL endpoint</h2>
+    <h4>Enter your SPARQL query in the text box below:</h4>
+     <form action="{{ url_for('routes.sparql') }}" method="post">
+        <textarea name="query" id="query" style="width:800px; height:300px;">{% if query and query != '' %}{{query}}{% endif %}</textarea>
+        <br />
+        <input type="hidden" name="form" value="true" />
+        <input type="submit" value="Query the GNAF LD" /><br />
+        <!--<button id="query-proms">Query PROMS</button><br />-->
+        <h4>Result</h4>
+        <textarea id="query-result" style="width:800px; height:300px;" readonly>
+                {% if query_result != '' %}{{query_result}}{% endif %}
+        </textarea>
+    </form>
+    <script>
+        window.onload = function() {
+            prettyPrintJSON();
+        };
+        function prettyPrintJSON() {
+            var ugly = document.getElementById('query-result').value;
+            var obj = JSON.parse(ugly);
+            var pretty = JSON.stringify(obj, undefined, 4);
+            document.getElementById('query-result').value = pretty;
+        }
+    </script>
+{% endblock %}
