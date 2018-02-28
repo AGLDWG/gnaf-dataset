@@ -183,8 +183,8 @@ class AddressRenderer(Renderer):
             self.principal_addresses = dict()
             s3 = sql.SQL('''SELECT principal_pid, uri, prefLabel  
                             FROM gnaf.address_alias 
-                            LEFT JOIN code_uris ON gnaf.address_alias.alias_type_code = code_uris.code 
-                            WHERE code_uris.vocab = 'Alias' AND alias_pid = {id}''') \
+                            LEFT JOIN codes_alias ON gnaf.address_alias.alias_type_code = codes_alias.code 
+                            WHERE alias_pid = {id}''') \
                 .format(id=sql.Literal(self.id))
             self.cursor.execute(s3)
             for row in self.cursor.fetchall():
@@ -231,11 +231,9 @@ class AddressRenderer(Renderer):
                             INNER JOIN gnaf.address_mesh_block_2011_view 
                             ON gnaf.address_mesh_block_2016_view.address_detail_pid 
                             = gnaf.address_mesh_block_2011_view.address_detail_pid
-                            LEFT JOIN code_uris a ON gnaf.address_mesh_block_2011_view.mb_match_code = a.code 
-                            LEFT JOIN code_uris b ON gnaf.address_mesh_block_2016_view.mb_match_code = b.code 
-                            WHERE a.vocab = 'MeshBlockMatch' 
-                            AND b.vocab = 'MeshBlockMatch' 
-                            AND gnaf.address_mesh_block_2016_view.address_detail_pid = {id};''') \
+                            LEFT JOIN codes_meshblockmatch a ON gnaf.address_mesh_block_2011_view.mb_match_code = a.code 
+                            LEFT JOIN codes_meshblockmatch b ON gnaf.address_mesh_block_2016_view.mb_match_code = b.code 
+                            WHERE gnaf.address_mesh_block_2016_view.address_detail_pid = {id};''') \
                 .format(id=sql.Literal(self.id))
 
             self.cursor.execute(s6)

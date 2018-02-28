@@ -56,9 +56,8 @@ class LocalityRenderer(Renderer):
                         geocode_type,
                         state_pid
                     FROM gnaf.locality_view
-                    LEFT JOIN code_uris s ON CAST(gnaf.locality_view.state_pid AS text) = s.code
-                    WHERE locality_pid = {id}
-                    AND s.vocab = \'State\'''') \
+                    LEFT JOIN codes_state s ON CAST(gnaf.locality_view.state_pid AS text) = s.code
+                    WHERE locality_pid = {id}''') \
                 .format(id=sql.Literal(self.id))
 
             self.cursor.execute(s)
@@ -79,8 +78,8 @@ class LocalityRenderer(Renderer):
 
             s2 = sql.SQL('''SELECT locality_alias_pid, name, uri, prefLabel 
                             FROM gnaf.locality_alias 
-                            LEFT JOIN code_uris ON gnaf.locality_alias.alias_type_code = code_uris.code 
-                            WHERE code_uris.vocab = 'Alias' AND locality_pid = {id}''')  \
+                            LEFT JOIN codes_alias a ON gnaf.locality_alias.alias_type_code = a.code 
+                            WHERE a.vocab = 'Alias' AND locality_pid = {id}''')  \
                 .format(id=sql.Literal(self.id))
 
             # get just IDs, ordered, from the address_detail table, paginated by class init args
