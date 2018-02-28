@@ -50,4 +50,14 @@ so we can understand that the original address and the alias address are about a
 
 
 ## How to lodge queries
-SPARQL queries like the above can be put to this GNAF SPARQL service according to the
+SPARQL queries, like the above, can be put to this GNAF SPARQL service using the methods in the SPARQL Service Description specification. You can:
+
+* fill out the HTML form at <http://gnafld.net/sparql> with a query and submit it
+* POST a URL-encoded query to <http://gnafld.net/sparql>, e.g.
+    * the POST should use the `application/x-www-form-urlencoded` MIME type for typical form posts and contain a single form field of `query` with a value like `DESCRIBE%20%3Chttp%3A%2F%2Fgnafld.net%2Faddress%2FGAACT714857880%3E` which is the URL-Encoded form of the simple query `DESCRIBE <http://gnafld.net/address/GAACT714857880>`
+    * see <https://www.w3.org/TR/2013/REC-sparql11-protocol-20130321/#query-via-post-urlencoded> for full details
+* POST a query directly, without encoding in an HTML form
+    * use the MIME type `application/sparql-query`
+    * see <https://www.w3.org/TR/2013/REC-sparql11-protocol-20130321/#query-via-post-direct> for full details  
+
+In all cases, the SPARQL service will return either JSON or RDF Turtle. If using the HTML form, you will get the result back in the *Result* section of the form. If POSTing a query, you will get the result back as an HTTP response.
