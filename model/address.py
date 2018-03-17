@@ -322,7 +322,8 @@ class AddressRenderer(Renderer):
                 mesh_block_2011s=self.mesh_block_2011s,
                 mesh_block_2016_uri=config.URI_MB_2016_INSTANCE_BASE + '%s',
                 mesh_block_2016s=self.mesh_block_2016s,
-                street_string=self.street_string
+                street_string=self.street_string,
+                schemaorg=self.export_schemaorg()
             )
 
         elif view == 'dct':
