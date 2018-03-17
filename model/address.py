@@ -4,6 +4,8 @@ from rdflib import Graph, URIRef, RDF, XSD, Namespace, Literal, BNode
 import _config as config
 from _ldapi import LDAPI, LdapiParameterError
 from psycopg2 import sql
+import json
+import decimal
 
 
 class AddressRenderer(Renderer):
@@ -259,6 +261,8 @@ class AddressRenderer(Renderer):
                 }
 
     def render(self, view, format):
+        if view == 'schemaorg':
+            return Response(self.export_schemaorg(), mimetype='application/ld+json')
         if format == 'text/html':
             return self.export_html(view=view)
         else:
@@ -421,7 +425,7 @@ class AddressRenderer(Renderer):
         ))
         g.add((URIRef(self.uri), ISO.position, pos))
 
-    def exp_19160_AddressComponent(self, g, ac_type, acv_value, acv_type='defaultValue', first=None, next=None):
+    def exp_19160_AddressComponent(self, g, ac_type, acv_value, acv_type='defaultValue'):
         ISO = Namespace('http://reference.data.gov.au/def/ont/iso19160-1-address#')
         g.bind('iso19160', ISO)
         ac_type_base = 'http://reference.data.gov.au/def/ont/iso19160-1-address/Address/code/AddressComponentType/'
@@ -849,6 +853,34 @@ class AddressRenderer(Renderer):
 
         return g.serialize(format=LDAPI.get_rdf_parser_for_mimetype(format))
 
+    def export_schemaorg(self):
+        data = {
+            '@context': 'http://schema.org',
+            '@type': 'Place',
+            'address': {
+                '@type': 'PostalAddress',
+                'streetAddress': self.address_string.split(',')[0],
+                'addressLocality': self.locality_name,
+                'addressRegion': self.state_prefLabel,
+                'postalCode': self.postcode,
+                'addressCountry': 'AU'
+            },
+            'geo': {
+                '@type': 'GeoCoordinates',
+                'latitude': self.latitude,
+                'longitude': self.longitude
+            },
+            'name': 'Geocoded Address ' + self.id
+        }
+
+        return json.dumps(data, cls=DecimalEncoder)
+
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            return float(o)
+        return super(DecimalEncoder, self).default(o)
 
 # static methods
 def make_address_street_strings(
