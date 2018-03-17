@@ -31,6 +31,12 @@
       "default_mimetype": "text/turtle",
       "namespace": "http://reference.data.gov.au/def/ont/iso19160-1-address#",
       "description": "The OWL ontology view of the ISO 19160-1:2015 Address standard from the OGC's TC211 UML to OWL mapping: https://github.com/ISO-TC211/GOM/tree/master/isotc211_GOM_harmonizedOntology/19160-1/2015 "
+    },
+    "schemaorg": {
+      "mimetypes": ["application/ld+json"],
+      "default_mimetype": "application/ld+json",
+      "namespace": "http://schema.org",
+      "description": "An initiative by Bing, Google and Yahoo! to create and support a common set of schemas for structured data markup on web pages. It is serialised in JSON-LD"
     }
   },
   "http://gnafld.net/def/gnaf#AddressSite": {
