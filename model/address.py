@@ -2,7 +2,7 @@ from model.renderer import Renderer
 from flask import Response, render_template
 from rdflib import Graph, URIRef, RDF, XSD, Namespace, Literal, BNode
 import _config as config
-from _ldapi import LDAPI
+from _ldapi import LDAPI, LdapiParameterError
 from psycopg2 import sql
 
 
@@ -72,7 +72,9 @@ class AddressRenderer(Renderer):
                             u3.uri uri3,
                             u3.prefLabel prefLabel3,
                             u4.uri uri4,
-                            u4.prefLabel prefLabel4
+                            u4.prefLabel prefLabel4,
+                            u5.uri uri5,
+                            u5.prefLabel prefLabel5                            
                             FROM gnaf.address_detail d
                             INNER JOIN gnaf.street_locality s ON d.street_locality_pid = s.street_locality_pid
                             INNER JOIN gnaf.locality l ON d.locality_pid = l.locality_pid
@@ -82,6 +84,7 @@ class AddressRenderer(Renderer):
                             LEFT JOIN codes_locality u3 ON l.locality_class_code = u3.code 
                             INNER JOIN gnaf.address_site a ON d.address_site_pid = a.address_site_pid
                             LEFT JOIN codes_address u4 ON a.address_type = u4.code 
+                            LEFT JOIN codes_flat u5 ON d.flat_type_code = u5.code 
                             WHERE d.address_detail_pid = {id};
                             ''').format(id=sql.Literal(self.id))
 
@@ -189,9 +192,9 @@ class AddressRenderer(Renderer):
             self.cursor.execute(s3)
             for row in self.cursor.fetchall():
                 r = config.reg(self.cursor, row)
-                a = AddressRenderer(r.principal_pid, focus=False)
+                ar = AddressRenderer(r.principal_pid, focus=False)
                 self.principal_addresses[r.principal_pid] = {
-                    'address_string': a.address_string,
+                    'address_string': ar.address_string,
                     'subclass_uri': r.uri,
                     'subclass_label': r.preflabel
                 }
@@ -273,7 +276,7 @@ class AddressRenderer(Renderer):
                 geocode_type_uri=self.geocode_type_uri,
                 confidence_uri=self.confidence_uri,
                 confidence_prefLabel=self.confidence_prefLabel,
-                geometry_wkt=make_wkt(self.longitude, self.latitude),
+                geometry_wkt=make_wkt_literal(self.longitude, self.latitude),
                 date_created=self.date_created,
                 date_last_modified=self.date_last_modified,
                 date_retired=self.date_retired,
@@ -313,76 +316,6 @@ class AddressRenderer(Renderer):
                 street_string=self.street_string
             )
 
-        elif view == 'ISO19160':
-            s8 = sql.SQL('''SELECT longitude, latitude, c.name
-                            FROM gnaf.address_site_geocode g 
-                            INNER JOIN gnaf.address_detail det ON g.address_site_pid = det.address_site_pid
-                            INNER JOIN gnaf.geocode_type_aut c ON g.geocode_type_code = c.code
-                            WHERE address_detail_pid = {id}''').format(
-                id=sql.Literal(self.id),
-                dbschema=sql.Identifier(config.DB_SCHEMA)
-            )
-            self.cursor.execute(s8)
-            positions = {}
-            for row in self.cursor.fetchall():
-                r = config.reg(self.cursor, row)
-                positions[r.name] = make_wkt(r.longitude, r.latitude)
-
-            view_html = render_template(
-                'class_address_ISO19160.html',
-                address_string=self.address_string,
-                address_detail_pid=self.id,
-                street_name=self.street_name,
-                street_type=self.street_type,
-                locality_name=self.locality_name,
-                state_territory=self.state_territory,
-                postcode=self.postcode,
-                latitude=self.latitude,
-                longitude=self.longitude,
-                geocode_type=self.geocode_type,
-                geocode_type_uri='http://broken.com',
-                confidence=self.confidence,
-                geometry_wkt=make_wkt(self.longitude, self.latitude),
-                date_created=self.date_created,
-                date_last_modified=self.date_last_modified,
-                date_retired=self.date_retired,
-                building_name=self.building_name,
-                number_lot_prefix=self.number_lot_prefix,
-                number_lot=self.number_lot,
-                number_lot_suffix=self.number_lot_suffix,
-                flat_type_code=self.flat_type_code,
-                number_flat_prefix=self.number_flat_prefix,
-                number_flat=self.number_flat,
-                number_flat_suffix=self.number_flat_suffix,
-                level_type_code=self.level_type_code,
-                number_level_prefix=self.number_level_prefix,
-                number_level=self.number_level,
-                number_level_suffix=self.number_level_suffix,
-                number_first_prefix=self.number_first_prefix,
-                number_first=self.number_first,
-                number_first_suffix=self.number_first_suffix,
-                number_last_prefix=self.number_last_prefix,
-                number_last=self.number_last,
-                number_last_suffix=self.number_last_suffix,
-                alias_principal=self.alias_principal,
-                legal_parcel_id=self.legal_parcel_id,
-                address_site_pid=self.address_site_pid,
-                level_geocoded_code=self.level_geocoded_code,
-                property_pid=self.property_pid,
-                street_locality_pid=self.street_locality_pid,
-                locality_pid=self.locality_pid,
-                alias_addresses=self.alias_addresses,
-                principal_addresses=self.principal_addresses,
-                secondary_addresses=self.secondary_addresses,
-                primary_addresses=self.primary_addresses,
-                mesh_block_2011_uri=config.URI_MB_2011_INSTANCE_BASE + '%s',
-                mesh_block_2011s=self.mesh_block_2011s,
-                mesh_block_2016_uri=config.URI_MB_2016_INSTANCE_BASE + '%s',
-                mesh_block_2016s=self.mesh_block_2016s,
-                street_string=self.street_string,
-                positions=positions
-            )
-
         elif view == 'dct':
             s = sql.SQL('''SELECT 
                          street_locality_pid, 
@@ -404,7 +337,7 @@ class AddressRenderer(Renderer):
             for record in self.cursor:
                 address_string = '{} {} {}, {}, {} {}' \
                     .format(record[2], record[3].title(), record[4].title(), record[5].title(), record[6], record[7])
-                coverage_wkt = make_wkt(self.longitude, self.latitude)
+                coverage_wkt = make_wkl_literal(self.longitude, self.latitude)
 
             view_html = render_template(
                 'class_address_dct.html',
@@ -423,175 +356,215 @@ class AddressRenderer(Renderer):
             address_uri=self.uri,
         )
 
+    def exp_19160_Address(self, g):
+        ISO = Namespace('http://reference.data.gov.au/def/ont/iso19160-1-address#')
+        g.bind('iso19160', ISO)
+        g.add((URIRef(self.uri), RDF.type, ISO.Address))
+        g.add((
+            URIRef(self.uri),
+            URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#Address.id'),
+            URIRef(self.uri)  # always using this
+        ))
+        g.add((
+            URIRef(self.uri),
+            URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#Address.class'),
+            URIRef('http://gnafld.net/def/gnaf#Address')  # always using this
+        ))
+
+        # TODO: support all Address Lifecycle Stages: current, proposed, rejected, reserved, retired, unknown
+        if self.date_retired is not None:
+            life_cycle_stage = 'retired'
+        else:
+            life_cycle_stage = 'current'
+        g.add((
+            URIRef(self.uri),
+            URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#Address.lifecycleStage'),
+            URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address/Address/code/AddressLifecycleStage/'
+                   + life_cycle_stage)
+        ))
+
+        # TODO: confirm all G-Naf addresses are official
+        g.add((
+            URIRef(self.uri),
+            URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#Address.status'),
+            URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address/Address/code/AddressStatus/official')
+        ))
+
+    def exp_19160_AddressPosition(self, g):
+        ISO = Namespace('http://reference.data.gov.au/def/ont/iso19160-1-address#')
+        g.bind('iso19160', ISO)
+        GEO = Namespace('http://www.opengis.net/ont/geosparql#')
+        g.bind('geo', GEO)
+
+        geom = BNode()
+        g.add((geom, RDF.type, GEO.Geometry))
+        g.add((geom, RDF.type, ISO.GM_Object))  # thus equating the 19160 GM_Object with a geo:Geometry
+        g.add((geom, GEO.asGML, Literal(make_gml_literal(self.longitude, self.latitude), datatype=GEO.gmlLiteral)))
+
+        pos = BNode()
+        g.add((pos, RDF.type, ISO.AddressPosition))  # inferred to be a geo:Feature
+        g.add((
+            pos,
+            URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#AddressPosition.geometry'),
+            geom
+        ))
+        g.add((pos, GEO.hasGeometry, geom))  # due to equating the 19160 GM_Object with a geo:Geometry
+        g.add((
+            pos,
+            ISO.type,
+            URIRef(self.geocode_type_uri)  # ISO19160 offers no codes for this so we use GNAF codes
+        ))
+        g.add((URIRef(self.uri), ISO.position, pos))
+
+    def exp_19160_AddressComponent(self, g, ac_type, acv_value, acv_type='defaultValue'):
+        ISO = Namespace('http://reference.data.gov.au/def/ont/iso19160-1-address#')
+        g.bind('iso19160', ISO)
+        ac_type_base = 'http://reference.data.gov.au/def/ont/iso19160-1-address/Address/code/AddressComponentType/'
+        ac_value_type_base = 'http://reference.data.gov.au/def/ont/iso19160-1-address/Address/code/AddressComponentValueType/'
+
+        acv = BNode()
+        g.add((acv, RDF.type, ISO.AddressComponentValue))
+        g.add((
+            acv,
+            URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#AddressComponentValue.type'),
+            URIRef(ac_value_type_base + acv_type)
+        ))
+        # choose datatype based on AddressComponent.type
+        dt = {
+            'addressedObjectIdentifer': 'http://www.w3.org/2001/XMLSchema#string',
+            'thoroughfareName': 'http://www.w3.org/2001/XMLSchema#string',
+            'localityName': 'http://www.w3.org/2001/XMLSchema#string',
+            'postOfficeName': 'http://www.w3.org/2001/XMLSchema#string',
+            'postcode': 'http://www.w3.org/2001/XMLSchema#integer',
+            'countryName': 'http://www.w3.org/2001/XMLSchema#string',
+        }
+        g.add((
+            acv,
+            URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#AddressComponentValue.value'),
+            Literal(acv_value, datatype=dt.get(ac_type))
+        ))
+
+        ac = BNode()
+        g.add((ac, RDF.type, ISO.AddressComponent))
+        g.add((
+            ac,
+            URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#AddressComponent.type'),
+            URIRef(ac_type_base + ac_type)
+        ))
+        g.add((
+            ac,
+            URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#AddressComponent.valueInformation'),
+            acv
+        ))
+
+        g.add((
+            URIRef(self.uri),
+            URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#Address.addressComponent'),
+            ac
+        ))
+
+    def exp_19160_AddressAlias(self):
+        pass
+
+    def exp_19160_AddressProvenance(self, g):
+        ORG = Namespace('http://www.w3.org/ns/org#')
+        g.bind('org', ORG)
+
+        ISO = Namespace('http://reference.data.gov.au/def/ont/iso19160-1-address#')
+        g.bind('iso19160', ISO)
+
+        org = URIRef('https://www.psma.com.au')
+        g.add((org, RDF.type, ORG.Organization))
+
+        prov = BNode()
+        g.add((prov, RDF.type, ISO.AddressProvenance))
+
+        # g.add((
+        #     prov,
+        #     URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#AddressProvenance.authority'),
+        #     org
+        # ))
+
+        g.add((
+            prov,
+            URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#AddressProvenance.owner'),
+            org
+        ))
+
     def export_rdf(self, view='gnaf', format='text/turtle'):
         g = Graph()
-        a = URIRef(self.uri)
 
         if view == 'ISO19160':
-            # get the components from the DB needed for ISO19160
-            s = sql.SQL('''SELECT 
-                        street_locality_pid, 
-                        locality_pid, 
-                        flat_type,
-                        flat_number,
-                        level_type,
-                        level_number,
-                        CAST(number_first AS text), 
-                        CAST(number_last AS text), 
-                        street_name, 
-                        street_type_code, 
-                        street_suffix_code,
-                        locality_name, 
-                        state_abbreviation, 
-                        postcode,
-                        longitude,
-                        latitude
-                    FROM gnaf.address_view 
-                    WHERE address_detail_pid = {id}''') \
-                .format(id=sql.Literal(self.id))
+            self.exp_19160_Address(g)
 
-            # get just IDs, ordered, from the address_detail table, paginated by class init args
-            self.cursor.execute(s)
-            for record in self.cursor:
-                ac_flat_type_value = record[2].title() if record[2] is not None else None
-                ac_flat_number_value = record[3]
-                ac_level_type_value = record[4].title() if record[4] is not None else None
-                ac_level_number_value = record[5]
-                ac_street_number_low_value = record[6]
-                ac_street_number_high_value = record[7]
-                ac_street_name_value = record[8].title()
-                ac_street_type_value = record[9].title() if record[9] is not None else None
-                ac_street_suffix_value = record[10].title() if record[10] is not None else None
-                ac_locality_value = record[11].title()
-                ac_state_value = record[12]
-                ac_postcode_value = record[13]
+            if self.building_name is not None:
+                self.exp_19160_AddressComponent(g, 'addressedObjectIdentifier', self.building_name)
 
-            AddressComponentTypeUriBase = 'http://reference.data.gov.au/def/ont/iso19160-1-address/Address/code/AddressComponentType/'
-            AddressPositionTypeUriBase = 'http://reference.data.gov.au/def/ont/iso19160-1-address/Address/code/AddressPositionType/'
+            if self.number_flat is not None:
+                flat = str(self.number_flat)
+                if self.number_flat_prefix is not None:
+                    flat = self.number_flat_prefix + ' ' + flat
+                if self.number_flat_suffix is not None:
+                    flat = flat + ' ' + self.number_flat_suffix
+                flat = 'Flat ' + flat
+                self.exp_19160_AddressComponent(g, 'addressedObjectIdentifier', flat)
 
-            ISO = Namespace('http://reference.data.gov.au/def/ont/iso19160-1-address#')
-            g.bind('iso19160', ISO)
+            if self.number_level is not None:
+                level = str(self.number_level)
+                if self.number_level_prefix is not None:
+                    level = self.number_level_prefix + ' ' + level
+                if self.number_level_suffix is not None:
+                    level = level + ' ' + self.number_level_suffix
+                level = 'Level ' + level
+                self.exp_19160_AddressComponent(g, 'addressedObjectIdentifier', level)
 
-            GEO = Namespace('http://www.opengis.net/ont/geosparql#')
-            g.bind('geo', GEO)
+            if self.number_lot is not None:
+                lot = str(self.number_lot)
+                if self.number_lot_prefix is not None:
+                    lot = self.number_lot_prefix + ' ' + lot
+                if self.number_lot_suffix is not None:
+                    lot = lot + ' ' + self.number_lot_suffix
+                lot = 'Lot ' + lot
+                self.exp_19160_AddressComponent(g, 'addressedObjectIdentifier', lot)
 
-            g.add((a, RDF.type, ISO.Address))
+            if self.number_first is not None:
+                num = str(self.number_first)
+                if self.number_first_prefix is not None:
+                    num = self.number_first_prefix + ' ' + num
+                if self.number_first_suffix is not None:
+                    num = num + ' ' + self.number_first_suffix
 
-            if ac_flat_type_value is not None or ac_flat_number_value is not None:
-                ac_unit = BNode()
-                g.add((ac_unit, RDF.type, ISO.AddressComponent))
-                g.add((ac_unit, ISO.type, URIRef(AddressComponentTypeUriBase + 'unit')))
-                g.add((a, ISO.addressComponent, ac_unit))
+                if self.number_last is not None:
+                    num_last = str(self.number_last)
+                    if self.number_last_prefix is not None:
+                        num_last = self.number_last_prefix + ' ' + num_last
+                    if self.number_last_suffix is not None:
+                        num_last = num_last + ' ' + self.number_last_suffix
+                    num = num + '-' + num_last
+                num = 'Street Number ' + num
+                self.exp_19160_AddressComponent(g, 'addressedObjectIdentifier', num)
 
-            if ac_flat_type_value is not None:
-                ac_unit_type = BNode()
-                g.add((ac_unit_type, RDF.type, ISO.AddressComponent))
-                g.add((ac_unit_type, ISO.valueInformation, Literal(ac_flat_type_value, datatype=XSD.string)))
-                g.add((ac_unit_type, ISO.type, URIRef(AddressComponentTypeUriBase + 'unitType')))
-                g.add((ac_unit, ISO.valueComponent, ac_unit_type))
+            self.exp_19160_AddressComponent(g, 'thoroughfareName', self.street_string, acv_type='abbreviatedAlternative')
 
-            if ac_flat_number_value is not None:
-                ac_unit_value = BNode()
-                g.add((ac_unit_value, RDF.type, ISO.AddressComponent))
-                g.add((ac_unit_value, ISO.valueInformation, Literal(ac_flat_number_value, datatype=XSD.string)))
-                g.add((ac_unit_value, ISO.type, URIRef(AddressComponentTypeUriBase + 'unitValue')))
-                g.add((ac_unit, ISO.valueComponent, ac_unit_value))
+            self.exp_19160_AddressComponent(g, 'localityName', self.locality_name)
 
-            if ac_level_type_value is not None or ac_level_number_value is not None:
-                ac_level = BNode()
-                g.add((ac_level, RDF.type, ISO.AddressComponent))
-                g.add((ac_level, ISO.type, URIRef(AddressComponentTypeUriBase + 'level')))
-                g.add((a, ISO.addressComponent, ac_level))
+            self.exp_19160_AddressComponent(
+                g, 'administrativeAreaName', self.state_territory, acv_type='abbreviatedAlternative'
+            )
 
-            if ac_level_type_value is not None:
-                ac_level_type = BNode()
-                g.add((ac_level_type, RDF.type, ISO.AddressComponent))
-                g.add((ac_level_type, ISO.valueInformation, Literal(ac_level_type_value, datatype=XSD.string)))
-                g.add((ac_level_type, ISO.type, URIRef(AddressComponentTypeUriBase + 'levelType')))
-                g.add((ac_level, ISO.valueComponent, ac_level_type))
+            self.exp_19160_AddressComponent(g, 'postcode', self.postcode)
 
-            if ac_level_number_value is not None:
-                ac_level_value = BNode()
-                g.add((ac_level_value, RDF.type, ISO.AddressComponent))
-                g.add((ac_level_value, ISO.valueInformation, Literal(ac_level_number_value, datatype=XSD.string)))
-                g.add((ac_level_value, ISO.type, URIRef(AddressComponentTypeUriBase + 'levelValue')))
-                g.add((ac_level, ISO.valueComponent, ac_level_value))
+            self.exp_19160_AddressComponent(g, 'countryName', 'Australia')
 
-            ac_address_number = BNode()
-            g.add((ac_address_number, RDF.type, ISO.AddressComponent))
-            g.add((ac_address_number, ISO.type, URIRef(AddressComponentTypeUriBase + 'addressNumber')))
-            g.add((a, ISO.addressComponent, ac_address_number))
+            self.exp_19160_AddressComponent(g, 'countryCode', 'AUS')
 
-            if ac_street_number_low_value is not None:
-                ac_address_number_low = BNode()
-                g.add((ac_address_number_low, RDF.type, ISO.AddressComponent))
-                g.add((ac_address_number_low, ISO.valueInformation, Literal(ac_street_number_low_value, datatype=XSD.string)))
-                g.add((ac_address_number_low, ISO.type, URIRef(AddressComponentTypeUriBase + 'addressNumberLow')))
-                g.add((ac_address_number, ISO.valueComponent, ac_address_number_low))
+            self.exp_19160_AddressPosition(g)
 
-            if ac_street_number_high_value is not None:
-                ac_address_number_high = BNode()
-                g.add((ac_address_number_high, RDF.type, ISO.AddressComponent))
-                g.add((ac_address_number_high, ISO.valueInformation, Literal(ac_street_number_high_value, datatype=XSD.string)))
-                g.add((ac_address_number_high, ISO.type, URIRef(AddressComponentTypeUriBase + 'addressNumberHigh')))
-                g.add((ac_address_number, ISO.valueComponent, ac_address_number_high))
+            self.exp_19160_AddressProvenance(g)
 
-            ac_street = BNode()
-            g.add((ac_street, RDF.type, ISO.AddressComponent))
-            g.add((ac_street, ISO.type, URIRef(AddressComponentTypeUriBase + 'thoroughfare')))
-            g.add((a, ISO.addressComponent, ac_street))
+            # TODO: Address Aliases
 
-            ac_street_name = BNode()
-            g.add((ac_street_name, RDF.type, ISO.AddressComponent))
-            g.add((ac_street_name, ISO.valueInformation, Literal(ac_street_name_value, datatype=XSD.string)))
-            g.add((ac_street_name, ISO.type, URIRef(AddressComponentTypeUriBase + 'thoroughfareName')))
-            g.add((ac_street, ISO.valueComponent, ac_street_name))
-
-            if ac_street_type_value is not None:
-                ac_street_type = BNode()
-                g.add((ac_street_type, RDF.type, ISO.AddressComponent))
-                g.add((ac_street_type, ISO.valueInformation, Literal(ac_street_type_value, datatype=XSD.string)))
-                g.add((ac_street_type, ISO.type, URIRef(AddressComponentTypeUriBase + 'thoroughfareType')))
-                g.add((ac_street, ISO.valueComponent, ac_street_type))
-
-            if ac_street_suffix_value is not None:
-                ac_street_suffix = BNode()
-                g.add((ac_street_suffix, RDF.type, ISO.AddressComponent))
-                g.add((ac_street_suffix, ISO.valueInformation, Literal(ac_street_suffix_value, datatype=XSD.string)))
-                g.add((ac_street_suffix, ISO.type, URIRef(AddressComponentTypeUriBase + 'thoroughfareSuffix')))
-                g.add((ac_street, ISO.valueComponent, ac_street_suffix))
-
-            ac_locality = BNode()
-            g.add((ac_locality, RDF.type, ISO.AddressComponent))
-            g.add((ac_locality, ISO.valueInformation, Literal(ac_locality_value, datatype=XSD.string)))
-            g.add((ac_locality, ISO.type, URIRef(AddressComponentTypeUriBase + 'locality')))
-            g.add((a, ISO.addressComponent, ac_locality))
-
-            ac_state = BNode()
-            g.add((ac_state, RDF.type, ISO.AddressComponent))
-            g.add((ac_state, ISO.valueInformation, Literal(ac_state_value, datatype=XSD.string)))
-            g.add((ac_state, ISO.type, URIRef(AddressComponentTypeUriBase + 'stateTerritory')))
-            g.add((a, ISO.addressComponent, ac_state))
-
-            ac_postcode = BNode()
-            g.add((ac_postcode, RDF.type, ISO.AddressComponent))
-            g.add((ac_postcode, ISO.valueInformation, Literal(ac_postcode_value, datatype=XSD.string)))
-            g.add((ac_postcode, ISO.type, URIRef(AddressComponentTypeUriBase + 'postcode')))
-            g.add((a, ISO.addressComponent, ac_postcode))
-
-            geometry = BNode()
-            g.add((geometry, RDF.type, GEO.Geometry))
-            g.add((geometry, GEO.asWKT, Literal(make_wkt(r.longitude, r.latitude), datatype=GEO.wktLiteral)))
-
-            position_geometry = BNode()
-            g.add((position_geometry, RDF.type, ISO.GM_Object))
-            g.add((position_geometry, GEO.hasGeometry, geometry))
-
-            position = BNode()
-            g.add((position, RDF.type, ISO.AddressPosition))
-            g.add((position, ISO.geometry, position_geometry))
-            g.add((position, ISO.type, URIRef(AddressPositionTypeUriBase + 'centroid')))
-            g.add((a, ISO.position, position))
+            # TODO: Address Parent/Child
 
         elif view == 'gnaf':
             RDFS = Namespace('http://www.w3.org/2000/01/rdf-schema#')
@@ -609,6 +582,8 @@ class AddressRenderer(Renderer):
             DCT = Namespace('http://purl.org/dc/terms/')
             g.bind('dct', DCT)
 
+            a = URIRef(self.uri)
+
             # RDF: declare Address instance
             g.add((a, RDF.type, GNAF.Address))
             g.add((a, RDF.type, URIRef(self.address_subclass_uri)))
@@ -618,7 +593,7 @@ class AddressRenderer(Renderer):
             geocode = BNode()
             g.add((geocode, RDF.type, URIRef(self.geocode_type_uri)))
             g.add((geocode, RDFS.label, Literal(self.geocode_type_label, datatype=XSD.string)))
-            g.add((geocode, GEO.asWKT, Literal(make_wkt(self.longitude, self.latitude), datatype=GEO.wktLiteral)))
+            g.add((geocode, GEO.asWKT, Literal(make_wkt_literal(self.longitude, self.latitude), datatype=GEO.wktLiteral)))
             g.add((a, GEO.hasGeometry, geocode))
 
             # g.add((a, GNAF.hasPrivateStreet, Literal(True if self.private_street is not None else False, datatype=XSD.boolean)))
@@ -720,6 +695,13 @@ class AddressRenderer(Renderer):
                     g.add((URIRef(self.uri), GNAF.hasAddressSecondary, URIRef(config.URI_ADDRESS_INSTANCE_BASE + k)))
                     # g.add((URIRef(k), RDFS.label, Literal(v, datatype=XSD.string)))
 
+        elif view == 'dct':
+            pass
+            # TODO: implement DCT RDF
+
+        else:
+            raise LdapiParameterError('_view unknown')
+
         return g.serialize(format=LDAPI.get_rdf_parser_for_mimetype(format))
 
 
@@ -810,10 +792,21 @@ def make_address_street_strings(
         return address_string, street_string
 
 
-def make_wkt(longitude, latitude):
+def make_wkt_literal(longitude, latitude):
     return '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(
         longitude, latitude
     )
+
+
+def make_gml_literal(longitude, latitude):
+    return \
+            '<gml:Point \n' +\
+            '\tsrsName="http://www.opengis.net/def/crs/OGC/1.3/CRS84"\n' +\
+            '\txmlns:gml="http://www.opengis.net/gml">\n' +\
+            '\t<gml:posList srsDimension="2">{} {}</gml:posList>\n' +\
+            '</gml:Point>'.format(
+                longitude, latitude
+            )
 
 
 if __name__ == '__main__':

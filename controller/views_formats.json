@@ -27,7 +27,7 @@
       "description": "G-NAF web page view. A simple human-readable, web page-only view, based on the data model of PSMA's G-NAF as of August, 2017"
     },
     "ISO19160": {
-      "mimetypes": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json"],
+      "mimetypes": ["text/turtle", "application/rdf+xml", "application/rdf+json"],
       "default_mimetype": "text/turtle",
       "namespace": "http://reference.data.gov.au/def/ont/iso19160-1-address#",
       "description": "The OWL ontology view of the ISO 19160-1:2015 Address standard from the OGC's TC211 UML to OWL mapping: https://github.com/ISO-TC211/GOM/tree/master/isotc211_GOM_harmonizedOntology/19160-1/2015 "
