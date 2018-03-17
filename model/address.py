@@ -74,7 +74,9 @@ class AddressRenderer(Renderer):
                             u4.uri uri4,
                             u4.prefLabel prefLabel4,
                             u5.uri uri5,
-                            u5.prefLabel prefLabel5                            
+                            u5.prefLabel prefLabel5,
+                            u6.uri uri6,
+                            u6.prefLabel prefLabel6                                               
                             FROM gnaf.address_detail d
                             INNER JOIN gnaf.street_locality s ON d.street_locality_pid = s.street_locality_pid
                             INNER JOIN gnaf.locality l ON d.locality_pid = l.locality_pid
@@ -85,6 +87,7 @@ class AddressRenderer(Renderer):
                             INNER JOIN gnaf.address_site a ON d.address_site_pid = a.address_site_pid
                             LEFT JOIN codes_address u4 ON a.address_type = u4.code 
                             LEFT JOIN codes_flat u5 ON d.flat_type_code = u5.code 
+                            LEFT JOIN codes_state u6 ON TRIM(BOTH '0123456789' FROM d.locality_pid) = u6.code 
                             WHERE d.address_detail_pid = {id};
                             ''').format(id=sql.Literal(self.id))
 
@@ -100,6 +103,8 @@ class AddressRenderer(Renderer):
             self.street_type = r.street_type_code
             self.locality_name = r.locality_name.title()
             self.state_territory = r.state_abbreviation
+            self.state_uri = r.uri6
+            self.state_prefLabel = r.preflabel6
             self.postcode = r.postcode
             self.latitude = r.latitude
             self.longitude = r.longitude
@@ -432,11 +437,13 @@ class AddressRenderer(Renderer):
         # choose datatype based on AddressComponent.type
         dt = {
             'addressedObjectIdentifer': 'http://www.w3.org/2001/XMLSchema#string',
+            'administrativeAreaName': 'http://www.w3.org/2001/XMLSchema#string',
             'thoroughfareName': 'http://www.w3.org/2001/XMLSchema#string',
             'localityName': 'http://www.w3.org/2001/XMLSchema#string',
             'postOfficeName': 'http://www.w3.org/2001/XMLSchema#string',
             'postcode': 'http://www.w3.org/2001/XMLSchema#integer',
             'countryName': 'http://www.w3.org/2001/XMLSchema#string',
+            'countryCode': 'http://www.w3.org/2001/XMLSchema#string'
         }
         g.add((
             acv,
@@ -457,14 +464,61 @@ class AddressRenderer(Renderer):
             acv
         ))
 
+        if ac_type == 'thoroughfareName':
+            g.add((
+                ac,
+                URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#AddressComponent.references'),
+                URIRef(config.URI_STREET_INSTANCE_BASE + self.street_locality_pid)
+            ))
+        elif ac_type == 'localityName':
+            g.add((
+                ac,
+                URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#AddressComponent.references'),
+                URIRef(config.URI_LOCALITY_INSTANCE_BASE + self.locality_pid)
+            ))
+        elif ac_type == 'administrativeAreaName':
+            g.add((
+                ac,
+                URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#AddressComponent.references'),
+                URIRef(self.state_uri)
+            ))
+
+        elif ac_type == 'countryCode':
+            g.add((
+                ac,
+                URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#AddressComponent.references'),
+                URIRef('http://www.geonames.org/2077456')  # Australia
+            ))
+
         g.add((
             URIRef(self.uri),
             URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#Address.addressComponent'),
             ac
         ))
 
-    def exp_19160_AddressAlias(self):
-        pass
+    def exp_19160_AddressAlias(self, g, alias_uri_str):
+        ISO = Namespace('http://reference.data.gov.au/def/ont/iso19160-1-address#')
+        g.bind('iso19160', ISO)
+
+        aa = BNode()
+        g.add((aa, RDF.type, ISO.AddressAlias))
+        g.add((
+            aa,
+            URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#AddressAlias.type'),
+            URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address/Address/code/'
+                   'AddressComponentType/unspecifiedAlias')  # TODO: extend the ISO codelist to include GNAF alias types
+        ))
+        g.add((
+            aa,
+            URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#AddressAlias.address'),
+            URIRef(alias_uri_str)
+        ))
+
+        g.add((
+            URIRef(self.uri),
+            URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#Address.alias'),
+            aa
+        ))
 
     def exp_19160_AddressProvenance(self, g):
         ORG = Namespace('http://www.w3.org/ns/org#')
@@ -562,9 +616,25 @@ class AddressRenderer(Renderer):
 
             self.exp_19160_AddressProvenance(g)
 
-            # TODO: Address Aliases
+            if hasattr(self, 'alias_addresses'):
+                for k, v in self.alias_addresses.items():
+                    self.exp_19160_AddressAlias(g, config.URI_ADDRESS_INSTANCE_BASE + k)
 
-            # TODO: Address Parent/Child
+            if hasattr(self, 'primary_addresses'):
+                for k, v in self.primary_addresses.items():
+                    g.add((
+                        URIRef(self.uri),
+                        URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#Address.parentAddress'),
+                        URIRef(config.URI_ADDRESS_INSTANCE_BASE + k)
+                    ))
+
+            if hasattr(self, 'secondary_addresses'):
+                for k, v in self.secondary_addresses.items():
+                    g.add((
+                        URIRef(self.uri),
+                        URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#Address.childAddress'),
+                        URIRef(config.URI_ADDRESS_INSTANCE_BASE + k)
+                    ))
 
         elif view == 'gnaf':
             RDFS = Namespace('http://www.w3.org/2000/01/rdf-schema#')
@@ -662,6 +732,9 @@ class AddressRenderer(Renderer):
 
             # RDF: locality
             g.add((a, GNAF.hasLocality, URIRef(config.URI_LOCALITY_INSTANCE_BASE + self.locality_pid)))
+
+            g.add((a, GNAF.hasState, URIRef(self.state_uri)))
+            g.add((URIRef(self.state_uri), RDFS.label, Literal(self.state_prefLabel, datatype=XSD.string)))
 
             # RDF: data properties
             if self.description is not None:
