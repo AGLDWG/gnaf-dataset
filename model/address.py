@@ -425,7 +425,8 @@ class AddressRenderer(Renderer):
         ISO = Namespace('http://reference.data.gov.au/def/ont/iso19160-1-address#')
         g.bind('iso19160', ISO)
         ac_type_base = 'http://reference.data.gov.au/def/ont/iso19160-1-address/Address/code/AddressComponentType/'
-        ac_value_type_base = 'http://reference.data.gov.au/def/ont/iso19160-1-address/Address/code/AddressComponentValueType/'
+        ac_value_type_base = \
+            'http://reference.data.gov.au/def/ont/iso19160-1-address/Address/code/AddressComponentValueType/'
 
         acv = BNode()
         g.add((acv, RDF.type, ISO.AddressComponentValue))
@@ -553,11 +554,60 @@ class AddressRenderer(Renderer):
             prov
         ))
 
+    def exp_19160_AddressedPeriod(self, g):
+        ISO = Namespace('http://reference.data.gov.au/def/ont/iso19160-1-address#')
+        g.bind('iso19160', ISO)
+
+        ap = BNode()
+        g.add((ap, RDF.type, ISO.AddressedPeriod))
+
+        g.add((
+            ap,
+            URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#AddressPeriod.addressedFrom'),
+            Literal(self.date_created, datatype=XSD.date)
+        ))
+
+        if self.date_retired is not None:
+            g.add((
+                ap,
+                URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#AddressPeriod.addressedTo'),
+                Literal(self.date_retired, datatype=XSD.date)
+            ))
+
+        return ap
+
+    def exp_19160_AddressableObject(self, g):
+        ISO = Namespace('http://reference.data.gov.au/def/ont/iso19160-1-address#')
+        g.bind('iso19160', ISO)
+
+        ao = BNode()
+        subclass = self.address_subclass_label.replace(' ', '').replace('Address', '')
+        g.add((
+            ao,
+            URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#AddressableObject.type'),
+            URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address/Address/code/AddressableObjectType/' +
+                   subclass)
+        ))
+
+        g.add((
+            ao,
+            URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#Address.theAddressedPeriod'),
+            self.exp_19160_AddressedPeriod(g)
+        ))
+
+        g.add((
+            URIRef(self.uri),
+            URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#Address.addressedObject'),
+            ao
+        ))
+
     def export_rdf(self, view='gnaf', format='text/turtle'):
         g = Graph()
 
         if view == 'ISO19160':
             self.exp_19160_Address(g)
+
+            self.exp_19160_AddressableObject(g)
 
             ac_id_list = []
 
