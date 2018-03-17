@@ -421,7 +421,7 @@ class AddressRenderer(Renderer):
         ))
         g.add((URIRef(self.uri), ISO.position, pos))
 
-    def exp_19160_AddressComponent(self, g, ac_type, acv_value, acv_type='defaultValue'):
+    def exp_19160_AddressComponent(self, g, ac_type, acv_value, acv_type='defaultValue', first=None, next=None):
         ISO = Namespace('http://reference.data.gov.au/def/ont/iso19160-1-address#')
         g.bind('iso19160', ISO)
         ac_type_base = 'http://reference.data.gov.au/def/ont/iso19160-1-address/Address/code/AddressComponentType/'
@@ -496,6 +496,8 @@ class AddressRenderer(Renderer):
             ac
         ))
 
+        return ac
+
     def exp_19160_AddressAlias(self, g, alias_uri_str):
         ISO = Namespace('http://reference.data.gov.au/def/ont/iso19160-1-address#')
         g.bind('iso19160', ISO)
@@ -545,14 +547,22 @@ class AddressRenderer(Renderer):
             org
         ))
 
+        g.add((
+            URIRef(self.uri),
+            URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#Address.provenance'),
+            prov
+        ))
+
     def export_rdf(self, view='gnaf', format='text/turtle'):
         g = Graph()
 
         if view == 'ISO19160':
             self.exp_19160_Address(g)
 
+            ac_id_list = []
+
             if self.building_name is not None:
-                self.exp_19160_AddressComponent(g, 'addressedObjectIdentifier', self.building_name)
+                ac_id_list.append(self.exp_19160_AddressComponent(g, 'addressedObjectIdentifier', self.building_name))
 
             if self.number_flat is not None:
                 flat = str(self.number_flat)
@@ -560,8 +570,8 @@ class AddressRenderer(Renderer):
                     flat = self.number_flat_prefix + ' ' + flat
                 if self.number_flat_suffix is not None:
                     flat = flat + ' ' + self.number_flat_suffix
-                flat = 'Flat ' + flat
-                self.exp_19160_AddressComponent(g, 'addressedObjectIdentifier', flat)
+                flat = 'Unit ' + flat
+                ac_id_list.append(self.exp_19160_AddressComponent(g, 'addressedObjectIdentifier', flat))
 
             if self.number_level is not None:
                 level = str(self.number_level)
@@ -570,7 +580,7 @@ class AddressRenderer(Renderer):
                 if self.number_level_suffix is not None:
                     level = level + ' ' + self.number_level_suffix
                 level = 'Level ' + level
-                self.exp_19160_AddressComponent(g, 'addressedObjectIdentifier', level)
+                ac_id_list.append(self.exp_19160_AddressComponent(g, 'addressedObjectIdentifier', level))
 
             if self.number_lot is not None:
                 lot = str(self.number_lot)
@@ -579,7 +589,7 @@ class AddressRenderer(Renderer):
                 if self.number_lot_suffix is not None:
                     lot = lot + ' ' + self.number_lot_suffix
                 lot = 'Lot ' + lot
-                self.exp_19160_AddressComponent(g, 'addressedObjectIdentifier', lot)
+                ac_id_list.append(self.exp_19160_AddressComponent(g, 'addressedObjectIdentifier', lot))
 
             if self.number_first is not None:
                 num = str(self.number_first)
@@ -595,8 +605,20 @@ class AddressRenderer(Renderer):
                     if self.number_last_suffix is not None:
                         num_last = num_last + ' ' + self.number_last_suffix
                     num = num + '-' + num_last
-                num = 'Street Number ' + num
-                self.exp_19160_AddressComponent(g, 'addressedObjectIdentifier', num)
+                ac_id_list.append(self.exp_19160_AddressComponent(g, 'addressedObjectIdentifier', num))
+
+            # order for all the addressedObjectIdentifier ACs
+            OLO = Namespace('http://purl.org/ontology/olo/core#')
+            g.bind('olo', OLO)
+            if len(ac_id_list) > 0:
+                ord = BNode()
+                g.add((ord, RDF.type, OLO.OrderedList))
+                g.add((ord, OLO.length, Literal(len(ac_id_list), datatype=XSD.integer)))
+                for idx, val in enumerate(ac_id_list):
+                    s = BNode()
+                    g.add((s, URIRef('http://purl.org/ontology/olo/core#index'), Literal(idx, datatype=XSD.positiveInteger)))
+                    g.add((s, OLO.item, val))
+                    g.add((ord, OLO.slot, s))
 
             self.exp_19160_AddressComponent(g, 'thoroughfareName', self.street_string, acv_type='abbreviatedAlternative')
 
