@@ -9,14 +9,22 @@
         <textarea name="query" id="query" style="width:955px; height:300px;">{% if query and query != '' %}{{query}}{% endif %}</textarea>
         <br />
         <input type="hidden" name="form" value="true" />
-        <label for="output-format">Output format:</label>&nbsp;
-        <select name="output-format">
-            <option value="application/sparql-results+json" selected>JSON</option>
-            <option value="text/turtle">Turtle</option>
-            <option value="application/ld+json">JSON-LD</option>
-            <option value="application/n-triples">N-Triples</option>
-            <option value="application/rdf+xml">XML</option>
-        </select><br />
+            <label for="selectContentType">Content Type (Select)</label>
+            <select name="selectContentType">
+                <option value="application/sparql-results+json" selected>JSON</option>
+                <option value="application/sparql-results+xml">XML</option>
+                <option value="text/csv">CSV</option>
+                <option value="text/tab-separated-values">TSV</option>
+            </select>
+
+            <label for="graphContentType">Content Type (Graph)</label>
+            <select name="graphContentType">
+                <option value="text/turtle" selected>Turtle</option>
+                <option value="application/ld+json">JSON-LD</option>
+                <option value="application/n-triples">N-Triples</option>
+                <option value="application/rdf+xml">XML</option>
+            </select>
+        &nbsp;
         <input type="submit" value="Query the GNAF LD" /><br />
         <!--<button id="query-proms">Query PROMS</button><br />-->
         <h4>Result</h4>
