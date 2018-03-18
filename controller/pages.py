@@ -37,7 +37,7 @@ def about():
 def sparql():
     # Query submitted
     if request.method == 'POST':
-        '''Pass on the SPARQL query to the underlying system PROMS is using (Fuseki etc.)
+        '''Pass on the SPARQL query to the underlying system (Fuseki etc.)
         '''
         query = None
         if request.content_type == 'application/x-www-form-urlencoded':
@@ -52,11 +52,12 @@ def sparql():
             be separated with the ampersand (&) character. Clients may include the parameters in any order. The content
             type header of the HTTP request must be set to application/x-www-form-urlencoded.
             '''
-            if request.form.get('query') is None:
+            if request.form.get('query') is None or len(request.form.get('query')) < 5:
                 return Response(
                     'Your POST request to the SPARQL endpoint must contain a \'query\' parameter if form posting '
                     'is used.',
-                    status=400
+                    status=400,
+                    mimetype='text/plain'
                 )
             else:
                 query = request.form.get('query')
@@ -81,9 +82,14 @@ def sparql():
                     status=400
                 )
 
-        # sorry, we only return JSON results. See the service description!
         try:
-            query_result = sparql_query(query, format_mimetype=request.values['output-format'])
+            if 'SELECT' in query or 'ASK' in query:
+                format_mimetype = request.form.get('selectContentType')
+            else:
+                format_mimetype = request.form.get('graphContentType')
+
+            print(format_mimetype)
+            query_result = sparql_query(query, format_mimetype=format_mimetype)
         except ValueError as e:
             return render_template(
                 'page_sparql.html',
@@ -93,8 +99,8 @@ def sparql():
         except ConnectionError as e:
             return Response(str(e), status=500)
 
-        if query_result and 'results' in query_result:
-            query_result = json.dumps(json.loads(query_result)['results']['bindings'])
+        # if query_result and 'results' in query_result:
+        #     query_result = json.dumps(json.loads(query_result)['results']['bindings'])
 
         # respond to a form or with a raw result
         if 'form' in request.values and request.values['form'].lower() == 'true':
@@ -104,7 +110,8 @@ def sparql():
                 query_result=query_result
             )
         else:
-            return Response(json.dumps(query_result), status=200, mimetype=request.values['output-format'])
+            return query_result
+            #return Response(json.dumps(query_result), status=200, mimetype=request.values['output-format'])
     # No query, display form
     else:  # GET
         if request.args.get('query') is not None:
@@ -219,6 +226,8 @@ def sparql_query(sparql_query, format_mimetype='application/sparql-results+json'
     }
     try:
         r = requests.post(config.SPARQL_QUERY_URI, auth=auth, data=data, headers=headers, timeout=1)
+        import pprint
+        pprint.pprint(r.headers)
         return r.content.decode('utf-8')
     except Exception as e:
         raise e
