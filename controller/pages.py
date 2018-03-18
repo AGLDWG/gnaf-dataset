@@ -54,7 +54,7 @@ def sparql():
             '''
             if request.form.get('query') is None:
                 return Response(
-                    'Your POST request to PROMS\' SPARQL endpoint must contain a \'query\' parameter if form posting '
+                    'Your POST request to the SPARQL endpoint must contain a \'query\' parameter if form posting '
                     'is used.',
                     status=400
                 )
@@ -83,7 +83,7 @@ def sparql():
 
         # sorry, we only return JSON results. See the service description!
         try:
-            query_result = sparql_query(query)
+            query_result = sparql_query(query, format_mimetype=request.values['output-format'])
         except ValueError as e:
             return render_template(
                 'page_sparql.html',
@@ -104,7 +104,7 @@ def sparql():
                 query_result=query_result
             )
         else:
-            return Response(json.dumps(query_result), status=200, mimetype="application/sparql-results+json")
+            return Response(json.dumps(query_result), status=200, mimetype=request.values['output-format'])
     # No query, display form
     else:  # GET
         if request.args.get('query') is not None:
