@@ -98,7 +98,7 @@ class AddressRenderer(Renderer):
         for row in self.cursor.fetchall():
             r = config.reg(self.cursor, row)
             # assign this Address' instance variables
-            self.address_subclass_uri = r.uri4 if r.uri4 is not None else 'http://gnafld.net/def/gnaf#Address'
+            self.address_subclass_uri = r.uri4
             self.address_subclass_label = r.preflabel4
             self.description = r.location_description.title() if r.location_description is not None else None
             self.street_name = r.street_name.title()
@@ -733,12 +733,13 @@ class AddressRenderer(Renderer):
 
             # RDF: declare Address instance
             g.add((a, RDF.type, GNAF.Address))
-            g.add((a, RDF.type, URIRef(self.address_subclass_uri)))
-            g.add((a, RDFS.label, Literal(self.address_subclass_label, datatype=XSD.string)))
+            g.add((a, GNAF.gnafAddressType, URIRef(self.address_subclass_uri)))
+            g.add((a, RDFS.label, Literal('Address ' + self.id + ' of ' + self.address_subclass_label + ' type', datatype=XSD.string)))
 
             # RDF: geometry
             geocode = BNode()
-            g.add((geocode, RDF.type, URIRef(self.geocode_type_uri)))
+            g.add((geocode, RDF.type, GNAF.Geocode))
+            g.add((geocode, GNAF.gnafGeocodeType, URIRef(self.geocode_type_uri)))
             g.add((geocode, RDFS.label, Literal(self.geocode_type_label, datatype=XSD.string)))
             g.add((geocode, GEO.asWKT, Literal(make_wkt_literal(self.longitude, self.latitude), datatype=GEO.wktLiteral)))
             g.add((a, GEO.hasGeometry, geocode))
@@ -756,7 +757,8 @@ class AddressRenderer(Renderer):
             # lot_number
             if self.number_lot is not None:
                 lot_number = BNode()
-                g.add((lot_number, RDF.type, GNAF.LotNumber))
+                g.add((lot_number, RDF.type, GNAF.Number))
+                g.add((lot_number, GNAF.gnafNumberType, GNAF.LotNumber))
                 g.add((lot_number, PROV.value, Literal(str(self.number_lot), datatype=XSD.integer)))
                 g.add((a, GNAF.hasNumber, lot_number))
                 if self.number_lot_prefix is not None:
@@ -769,7 +771,8 @@ class AddressRenderer(Renderer):
             # flat_number
             if self.number_flat is not None:
                 flat_number = BNode()
-                g.add((flat_number, RDF.type, GNAF.FlatNumber))
+                g.add((flat_number, RDF.type, GNAF.Number))
+                g.add((flat_number, GNAF.gnafNumberType, GNAF.FlatNumber))
                 g.add((flat_number, PROV.value, Literal(int(self.number_flat), datatype=XSD.integer)))
                 g.add((a, GNAF.hasNumber, flat_number))
                 if self.number_flat_prefix is not None:
@@ -779,7 +782,8 @@ class AddressRenderer(Renderer):
             # level_number
             if self.number_level is not None:
                 level_number = BNode()
-                g.add((level_number, RDF.type, GNAF.LevelNumber))
+                g.add((level_number, RDF.type, GNAF.Number))
+                g.add((level_number, GNAF.gnafNumberType, GNAF.LevelNumber))
                 g.add((level_number, PROV.value, Literal(int(self.number_level), datatype=XSD.integer)))
                 g.add((a, GNAF.hasNumber, level_number))
                 if self.number_level_prefix is not None:
@@ -789,7 +793,8 @@ class AddressRenderer(Renderer):
             # number_first
             if self.number_first is not None:
                 number_first = BNode()
-                g.add((number_first, RDF.type, GNAF.FirstStreetNumber))
+                g.add((number_first, RDF.type, GNAF.Number))
+                g.add((number_first, GNAF.gnafNumberType, GNAF.FirstStreetNumber))
                 g.add((number_first, PROV.value, Literal(int(self.number_first), datatype=XSD.integer)))
                 g.add((a, GNAF.hasNumber, number_first))
                 if self.number_first_prefix is not None:
@@ -799,7 +804,8 @@ class AddressRenderer(Renderer):
             # number_last
             if self.number_last is not None:
                 number_last = BNode()
-                g.add((number_last, RDF.type, GNAF.LastStreetNumber))
+                g.add((number_last, RDF.type, GNAF.Number))
+                g.add((number_last, GNAF.gnafNumberType, GNAF.LastStreetNumber))
                 g.add((number_last, PROV.value, Literal(int(self.number_last), datatype=XSD.integer)))
                 g.add((a, GNAF.hasNumber, number_last))
                 if self.number_last_prefix is not None:
@@ -830,8 +836,9 @@ class AddressRenderer(Renderer):
             if hasattr(self, 'alias_addresses'):
                 for k, v in self.alias_addresses.items():
                     a = BNode()
+                    g.add((a, RDF.type, GNAF.Alias))
                     g.add((URIRef(self.uri), GNAF.hasAlias, a))
-                    g.add((a, RDF.type, URIRef(v['subclass_uri'])))
+                    g.add((a, GNAF.gnafAliasType, URIRef(v['subclass_uri'])))
                     g.add((a, RDFS.label, Literal(v['subclass_label'], datatype=XSD.string)))
                     g.add((a, GNAF.aliasOf, URIRef(config.URI_ADDRESS_INSTANCE_BASE + k)))
 
@@ -882,6 +889,7 @@ class DecimalEncoder(json.JSONEncoder):
         if isinstance(o, decimal.Decimal):
             return float(o)
         return super(DecimalEncoder, self).default(o)
+
 
 # static methods
 def make_address_street_strings(
