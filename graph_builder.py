@@ -5,7 +5,23 @@ import model.address
 import sys
 
 
-if __name__ == '__main__':
+def get_ACT_addresses():
+    cursor = config.get_db_cursor()
+    s = sql.SQL(
+        "SELECT address_detail_pid "
+        "FROM gnaf.address_detail "
+        "WHERE locality_pid "
+        "IN (SELECT locality_pid FROM gnaf.locality WHERE state_pid = '8') "
+        "ORDER BY address_detail_pid;")
+    cursor.execute(s)
+
+    with open('act_addresses.txt', 'a') as f:
+        for row in cursor.fetchall():
+            r = config.reg(cursor, row)
+            f.write(str(r.address_detail_pid) + '\n')
+
+
+def run():
     logging.basicConfig(filename='graph_builder.log',
                         level=logging.DEBUG,
                         datefmt='%Y-%m-%d %H:%M:%S',
@@ -30,7 +46,7 @@ if __name__ == '__main__':
     data_file_stem = 'data-'
     data_file_count = int(sys.argv[1])
     # for idx, addr in enumerate(cursor.fetchall()):
-    for idx, addr in enumerate(open('faulty.log','r').readlines()):
+    for idx, addr in enumerate(open('faulty.log', 'r').readlines()):
         try:
             # record the Address being processed in case of failure
             # every DATA_FILE_LENGTH_MAXth URI, create a new destination file
@@ -49,3 +65,8 @@ if __name__ == '__main__':
                 f.write(addr + '\n')
         finally:
             logging.log(logging.INFO, 'Last accessed Address: ' + addr)
+
+
+if __name__ == '__main__':
+    # run()
+    get_ACT_addresses()
