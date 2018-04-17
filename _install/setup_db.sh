@@ -19,3 +19,5 @@ GRANT ALL ON SCHEMA gnaf TO gnafusr;
 
 # do this after view creation
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA gnaf TO gnafusr;
+
+# ensure DB number lookups are integers, not VARCHARS
