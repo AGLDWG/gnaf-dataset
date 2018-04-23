@@ -9,8 +9,8 @@ For Ubuntu Linux
 
 
 ## Get the GNAF
-`curl https://data.gov.au/dataset/19432f89-dc3a-4ef3-b943-5326ef1dbecc/resource/4b084096-65e4-4c8e-abbe-5e54ff85f42f/download/nov17gnafpipeseparatedvalue20180108083723.zip`
-`unzip nov17gnafpipeseparatedvalue20180108083723.zip`  
+`https://data.gov.au/dataset/19432f89-dc3a-4ef3-b943-5326ef1dbecc/resource/4b084096-65e4-4c8e-abbe-5e54ff85f42f/download/feb18gnafpipeseparatedvalue20180219141901.zip --output 2018feb.zip`
+`unzip 2018feb.zip`
    
 ## Install Postgres
 
