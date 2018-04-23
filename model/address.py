@@ -474,7 +474,7 @@ class AddressRenderer(Renderer):
             g.add((
                 ac,
                 URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#AddressComponent.references'),
-                URIRef(config.URI_STREET_INSTANCE_BASE + self.street_locality_pid)
+                URIRef(config.URI_STREETLOCALITY_INSTANCE_BASE + self.street_locality_pid)
             ))
         elif ac_type == 'localityName':
             g.add((
@@ -748,7 +748,7 @@ class AddressRenderer(Renderer):
 
             # g.add((a, GNAF.hasPrivateStreet,
             # Literal(True if self.private_street is not None else False, datatype=XSD.boolean)))
-            g.add((a, GNAF.hasStreet, URIRef(config.URI_STREET_INSTANCE_BASE + str(self.street_locality_pid))))
+            g.add((a, GNAF.hasStreet, URIRef(config.URI_STREETLOCALITY_INSTANCE_BASE + str(self.street_locality_pid))))
 
             g.add((a, GNAF.hasGnafConfidence, URIRef(self.confidence_uri)))
             g.add((URIRef(self.confidence_uri), RDFS.label, Literal(self.confidence_prefLabel, datatype=XSD.string)))

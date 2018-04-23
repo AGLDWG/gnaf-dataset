@@ -14,5 +14,5 @@ COPY gnaf.mb_2016 FROM '{PSV_FOLDERS_DIR}Standard/{STATE}_MB_2016_psv.psv' WITH 
 COPY gnaf.primary_secondary FROM '{PSV_FOLDERS_DIR}Standard/{STATE}_PRIMARY_SECONDARY_psv.psv' WITH (format csv, header true, delimiter E'|', NULL '');
 COPY gnaf.state FROM '{PSV_FOLDERS_DIR}Standard/{STATE}_STATE_psv.psv' WITH (format csv, header true, delimiter E'|', NULL '');
 COPY gnaf.street_locality_alias FROM '{PSV_FOLDERS_DIR}Standard/{STATE}_STREET_LOCALITY_ALIAS_psv.psv' WITH (format csv, header true, delimiter E'|', NULL '');
-COPY gnaf.locality_point FROM '{PSV_FOLDERS_DIR}Standard/{STATE}_STREET_LOCALITY_POINT_psv.psv' WITH (format csv, header true, delimiter E'|', NULL '');
+COPY gnaf.street_locality_point FROM '{PSV_FOLDERS_DIR}Standard/{STATE}_STREET_LOCALITY_POINT_psv.psv' WITH (format csv, header true, delimiter E'|', NULL '');
 COPY gnaf.street_locality FROM '{PSV_FOLDERS_DIR}Standard/{STATE}_STREET_LOCALITY_psv.psv' WITH (format csv, header true, delimiter E'|', NULL '');

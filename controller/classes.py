@@ -126,7 +126,7 @@ def streetLocality(street_locality_id):
 
         # if alternates model, return this info from file
         if view == 'alternates':
-            instance_uri = config.URI_STREET_INSTANCE_BASE + street_locality_id
+            instance_uri = config.URI_STREETLOCALITY_INSTANCE_BASE + street_locality_id
             del views_formats['renderer']
             return render_alternates_view(
                 c,
