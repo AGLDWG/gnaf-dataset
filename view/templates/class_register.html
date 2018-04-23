@@ -8,9 +8,23 @@
             <td style="width:50%; vertical-align:top;">
                 <h3>Instances</h3>
                 <ul>
+                {% if class_name == 'http://gnafld.net/def/gnaf#Address' %}
                 {% for instance in register %}
                     <li><a href="{{ url_for('classes.address', address_id=instance) }}">{{ instance_uri_base }}{{ instance }}</a></li>
                 {% endfor %}
+                {% elif class_name == 'http://gnafld.net/def/gnaf#Locality' %}
+                {% for instance in register %}
+                    <li><a href="{{ url_for('classes.locality', locality_id=instance) }}">{{ instance_uri_base }}{{ instance }}</a></li>
+                {% endfor %}
+                {% elif class_name == 'http://gnafld.net/def/gnaf#StreetLocality' %}
+                {% for instance in register %}
+                    <li><a href="{{ url_for('classes.streetLocality', street_locality_id=instance) }}">{{ instance_uri_base }}{{ instance }}</a></li>
+                {% endfor %}
+                {% elif class_name == 'http://gnafld.net/def/gnaf#AddressSite' %}
+                {% for instance in register %}
+                    <li><a href="{{ url_for('classes.addressSite', address_site_id=instance) }}">{{ instance_uri_base }}{{ instance }}</a></li>
+                {% endfor %}
+                {% endif %}
                 </ul>
                 {% if prev_page is not none %}
                 <a href="{{ '{base_url}?per_page={per_page}&page={page}'.format(base_url=base_uri, per_page=per_page, page=prev_page) }}">Previous page</a>

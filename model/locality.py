@@ -53,10 +53,13 @@ class LocalityRenderer(Renderer):
                         locality_name, 
                         latitude,
                         longitude,
-                        geocode_type,
-                        state_pid
-                    FROM gnaf.locality_view
-                    LEFT JOIN codes_state s ON CAST(gnaf.locality_view.state_pid AS text) = s.code
+                        s.uri AS state_uri, 
+                        s.prefLabel AS state_label,
+                        g.uri AS geocode_uri, 
+                        g.prefLabel AS geocode_label
+                    FROM gnaf.locality_view 
+                    LEFT JOIN codes.state s ON CAST(gnaf.locality_view.state_pid AS text) = s.code
+                    LEFT JOIN codes.geocode g ON SUBSTRING(CAST(gnaf.locality_view.geocode_type AS text) from 0 for 4) = g.code
                     WHERE locality_pid = {id}''') \
                 .format(id=sql.Literal(self.id))
 
@@ -67,9 +70,10 @@ class LocalityRenderer(Renderer):
                 self.locality_name = r.locality_name.title()
                 self.latitude = r.latitude
                 self.longitude = r.longitude
-                self.geocode_type = r.geocode_type.title()
-                self.state_uri = r.uri
-                self.state_label = r.preflabel
+                self.state_uri = r.state_uri
+                self.state_label = r.state_label
+                self.geocode_uri = r.geocode_uri
+                self.geocode_label = r.geocode_label
                 if self.latitude is not None and self.longitude is not None:
                     self.geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(
                         self.latitude,
@@ -78,8 +82,8 @@ class LocalityRenderer(Renderer):
 
             s2 = sql.SQL('''SELECT locality_alias_pid, name, uri, prefLabel 
                             FROM gnaf.locality_alias 
-                            LEFT JOIN codes_alias a ON gnaf.locality_alias.alias_type_code = a.code 
-                            WHERE a.vocab = 'Alias' AND locality_pid = {id}''')  \
+                            LEFT JOIN codes.alias a ON gnaf.locality_alias.alias_type_code = a.code 
+                            WHERE locality_pid = {id}''')  \
                 .format(id=sql.Literal(self.id))
 
             # get just IDs, ordered, from the address_detail table, paginated by class init args
@@ -116,7 +120,10 @@ class LocalityRenderer(Renderer):
                 longitude=self.longitude,
                 geocode_type=self.geocode_type,
                 geometry_wkt=make_wkt(self.latitude, self.longitude),
-                state_pid=self.state_pid,
+                state_uri=self.state_uri,
+                state_label=self.state_label,
+                geocode_uri=self.geocode_uri,
+                geocode_label=self.geocode_label,
                 alias_localities=self.alias_localities,
                 locality_neighbours=self.locality_neighbours
             )

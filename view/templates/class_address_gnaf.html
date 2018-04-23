@@ -53,7 +53,7 @@
         {% endif %}
 
         {% if street_string is not none %}
-        <tr><td><a href="http://gnafld.net/def/gnaf#hasStreetLocality">Street Locality</a></td><td><code><a href="{{ url_for('classes.street_locality', street_id=street_locality_pid) }}">{{ street_string }}</a></code></td></tr>
+        <tr><td><a href="http://gnafld.net/def/gnaf#hasStreetLocality">Street Locality</a></td><td><code><a href="{{ url_for('classes.streetLocality', street_locality_id=street_locality_pid) }}">{{ street_string }}</a></code></td></tr>
         {% endif %}
         {% if locality_name is not none %}
         <tr><td><a href="http://gnafld.net/def/gnaf#hasLocality">Locality</a></td><td><code><a href="{{ url_for('classes.locality', locality_id=locality_pid) }}">{{ locality_name }}</a></code></td></tr>
@@ -68,7 +68,7 @@
         <tr><td><a href="http://gnafld.net/def/gnaf#hasLegalParcelId">Legal Parcel ID</a></td><td><code>{{ legal_parcel_id }}</code></td></tr>
         {% endif %}
         {% if address_site_pid is not none %}
-        <tr><td><a href="http://gnafld.net/def/gnaf#hasAddressSite">Address Site PID</a></td><td><code><a href="{{ url_for('classes.address_site', address_site_id=address_site_pid) }}">{{ address_site_pid }}</a></code></td></tr>
+        <tr><td><a href="http://gnafld.net/def/gnaf#hasAddressSite">Address Site PID</a></td><td><code><a href="{{ url_for('classes.addressSite', address_site_id=address_site_pid) }}">{{ address_site_pid }}</a></code></td></tr>
         {% endif %}
         {% if level_geocoded_code is not none %}
         <tr><td><a href="http://gnafld.net/def/gnaf#">Level Geocoded Code</a></td><td><code>{{ level_geocoded_code }}</code></td></tr>

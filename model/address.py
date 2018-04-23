@@ -83,13 +83,13 @@ class AddressRenderer(Renderer):
                             INNER JOIN gnaf.street_locality s ON d.street_locality_pid = s.street_locality_pid
                             INNER JOIN gnaf.locality l ON d.locality_pid = l.locality_pid
                             INNER JOIN gnaf.address_default_geocode g ON d.address_detail_pid = g.address_detail_pid                
-                            LEFT JOIN codes_geocode u ON g.geocode_type_code = u.code           
-                            LEFT JOIN codes_gnafconfidence u2 ON CAST(d.confidence AS text) = u2.code 
-                            LEFT JOIN codes_locality u3 ON l.locality_class_code = u3.code 
+                            LEFT JOIN codes.geocode u ON g.geocode_type_code = u.code           
+                            LEFT JOIN codes.gnafconfidence u2 ON CAST(d.confidence AS text) = u2.code 
+                            LEFT JOIN codes.locality u3 ON l.locality_class_code = u3.code 
                             INNER JOIN gnaf.address_site a ON d.address_site_pid = a.address_site_pid
-                            LEFT JOIN codes_address u4 ON a.address_type = u4.code 
-                            LEFT JOIN codes_flat u5 ON d.flat_type_code = u5.code 
-                            LEFT JOIN codes_state u6 ON TRIM(BOTH '0123456789' FROM d.locality_pid) = u6.code 
+                            LEFT JOIN codes.address u4 ON a.address_type = u4.code 
+                            LEFT JOIN codes.flat u5 ON d.flat_type_code = u5.code 
+                            LEFT JOIN codes.state u6 ON TRIM(BOTH '0123456789' FROM d.locality_pid) = u6.code 
                             WHERE d.address_detail_pid = {id};
                             ''').format(id=sql.Literal(self.id))
 
@@ -175,7 +175,7 @@ class AddressRenderer(Renderer):
         self.alias_addresses = dict()
         s2 = sql.SQL('''SELECT alias_pid, uri, prefLabel 
                         FROM gnaf.address_alias 
-                        LEFT JOIN codes_alias ON gnaf.address_alias.alias_type_code = codes_alias.code 
+                        LEFT JOIN codes.alias ON gnaf.address_alias.alias_type_code = codes.alias.code 
                         WHERE principal_pid = {id}''') \
             .format(id=sql.Literal(self.id))
         self.cursor.execute(s2)
@@ -193,7 +193,7 @@ class AddressRenderer(Renderer):
             self.principal_addresses = dict()
             s3 = sql.SQL('''SELECT principal_pid, uri, prefLabel  
                             FROM gnaf.address_alias 
-                            LEFT JOIN codes_alias ON gnaf.address_alias.alias_type_code = codes_alias.code 
+                            LEFT JOIN codes.alias ON gnaf.address_alias.alias_type_code = codes.alias.code 
                             WHERE alias_pid = {id}''') \
                 .format(id=sql.Literal(self.id))
             self.cursor.execute(s3)
@@ -241,8 +241,8 @@ class AddressRenderer(Renderer):
                             INNER JOIN gnaf.address_mesh_block_2011_view 
                             ON gnaf.address_mesh_block_2016_view.address_detail_pid 
                             = gnaf.address_mesh_block_2011_view.address_detail_pid
-                            LEFT JOIN codes_meshblockmatch a ON gnaf.address_mesh_block_2011_view.mb_match_code = a.code 
-                            LEFT JOIN codes_meshblockmatch b ON gnaf.address_mesh_block_2016_view.mb_match_code = b.code 
+                            LEFT JOIN codes.meshblockmatch a ON gnaf.address_mesh_block_2011_view.mb_match_code = a.code 
+                            LEFT JOIN codes.meshblockmatch b ON gnaf.address_mesh_block_2016_view.mb_match_code = b.code 
                             WHERE gnaf.address_mesh_block_2016_view.address_detail_pid = {id};''') \
                 .format(id=sql.Literal(self.id))
 
@@ -347,7 +347,7 @@ class AddressRenderer(Renderer):
             for record in self.cursor:
                 address_string = '{} {} {}, {}, {} {}' \
                     .format(record[2], record[3].title(), record[4].title(), record[5].title(), record[6], record[7])
-                coverage_wkt = make_wkl_literal(self.longitude, self.latitude)
+                coverage_wkt = make_wkt_literal(self.longitude, self.latitude)
 
             view_html = render_template(
                 'class_address_dct.html',
@@ -733,32 +733,36 @@ class AddressRenderer(Renderer):
 
             # RDF: declare Address instance
             g.add((a, RDF.type, GNAF.Address))
-            g.add((a, GNAF.gnafAddressType, URIRef(self.address_subclass_uri)))
-            g.add((a, RDFS.label, Literal('Address ' + self.id + ' of ' + self.address_subclass_label + ' type', datatype=XSD.string)))
+            g.add((a, GNAF.gnafType, URIRef(self.address_subclass_uri)))
+            g.add((a, RDFS.label,
+                   Literal('Address ' + self.id + ' of ' + self.address_subclass_label + ' type', datatype=XSD.string)))
 
             # RDF: geometry
             geocode = BNode()
             g.add((geocode, RDF.type, GNAF.Geocode))
-            g.add((geocode, GNAF.gnafGeocodeType, URIRef(self.geocode_type_uri)))
+            g.add((geocode, GNAF.gnafType, URIRef(self.geocode_type_uri)))
             g.add((geocode, RDFS.label, Literal(self.geocode_type_label, datatype=XSD.string)))
-            g.add((geocode, GEO.asWKT, Literal(make_wkt_literal(self.longitude, self.latitude), datatype=GEO.wktLiteral)))
+            g.add((geocode, GEO.asWKT,
+                   Literal(make_wkt_literal(self.longitude, self.latitude), datatype=GEO.wktLiteral)))
             g.add((a, GEO.hasGeometry, geocode))
 
-            # g.add((a, GNAF.hasPrivateStreet, Literal(True if self.private_street is not None else False, datatype=XSD.boolean)))
+            # g.add((a, GNAF.hasPrivateStreet,
+            # Literal(True if self.private_street is not None else False, datatype=XSD.boolean)))
             g.add((a, GNAF.hasStreet, URIRef(config.URI_STREET_INSTANCE_BASE + str(self.street_locality_pid))))
 
             g.add((a, GNAF.hasGnafConfidence, URIRef(self.confidence_uri)))
             g.add((URIRef(self.confidence_uri), RDFS.label, Literal(self.confidence_prefLabel, datatype=XSD.string)))
 
             if self.address_site_pid is not None:
-                g.add((a, GNAF.hasAddressSite, URIRef(config.URI_ADDRESS_SITE_INSTANCE_BASE + str(self.address_site_pid))))
+                g.add((a, GNAF.hasAddressSite,
+                       URIRef(config.URI_ADDRESS_SITE_INSTANCE_BASE + str(self.address_site_pid))))
 
             # RDF: Numbers
             # lot_number
             if self.number_lot is not None:
                 lot_number = BNode()
                 g.add((lot_number, RDF.type, GNAF.Number))
-                g.add((lot_number, GNAF.gnafNumberType, GNAF.LotNumber))
+                g.add((lot_number, GNAF.gnafType, URIRef('http://gnafld.net/def/gnaf/code/NumberTypes#Lot')))
                 g.add((lot_number, PROV.value, Literal(str(self.number_lot), datatype=XSD.integer)))
                 g.add((a, GNAF.hasNumber, lot_number))
                 if self.number_lot_prefix is not None:
@@ -772,7 +776,7 @@ class AddressRenderer(Renderer):
             if self.number_flat is not None:
                 flat_number = BNode()
                 g.add((flat_number, RDF.type, GNAF.Number))
-                g.add((flat_number, GNAF.gnafNumberType, GNAF.FlatNumber))
+                g.add((flat_number, GNAF.gnafType, URIRef('http://gnafld.net/def/gnaf/code/NumberTypes#Flat')))
                 g.add((flat_number, PROV.value, Literal(int(self.number_flat), datatype=XSD.integer)))
                 g.add((a, GNAF.hasNumber, flat_number))
                 if self.number_flat_prefix is not None:
@@ -783,7 +787,7 @@ class AddressRenderer(Renderer):
             if self.number_level is not None:
                 level_number = BNode()
                 g.add((level_number, RDF.type, GNAF.Number))
-                g.add((level_number, GNAF.gnafNumberType, GNAF.LevelNumber))
+                g.add((level_number, GNAF.gnafType, URIRef('http://gnafld.net/def/gnaf/code/NumberTypes#Level')))
                 g.add((level_number, PROV.value, Literal(int(self.number_level), datatype=XSD.integer)))
                 g.add((a, GNAF.hasNumber, level_number))
                 if self.number_level_prefix is not None:
@@ -794,7 +798,7 @@ class AddressRenderer(Renderer):
             if self.number_first is not None:
                 number_first = BNode()
                 g.add((number_first, RDF.type, GNAF.Number))
-                g.add((number_first, GNAF.gnafNumberType, GNAF.FirstStreetNumber))
+                g.add((number_first, GNAF.gnafType, URIRef('http://gnafld.net/def/gnaf/code/NumberTypes#FirstStreet')))
                 g.add((number_first, PROV.value, Literal(int(self.number_first), datatype=XSD.integer)))
                 g.add((a, GNAF.hasNumber, number_first))
                 if self.number_first_prefix is not None:
@@ -805,7 +809,7 @@ class AddressRenderer(Renderer):
             if self.number_last is not None:
                 number_last = BNode()
                 g.add((number_last, RDF.type, GNAF.Number))
-                g.add((number_last, GNAF.gnafNumberType, GNAF.LastStreetNumber))
+                g.add((number_last, GNAF.gnafType, URIRef('http://gnafld.net/def/gnaf/code/NumberTypes#LastStreet')))
                 g.add((number_last, PROV.value, Literal(int(self.number_last), datatype=XSD.integer)))
                 g.add((a, GNAF.hasNumber, number_last))
                 if self.number_last_prefix is not None:
@@ -838,7 +842,7 @@ class AddressRenderer(Renderer):
                     a = BNode()
                     g.add((a, RDF.type, GNAF.Alias))
                     g.add((URIRef(self.uri), GNAF.hasAlias, a))
-                    g.add((a, GNAF.gnafAliasType, URIRef(v['subclass_uri'])))
+                    g.add((a, GNAF.gnafType, URIRef(v['subclass_uri'])))
                     g.add((a, RDFS.label, Literal(v['subclass_label'], datatype=XSD.string)))
                     g.add((a, GNAF.aliasOf, URIRef(config.URI_ADDRESS_INSTANCE_BASE + k)))
 
