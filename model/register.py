@@ -117,6 +117,15 @@ class RegisterRenderer(Renderer):
         self.g = Graph()
 
         if model_view == 'reg':  # reg is default
+            if self.uri == 'http://gnafld.net/def/gnaf#Address':
+                t = 'Address'
+            elif self.uri == 'http://gnafld.net/def/gnaf#Locality':
+                t = 'Locality'
+            elif self.uri == 'http://gnafld.net/def/gnaf#StreetLocality':
+                t = 'Street Locality'
+            elif self.uri == 'http://gnafld.net/def/gnaf#AddressSite':
+                t = 'Address Site'
+
             # make the static part of the graph
             REG = Namespace('http://purl.org/linked-data/registry#')
             self.g.bind('reg', REG)
@@ -129,7 +138,7 @@ class RegisterRenderer(Renderer):
 
             register_uri = URIRef(self.request.base_url)
             self.g.add((register_uri, RDF.type, REG.Register))
-            self.g.add((register_uri, RDFS.label, Literal('Address Register', datatype=XSD.string)))
+            self.g.add((register_uri, RDFS.label, Literal(t + ' Register', datatype=XSD.string)))
             self.g.add((register_uri, REG.containedItemClass, URIRef(self.uri)))
 
             page_uri_str = self.request.base_url
@@ -163,5 +172,5 @@ class RegisterRenderer(Renderer):
             for item in self.register:
                 item_uri = URIRef(self.request.base_url + item)
                 self.g.add((item_uri, RDF.type, URIRef(self.uri)))
-                self.g.add((item_uri, RDFS.label, Literal('Address ID:' + item, datatype=XSD.string)))
+                self.g.add((item_uri, RDFS.label, Literal(t + ' ID: ' + item, datatype=XSD.string)))
                 self.g.add((item_uri, REG.register, page_uri))
