@@ -68,15 +68,43 @@ class RegisterRenderer(Renderer):
                 )
             conn = psycopg2.connect(connect_str)
             cursor = conn.cursor()
-            id_query = sql.SQL('''SELECT address_detail_pid
-                               FROM {dbschema}.address_detail
-                               ORDER BY address_detail_pid
-                               LIMIT {limit}
-                               OFFSET {offset}''').format(
-                dbschema=sql.Identifier(config.DB_SCHEMA),
-                limit=sql.Literal(per_page),
-                offset=sql.Literal((page - 1) * per_page)
-            )
+            if self.uri == 'http://gnafld.net/def/gnaf#Address':
+                id_query = sql.SQL('''SELECT address_detail_pid
+                                   FROM gnaf.address_detail
+                                   ORDER BY address_detail_pid
+                                   LIMIT {limit}
+                                   OFFSET {offset}''').format(
+                    limit=sql.Literal(per_page),
+                    offset=sql.Literal((page - 1) * per_page)
+                )
+            elif self.uri == 'http://gnafld.net/def/gnaf#Locality':
+                id_query = sql.SQL('''SELECT locality_pid
+                                   FROM gnaf.locality
+                                   ORDER BY locality_pid
+                                   LIMIT {limit}
+                                   OFFSET {offset}''').format(
+                    limit=sql.Literal(per_page),
+                    offset=sql.Literal((page - 1) * per_page)
+                )
+            elif self.uri == 'http://gnafld.net/def/gnaf#StreetLocality':
+                id_query = sql.SQL('''SELECT street_locality_pid
+                                   FROM gnaf.street_locality
+                                   ORDER BY street_locality_pid
+                                   LIMIT {limit}
+                                   OFFSET {offset}''').format(
+                    limit=sql.Literal(per_page),
+                    offset=sql.Literal((page - 1) * per_page)
+                )
+            elif self.uri == 'http://gnafld.net/def/gnaf#AddressSite':
+                id_query = sql.SQL('''SELECT address_site_pid
+                                   FROM gnaf.address_site
+                                   ORDER BY address_site_pid
+                                   LIMIT {limit}
+                                   OFFSET {offset}''').format(
+                    limit=sql.Literal(per_page),
+                    offset=sql.Literal((page - 1) * per_page)
+                )
+
             cursor.execute(id_query)
             rows = cursor.fetchall()
             for row in rows:

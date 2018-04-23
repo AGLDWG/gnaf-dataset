@@ -18,7 +18,7 @@ class StreetRenderer(Renderer):
         # TODO: why doesn't this super thing work?
         # super(StreetRenderer, self).__init__(id)
         self.id = id
-        self.uri = config.URI_STREET_INSTANCE_BASE + id
+        self.uri = config.URI_STREETLOCALITY_INSTANCE_BASE + id
         self.street_locality_aliases = dict()
 
     def render(self, view, format):
