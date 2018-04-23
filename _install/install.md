@@ -55,4 +55,20 @@ Do this by logging into postgres as the postgres super user from within the gnaf
 `pip3 install --upgrade pip`  
 `pip3 install -r requirements.txt` \# this seems to do nothing  
 `sudo apt install -y python3-flask`  
-`sudo apt install -y python3-rdflib`  
+`sudo apt install -y python3-rdflib`
+
+
+## Updating GNAF content
+### Get latest GNAF
+`curl https://data.gov.au/dataset/19432f89-dc3a-4ef3-b943-5326ef1dbecc/resource/4b084096-65e4-4c8e-abbe-5e54ff85f42f/download/feb18gnafpipeseparatedvalue20180219141901.zip > feb18.zip`
+`unzip feb18.zip`
+
+### Get the latest GNAF code lists' SQL
+`curl http://gnafld.net/def/gnaf/code/codes.sql > create_codes.sql`
+
+### Prepare loading scripts, run them
+alter the PSV file location in prepare_scripts.sh to match new folder then
+`./prepare_scripts.sh`
+
+inside Postgres:
+`\i run_sql.sh`
