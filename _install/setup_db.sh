@@ -12,12 +12,11 @@ psql
 CREATE DATABASE gnaf;
 \connect gnaf;
 CREATE SCHEMA gnaf;
+CREATE SCHEMA codes;
 CREATE USER gnafusr WITH PASSWORD 'xxxxxx';
 ALTER DATABASE gnaf OWNER TO gnafusr;
 GRANT ALL ON DATABASE gnaf TO gnafusr;
 GRANT ALL ON SCHEMA gnaf TO gnafusr;
-
-# do this after view creation
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA gnaf TO gnafusr;
+GRANT ALL ON SCHEMA codes TO gnafusr;
 
 # ensure DB number lookups are integers, not VARCHARS
