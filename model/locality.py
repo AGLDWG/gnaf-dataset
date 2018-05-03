@@ -29,11 +29,74 @@ class LocalityRenderer(Renderer):
         self.locality_name = None
         self.latitude = None
         self.longitude = None
+        self.date_created = None
+        self.date_retired = None
         self.geocode_type = None
         self.geometry_wkt = None
         self.state_pid = None
-        self.alias_localities = dict()
+        self.alias_localities = []
         self.locality_neighbours = dict()
+
+        # get data from DB
+        s = sql.SQL('''SELECT 
+                            locality_name, 
+                            l.date_created,
+                            l.date_retired,
+                            primary_postcode,
+                            latitude,
+                            longitude,
+                            s.uri AS state_uri, 
+                            s.prefLabel AS state_label
+                        FROM gnaf.locality l
+                        INNER JOIN gnaf.locality_point lp on l.locality_pid = lp.locality_pid
+                        LEFT JOIN codes.state s ON CAST(l.state_pid AS text) = s.code
+                        WHERE l.locality_pid = {id}''') \
+            .format(id=sql.Literal(self.id))
+
+        self.cursor.execute(s)
+        rows = self.cursor.fetchall()
+        for row in rows:
+            r = config.reg(self.cursor, row)
+            self.locality_name = r.locality_name.title()
+            self.latitude = r.latitude
+            self.longitude = r.longitude
+            self.date_created = r.date_created
+            self.date_retired = r.date_retired
+            self.state_uri = r.state_uri
+            self.state_label = r.state_label
+            if self.latitude is not None and self.longitude is not None:
+                self.geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(
+                    self.latitude,
+                    self.longitude
+                )
+
+        s2 = sql.SQL('''SELECT locality_alias_pid, name, uri, prefLabel 
+                        FROM gnaf.locality_alias 
+                        LEFT JOIN codes.alias a ON gnaf.locality_alias.alias_type_code = a.code 
+                        WHERE locality_pid = {id}''') \
+            .format(id=sql.Literal(self.id))
+
+        # get just IDs, ordered, from the address_detail table, paginated by class init args
+        self.cursor.execute(s2)
+        rows = self.cursor.fetchall()
+        for row in rows:
+            r = config.reg(self.cursor, row)
+            self.alias_localities.append(r.name.title())
+
+        # get a list of localityNeighbourIds from the locality_alias table
+        s3 = sql.SQL('''SELECT 
+                    a.neighbour_locality_pid,
+                    b.locality_name                
+                FROM gnaf.locality_neighbour a
+                INNER JOIN gnaf.locality_view b ON a.neighbour_locality_pid = b.locality_pid
+                WHERE a.locality_pid = {id}''') \
+            .format(id=sql.Literal(self.id))
+        # get just IDs, ordered, from the address_detail table, paginated by class init args
+        self.cursor.execute(s3)
+        rows = self.cursor.fetchall()
+        for row in rows:
+            r = config.reg(self.cursor, row)
+            self.locality_neighbours[r.neighbour_locality_pid] = r.locality_name.title()
 
     def render(self, view, format):
         if format == 'text/html':
@@ -45,85 +108,17 @@ class LocalityRenderer(Renderer):
 
     def export_html(self, view='gnaf'):
         if view == 'gnaf':
-            locality_name = None
-            # make a human-readable street
-            s = sql.SQL('''SELECT 
-                        s.uri,
-                        s.preflabel,
-                        locality_name, 
-                        latitude,
-                        longitude,
-                        s.uri AS state_uri, 
-                        s.prefLabel AS state_label,
-                        g.uri AS geocode_uri, 
-                        g.prefLabel AS geocode_label
-                    FROM gnaf.locality_view 
-                    LEFT JOIN codes.state s ON CAST(gnaf.locality_view.state_pid AS text) = s.code
-                    LEFT JOIN codes.geocode g ON SUBSTRING(CAST(gnaf.locality_view.geocode_type AS text) from 0 for 4) = g.code
-                    WHERE locality_pid = {id}''') \
-                .format(id=sql.Literal(self.id))
-
-            self.cursor.execute(s)
-            rows = self.cursor.fetchall()
-            for row in rows:
-                r = config.reg(self.cursor, row)
-                self.locality_name = r.locality_name.title()
-                self.latitude = r.latitude
-                self.longitude = r.longitude
-                self.state_uri = r.state_uri
-                self.state_label = r.state_label
-                self.geocode_uri = r.geocode_uri
-                self.geocode_label = r.geocode_label
-                if self.latitude is not None and self.longitude is not None:
-                    self.geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(
-                        self.latitude,
-                        self.longitude
-                    )
-
-            s2 = sql.SQL('''SELECT locality_alias_pid, name, uri, prefLabel 
-                            FROM gnaf.locality_alias 
-                            LEFT JOIN codes.alias a ON gnaf.locality_alias.alias_type_code = a.code 
-                            WHERE locality_pid = {id}''')  \
-                .format(id=sql.Literal(self.id))
-
-            # get just IDs, ordered, from the address_detail table, paginated by class init args
-            self.cursor.execute(s2)
-            rows = self.cursor.fetchall()
-            for row in rows:
-                r = config.reg(self.cursor, row)
-                self.alias_localities[r.locality_alias_pid] = {
-                    'locality_name': r.name.title(),
-                    'subclass_uri': r.uri,
-                    'subclass_label': r.preflabel  # note use of preflabel, not prefLabel: capital letter dies in reg
-                }
-
-            # get a list of localityNeighbourIds from the locality_alias table
-            s2 = sql.SQL('''SELECT 
-                        a.neighbour_locality_pid,
-                        b.locality_name                
-                    FROM gnaf.locality_neighbour a
-                    INNER JOIN gnaf.locality_view b ON a.neighbour_locality_pid = b.locality_pid
-                    WHERE a.locality_pid = {id}''') \
-                .format(id=sql.Literal(self.id))
-
-            # get just IDs, ordered, from the address_detail table, paginated by class init args
-            self.cursor.execute(s2)
-            rows = self.cursor.fetchall()
-            for row in rows:
-                r = config.reg(self.cursor, row)
-                self.locality_neighbours[r.neighbour_locality_pid] = r.locality_name.title()
-
             view_html = render_template(
                 'class_locality_gnaf.html',
                 locality_name=self.locality_name,
                 latitude=self.latitude,
                 longitude=self.longitude,
                 geocode_type=self.geocode_type,
-                geometry_wkt=make_wkt(self.latitude, self.longitude),
+                geometry_wkt=make_wkt_literal(self.latitude, self.longitude),
                 state_uri=self.state_uri,
                 state_label=self.state_label,
-                geocode_uri=self.geocode_uri,
-                geocode_label=self.geocode_label,
+                geocode_uri='http://gnafld.net/def/gnaf/code/GeocodeTypes#Locality',
+                geocode_label='Locality',
                 alias_localities=self.alias_localities,
                 locality_neighbours=self.locality_neighbours
             )
@@ -186,7 +181,7 @@ class LocalityRenderer(Renderer):
             locality_uri=self.uri,
         )
 
-    def export_rdf(self, view='ISO19160', format='text/turtle'):
+    def export_rdf(self, view='gnaf', format='text/turtle'):
         g = Graph()
         a = URIRef(self.uri)
 
@@ -254,12 +249,56 @@ class LocalityRenderer(Renderer):
             g.add((a, ISO.position, position))
 
         elif view == 'gnaf':
-            pass
+            RDFS = Namespace('http://www.w3.org/2000/01/rdf-schema#')
+            g.bind('rdfs', RDFS)
+
+            GNAF = Namespace('http://gnafld.net/def/gnaf#')
+            g.bind('gnaf', GNAF)
+
+            GEO = Namespace('http://www.opengis.net/ont/geosparql#')
+            g.bind('geo', GEO)
+
+            PROV = Namespace('http://www.w3.org/ns/prov#')
+            g.bind('prov', PROV)
+
+            DCT = Namespace('http://purl.org/dc/terms/')
+            g.bind('dct', DCT)
+
+            l = URIRef(self.uri)
+
+            # RDF: declare Address instance
+            g.add((l, RDF.type, GNAF.Locality))
+            g.add((l, GNAF.hasName, Literal(self.locality_name, datatype=XSD.string)))
+            g.add((a, GNAF.hasDateCreated, Literal(self.date_created, datatype=XSD.date)))
+            if self.date_retired is not None:
+                g.add((a, GNAF.hasDateRetired, Literal(self.date_retired, datatype=XSD.date)))
+            g.add((l, GNAF.hasState, URIRef(self.state_uri)))
+            # RDF: geometry
+            geocode = BNode()
+            g.add((geocode, RDF.type, GNAF.Geocode))
+            g.add((geocode, GNAF.gnafType, URIRef('http://gnafld.net/def/gnaf/code/GeocodeTypes#Locality')))
+            g.add((geocode, RDFS.label, Literal('Locality', datatype=XSD.string)))
+            g.add((geocode, GEO.asWKT,
+                   Literal(make_wkt_literal(self.longitude, self.latitude), datatype=GEO.wktLiteral)))
+            g.add((a, GEO.hasGeometry, geocode))
+
+            if hasattr(self, 'alias_localities'):
+                for al in self.alias_localities:
+                    a = BNode()
+                    g.add((a, RDF.type, GNAF.Alias))
+                    g.add((URIRef(self.uri), GNAF.hasAlias, a))
+                    g.add((a, GNAF.gnafType, URIRef('http://gnafld.net/def/gnaf/code/AliasTypes#Synonym')))
+                    g.add((a, RDFS.label, Literal(al, datatype=XSD.string)))
+
+            if hasattr(self, 'locality_neighbours'):
+                for k, v in self.locality_neighbours.items():
+                    g.add((l, GNAF.hasNeighbour, URIRef(config.URI_LOCALITY_INSTANCE_BASE + k)))
 
         return g.serialize(format=LDAPI.get_rdf_parser_for_mimetype(format))
 
 
-def make_wkt(longitude, latitude):
+def make_wkt_literal(longitude, latitude):
     return '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(
         longitude, latitude
     )
+
