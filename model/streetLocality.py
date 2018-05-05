@@ -22,7 +22,11 @@ class StreetRenderer(Renderer):
         self.street_locality_aliases = dict()
         self.street_name = None
         self.street_type = None
+        self.street_type_label = None
+        self.street_type_uri = None
         self.street_suffix = None
+        self.street_suffix_label = None
+        self.street_suffix_uri = None
         self.locality_pid = None
 
     def render(self, view, format):
@@ -52,9 +56,15 @@ class StreetRenderer(Renderer):
                         a.longitude,
                         a.geocode_type,
                         a.locality_pid,
-                        b.locality_name
+                        b.locality_name,
+                        st.uri AS street_type_uri,
+                        st.prefLabel AS street_type_label,
+                        ss.uri AS street_suffix_uri,
+                        ss.prefLabel AS street_suffix_label
                     FROM {dbschema}.street_view a
                       INNER JOIN {dbschema}.locality_view b ON a.locality_pid = b.locality_pid
+                      LEFT JOIN codes.street st ON a.street_type_code = st.code
+                      LEFT JOIN codes.streetsuffix ss ON a.street_suffix_code = ss.code
                     WHERE street_locality_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
@@ -73,6 +83,10 @@ class StreetRenderer(Renderer):
                 geocode_type = r.geocode_type.title() if r.geocode_type is not None else None
                 self.locality_pid = r.locality_pid
                 locality_name = r.locality_name.title()
+                self.street_type_label = r.street_type_label
+                self.street_type_uri = r.street_type_uri
+                self.street_suffix_label = r.street_suffix_label
+                self.street_suffix_uri = r.street_suffix_uri
                 geometry_wkt = self.make_wkt_literal(
                     longitude=longitude, latitude=latitude
                 ) if latitude is not None else None
@@ -111,6 +125,10 @@ class StreetRenderer(Renderer):
                 street_locality_pid=self.id,
                 street_name=self.street_name,
                 street_type=self.street_type,
+                street_type_label=self.street_type_label,
+                street_type_uri=self.street_type_uri,
+                street_suffix_label=self.street_suffix_label,
+                street_suffix_uri=self.street_suffix_uri,
                 street_suffix=self.street_suffix,
                 locality_name=locality_name,
                 latitude=latitude,
