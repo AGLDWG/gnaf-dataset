@@ -83,13 +83,13 @@ class StreetRenderer(Renderer):
                 geocode_type = r.geocode_type.title() if r.geocode_type is not None else None
                 self.locality_pid = r.locality_pid
                 locality_name = r.locality_name.title()
-                geometry_wkt = self.make_wkt_literal(
-                    longitude=longitude, latitude=latitude
-                ) if latitude is not None else None
                 self.street_type_label = r.street_type_label
                 self.street_type_uri = r.street_type_uri
                 self.street_suffix_label = r.street_suffix_label
                 self.street_suffix_uri = r.street_suffix_uri
+                geometry_wkt = self.make_wkt_literal(
+                    longitude=longitude, latitude=latitude
+                ) if latitude is not None else None
 
                 street_string = '{}{}{}'.format(
                     self.street_name,
