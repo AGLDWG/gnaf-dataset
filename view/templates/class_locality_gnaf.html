@@ -10,9 +10,11 @@
     <tr>
         <td><a href="http://gnafld.net/def/gnaf#hasAlias">Has Alias</a></td><td>
             {% for locality_alias_pid, alias in alias_localities.items() %}
-                <code>
-                    {{ alias['locality_name'] }} (<a href="{{ alias['subclass_uri'] }}">{{ alias['subclass_label'] }}</a>)
-                </code><br />
+                <ul>
+                    <li><code>
+                        {{ alias['locality_name'] }} (<a href="{{ alias['subclass_uri'] }}">{{ alias['subclass_label'] }}</a>)
+                    </code></li>
+                </ul>
             {% endfor %}
         </td>
     </tr>

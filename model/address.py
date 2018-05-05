@@ -285,7 +285,7 @@ class AddressRenderer(Renderer):
                 geocode_type_uri=self.geocode_type_uri,
                 confidence_uri=self.confidence_uri,
                 confidence_prefLabel=self.confidence_prefLabel,
-                geometry_wkt=make_wkt_literal(self.longitude, self.latitude),
+                geometry_wkt=self.make_wkt_literal(longitude=self.longitude, latitude=self.latitude),
                 date_created=self.date_created,
                 date_last_modified=self.date_last_modified,
                 date_retired=self.date_retired,
@@ -347,7 +347,7 @@ class AddressRenderer(Renderer):
             for record in self.cursor:
                 address_string = '{} {} {}, {}, {} {}' \
                     .format(record[2], record[3].title(), record[4].title(), record[5].title(), record[6], record[7])
-                coverage_wkt = make_wkt_literal(self.longitude, self.latitude)
+                coverage_wkt = self.make_wkt_literal(longitude=self.longitude, latitude=self.latitude)
 
             view_html = render_template(
                 'class_address_dct.html',
@@ -743,7 +743,9 @@ class AddressRenderer(Renderer):
             g.add((geocode, GNAF.gnafType, URIRef(self.geocode_type_uri)))
             g.add((geocode, RDFS.label, Literal(self.geocode_type_label, datatype=XSD.string)))
             g.add((geocode, GEO.asWKT,
-                   Literal(make_wkt_literal(self.longitude, self.latitude), datatype=GEO.wktLiteral)))
+                   Literal(self.make_wkt_literal(
+                       longitude=self.longitude, latitude=self.latitude
+                   ), datatype=GEO.wktLiteral)))
             g.add((a, GEO.hasGeometry, geocode))
 
             # g.add((a, GNAF.hasPrivateStreet,
@@ -980,12 +982,6 @@ def make_address_street_strings(
             )
 
         return address_string, street_string
-
-
-def make_wkt_literal(longitude, latitude):
-    return '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(
-        longitude, latitude
-    )
 
 
 def make_gml_literal(longitude, latitude):
