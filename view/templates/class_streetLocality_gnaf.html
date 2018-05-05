@@ -2,25 +2,33 @@
 <table class="content">
     <tr><th>Property</th><th>Value</th></tr>
     <tr><td>Street Line</td><td><code>{{ street_string }}</code></td></tr>
-    <tr><td>Street Name</td><td><code>{{ street_name }}</code></td></tr>
-    <tr><td>Street Type</td><td><code>{{ street_type }}</code></td></tr>
+    <tr>
+        <td><a href="http://gnafld.net/def/gnaf#hasName">Street Name</a></td>
+        <td><code>{{ street_name }}</code></td>
+    </tr>
+    {% if street_type is not none %}
+    <tr>
+        <td><a href="http://gnafld.net/def/gnaf">Street Type</a></td>
+        <td><a href="{{ street_type_uri }}">{{ street_type }}</a></td>
+    </tr>
+    {% endif %}
     {% if street_suffix is not none %}
-    <tr><td>Street Suffix</td><td><code>{{ street_suffix }}</code></td></tr>
+    <tr>
+        <td><a href="http://gnafld.net/def/gnaf#hasStreetSuffix">Street Suffix</a></td>
+        <td><a href="{{ street_suffix_uri }}">{{ street_suffix }}</a></td>
+    </tr>
     {% endif %}
     {% if locality_name is not none %}
-    <tr><td>Locality</td><td><code><a href="{{ url_for('classes.locality', locality_id=locality_pid) }}">{{ locality_name }}</a></code></td></tr>
+    <tr>
+        <td><a href="http://gnafld.net/def/gnaf#hasLocality">Locality</a></td>
+        <td><a href="{{ url_for('classes.locality', locality_id=locality_pid) }}">{{ locality_name }}</a></td>
+    </tr>
     {% endif %}
-    {% if geometry_wkt is not none %}
-    <tr><td>Default Geometry</td><td><code>{{ geometry_wkt }}</code></td></tr>
-    {% endif %}
-    {% if latitude is not none %}
-    <tr><td>Default Latitude</td><td><code>{{ latitude }}</code></td></tr>
-    {% endif %}
-    {% if longitude is not none %}
-    <tr><td>Default Longitude</td><td><code>{{ longitude }}</code></td></tr>
-    {% endif %}
-    {% if geocode_type is not none %}
-    <tr><td>Default Geocode Type</td><td><code>{{ geocode_type }}</code></td></tr>
+    {% if geocode_label is not none %}
+        <tr>
+            <td><a href="http://www.opengis.net/ont/geosparql#hasGeometry">Geometry</a></td>
+            <td><code><a href="{{ geocode_uri }}">{{ geocode_label }}</a> &rarr;<br />{{ geometry_wkt }}</code></td>
+        </tr>
     {% endif %}
     {% if street_locality_aliases.items()|length > 0 %}
     <tr>
