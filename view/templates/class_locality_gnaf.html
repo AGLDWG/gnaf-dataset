@@ -1,11 +1,17 @@
 <h2>G-NAF View</h2>
 <table class="content">
     <tr><th>Property</th><th>Value</th></tr>
-    <tr><td>Locality Name</td><td><code>{{ locality_name }}</code></td></tr>
+    <tr>
+        <td><a href="http://gnafld.net/def/gnaf#hasName">Locality Name</a></td>
+        <td><code>{{ locality_name }}</code></td>
+    </tr>
     <tr><td><a href="http://gnafld.net/def/gnaf#hasState">Has State</a></td><td><a href="{{ state_uri }}">{{ state_label }}</a></td></tr>
-    <tr><td>Latitude</td><td><code>{{ latitude }}</code></td></tr>
-    <tr><td>Longitude</td><td><code>{{ longitude }}</code></td></tr>
-    <tr><td>Geocode Type</td><td><code><a href="{{ geocode_uri }}">{{ geocode_label }}</a></code></td></tr>
+    {% if geometry_wkt is not none %}
+    <tr>
+        <td><a href="http://www.opengis.net/ont/geosparql#hasGeometry">Geometry</a></td>
+        <td><code><a href="{{ geocode_uri }}">{{ geocode_label }}</a> &rarr;<br />{{ geometry_wkt }}</code></td>
+    </tr>
+    {% endif %}
     {% if alias_localities.items()|length > 0 %}
     <tr>
         <td><a href="http://gnafld.net/def/gnaf#hasAlias">Has Alias</a></td><td>
@@ -22,7 +28,7 @@
     {% if locality_neighbours.items()|length > 0 %}
     <tr>
 
-        <td>Locality Neighbours</td><td>
+        <td><a href="http://gnafld.net/def/gnaf#hasNeighbour">Locality Neighbours</a></td><td>
             <ul>
                 {% for locality_neighbour_id, locality_neighbour in locality_neighbours.items() %}
                     <li><code><a href="{{ url_for('classes.locality', locality_id=locality_neighbour_id) }}">{{ locality_neighbour }}</a></code></li>
