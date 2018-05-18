@@ -2,7 +2,6 @@
 This file contains all the HTTP routes for classes from the GNAF model, such as Address and the Address Register
 """
 from flask import Blueprint, render_template, request, Response
-from .functions import render_alternates_view, client_error_Response
 import _config as config
 from _ldapi import LDAPI, LdapiParameterError
 import urllib.parse as uparse
@@ -50,7 +49,7 @@ def address(address_id):
         if view == 'alternates':
             instance_uri = config.URI_ADDRESS_INSTANCE_BASE + address_id
             del views_formats['renderer']
-            return render_alternates_view(
+            return LDAPI.render_alternates_view(
                 c,
                 uparse.quote_plus(c),
                 instance_uri,
@@ -67,7 +66,7 @@ def address(address_id):
                 return render_template('address_no_record.html')
 
     except LdapiParameterError as e:
-        return client_error_Response(e)
+        return client_error_response(e)
 
 
 @classes.route('/addressSite/<string:address_site_id>')
@@ -89,7 +88,7 @@ def addressSite(address_site_id):
         if view == 'alternates':
             instance_uri = config.URI_ADDRESS_SITE_INSTANCE_BASE + address_site_id
             del views_formats['renderer']
-            return render_alternates_view(
+            return LDAPI.render_alternates_view(
                 c,
                 uparse.quote_plus(c),
                 instance_uri,
@@ -106,7 +105,7 @@ def addressSite(address_site_id):
                 return render_template('addressSite_no_record.html')
 
     except LdapiParameterError as e:
-        return client_error_Response(e)
+        return client_error_response(e)
 
 
 @classes.route('/streetLocality/<string:street_locality_id>')
@@ -128,7 +127,7 @@ def streetLocality(street_locality_id):
         if view == 'alternates':
             instance_uri = config.URI_STREETLOCALITY_INSTANCE_BASE + street_locality_id
             del views_formats['renderer']
-            return render_alternates_view(
+            return LDAPI.render_alternates_view(
                 c,
                 uparse.quote_plus(c),
                 instance_uri,
@@ -145,7 +144,7 @@ def streetLocality(street_locality_id):
                 return render_template('street_no_record.html')
 
     except LdapiParameterError as e:
-        return client_error_Response(e)
+        return client_error_response(e)
 
 
 @classes.route('/locality/<string:locality_id>')
@@ -166,7 +165,7 @@ def locality(locality_id):
         if view == 'alternates':
             instance_uri = config.URI_LOCALITY_INSTANCE_BASE + locality_id
             del views_formats['renderer']
-            return render_alternates_view(
+            return LDAPI.render_alternates_view(
                 config.URI_LOCALITY_CLASS,
                 uparse.quote_plus(config.URI_LOCALITY_CLASS),
                 instance_uri,
@@ -183,7 +182,7 @@ def locality(locality_id):
                 return render_template('locality_no_record.html')
 
     except LdapiParameterError as e:
-        return client_error_Response(e)
+        return client_error_response(e)
 
 
 def register(uri_class, uri_instance_base, max):
@@ -201,7 +200,7 @@ def register(uri_class, uri_instance_base, max):
 
         if view == 'alternates':
             del views_formats['renderer']
-            return render_alternates_view(
+            return LDAPI.render_alternates_view(
                 uri_class,
                 None,
                 None,
@@ -287,4 +286,12 @@ def register(uri_class, uri_instance_base, max):
                 last_page).render(view, mime_format, extra_headers=headers)
 
     except LdapiParameterError as e:
-        return client_error_Response(e)
+        return client_error_response(e)
+
+
+def client_error_response(error_message):
+    return Response(
+        error_message,
+        status=400,
+        mimetype='text/plain'
+    )
