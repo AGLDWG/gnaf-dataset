@@ -232,8 +232,8 @@ class LDAPI:
             return Response(json.dumps(views_formats), status=200, mimetype='application/json')
         elif mimetype in LDAPI.get_rdf_mimetypes_list():
             g = Graph()
-            LDAPI_O = Namespace('http://promsns.org/def/_ldapi#')
-            g.bind('_ldapi', LDAPI_O)
+            LD = Namespace('http://promsns.org/def/ldapi#')
+            g.bind('ldapi', LD)
             DCT = Namespace('http://purl.org/dc/terms/')
             g.bind('dct', DCT)
 
@@ -243,24 +243,18 @@ class LDAPI:
                 instance_uri_ref = URIRef(instance_uri)
                 g.add((instance_uri_ref, RDF.type, class_uri_ref))
             else:
-                g.add((class_uri_ref, RDF.type, LDAPI_O.ApiResource))
+                g.add((class_uri_ref, RDF.type, LD.ApiResource))
 
-            # alternates model
+            # alternates view
             alternates_view = BNode()
-            g.add((alternates_view, RDF.type, LDAPI_O.View))
+            g.add((alternates_view, RDF.type, LD.View))
             g.add((alternates_view, DCT.title, Literal('alternates', datatype=XSD.string)))
-            g.add((class_uri_ref, LDAPI_O.view, alternates_view))
-
-            # default model
-            default_view = BNode()
-            g.add((default_view, DCT.title, Literal('default', datatype=XSD.string)))
-            g.add((class_uri_ref, LDAPI_O.defaultView, default_view))
-            default_title = views_formats['default']
+            g.add((class_uri_ref, LD.view, alternates_view))
 
             # the ApiResource is incorrectly assigned to the class URI
-            for view_name, formats in views_formats.iteritems():
+            for view_name, view_info in views_formats.items():
                 if view_name == 'alternates':
-                    for f in formats:
+                    for f in view_info:
                         g.add((alternates_view, URIRef('http://purl.org/dc/terms/format'),
                                Literal(f, datatype=XSD.string)))
                 elif view_name == 'default':
@@ -269,12 +263,17 @@ class LDAPI:
                     pass
                 else:
                     x = BNode()
-                    if view_name == default_title:
-                        g.add((default_view, RDF.type, x))
-                    g.add((class_uri_ref, LDAPI_O.view, x))
+                    if view_name == views_formats['default']:
+                        g.add((class_uri_ref, LD.hasDefaultView, x))
+                    else:
+                        g.add((class_uri_ref, LD.hasView, x))
                     g.add((x, DCT.title, Literal(view_name, datatype=XSD.string)))
-                    for f in formats:
+
+                    for f in view_info['mimetypes']:
                         g.add((x, URIRef('http://purl.org/dc/terms/format'), Literal(f, datatype=XSD.string)))
+
+                    if view_info.get('namespace') is not None:
+                        g.add((x, LD.hasNamespace, URIRef(view_info['namespace'])))
 
             # make the static part of the graph
             # REG = Namespace('http://purl.org/linked-data/registry#')
@@ -291,7 +290,7 @@ class LDAPI:
             return Response(g.serialize(format=rdflib_format), status=200, mimetype=mimetype)
         else:  # HTML
             return render_template(
-                'alternates_view.html',
+                'alternates.html',
                 class_uri=class_uri,
                 class_uri_encoded=class_uri_encoded,
                 instance_uri=instance_uri,
