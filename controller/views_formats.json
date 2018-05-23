@@ -65,7 +65,7 @@
     "renderer": "StreetRenderer",
     "default": "gnaf",
     "alternates": {
-      "mimetypes": ["text/html"],
+      "mimetypes": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json"],
       "default_mimetype": "text/html",
       "namespace": "http://www.w3.org/ns/ldp#Alternates",
       "description": "The view listing all other views of this class of object"
@@ -77,7 +77,7 @@
       "description": "Dublin Core Terms from the Dublin Core Metadata Initiative"
     },
     "gnaf": {
-      "mimetypes": ["text/html"],
+      "mimetypes": ["text/html", "text/turtle", "application/rdf+xml", "application/rdf+json"],
       "default_mimetype": "text/html",
       "namespace": "http://reference.data.gov.au/def/ont/gnaf/",
       "description": "G-NAF web page view. A simple human-readable, web page-only view, based on the data model of PSMA's G-NAF as of August, 2017"

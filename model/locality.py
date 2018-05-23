@@ -34,7 +34,7 @@ class LocalityRenderer(Renderer):
         self.geocode_type = None
         self.geometry_wkt = None
         self.state_pid = None
-        self.alias_localities = []
+        self.alias_localities = dict()
         self.locality_neighbours = dict()
 
         # get data from DB
@@ -65,10 +65,7 @@ class LocalityRenderer(Renderer):
             self.state_uri = r.state_uri
             self.state_label = r.state_label
             if self.latitude is not None and self.longitude is not None:
-                self.geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(
-                    self.latitude,
-                    self.longitude
-                )
+                self.geometry_wkt = self.make_wkt_literal(longitude=self.longitude, latitude=self.latitude)
 
         s2 = sql.SQL('''SELECT locality_alias_pid, name, uri, prefLabel 
                         FROM gnaf.locality_alias 
@@ -81,7 +78,11 @@ class LocalityRenderer(Renderer):
         rows = self.cursor.fetchall()
         for row in rows:
             r = config.reg(self.cursor, row)
-            self.alias_localities.append(r.name.title())
+            alias = dict()
+            alias['locality_name'] = r.name.title()
+            alias['subclass_uri'] = r.uri
+            alias['subclass_label'] = r.preflabel
+            self.alias_localities[r.locality_alias_pid] = alias
 
         # get a list of localityNeighbourIds from the locality_alias table
         s3 = sql.SQL('''SELECT 
@@ -114,7 +115,7 @@ class LocalityRenderer(Renderer):
                 latitude=self.latitude,
                 longitude=self.longitude,
                 geocode_type=self.geocode_type,
-                geometry_wkt=make_wkt_literal(self.latitude, self.longitude),
+                geometry_wkt=self.make_wkt_literal(longitude=self.longitude, latitude=self.latitude),
                 state_uri=self.state_uri,
                 state_label=self.state_label,
                 geocode_uri='http://gnafld.net/def/gnaf/code/GeocodeTypes#Locality',
@@ -159,7 +160,7 @@ class LocalityRenderer(Renderer):
                     geocode_type = record[3].title()
                     locality_pid = record[4]
                     state_pid = record[5]
-                    geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(latitude, longitude)
+                    geometry_wkt = self.make_wkt_literal(longitude=longitude, latitude=latitude)
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
@@ -212,7 +213,9 @@ class LocalityRenderer(Renderer):
                 cursor.execute(s)
                 for record in cursor:
                     ac_locality_value = record[0].title()
-                    geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(record[1], record[2])
+                    latitude = record[1]
+                    longitude = record[2]
+                    geometry_wkt = self.make_wkt_literal(longitude=longitude, latitude=latitude)
             except Exception as e:
                 print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
                 print(e)
@@ -279,26 +282,22 @@ class LocalityRenderer(Renderer):
             g.add((geocode, GNAF.gnafType, URIRef('http://gnafld.net/def/gnaf/code/GeocodeTypes#Locality')))
             g.add((geocode, RDFS.label, Literal('Locality', datatype=XSD.string)))
             g.add((geocode, GEO.asWKT,
-                   Literal(make_wkt_literal(self.longitude, self.latitude), datatype=GEO.wktLiteral)))
+                   Literal(self.make_wkt_literal(
+                       longitude=self.longitude, latitude=self.latitude
+                   ), datatype=GEO.wktLiteral)))
             g.add((a, GEO.hasGeometry, geocode))
 
             if hasattr(self, 'alias_localities'):
-                for al in self.alias_localities:
+                for k, v in self.alias_localities.items():
                     a = BNode()
                     g.add((a, RDF.type, GNAF.Alias))
                     g.add((URIRef(self.uri), GNAF.hasAlias, a))
                     g.add((a, GNAF.gnafType, URIRef('http://gnafld.net/def/gnaf/code/AliasTypes#Synonym')))
-                    g.add((a, RDFS.label, Literal(al, datatype=XSD.string)))
+                    g.add((a, RDFS.label, Literal(v['locality_name'], datatype=XSD.string)))
 
             if hasattr(self, 'locality_neighbours'):
                 for k, v in self.locality_neighbours.items():
                     g.add((l, GNAF.hasNeighbour, URIRef(config.URI_LOCALITY_INSTANCE_BASE + k)))
 
         return g.serialize(format=LDAPI.get_rdf_parser_for_mimetype(format))
-
-
-def make_wkt_literal(longitude, latitude):
-    return '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(
-        longitude, latitude
-    )
 

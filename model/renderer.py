@@ -19,3 +19,9 @@ class Renderer:
         :return: a Flask Response object
         """
         pass
+
+    def make_wkt_literal(self, longitude, latitude):
+        return '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(
+            longitude, latitude
+        )
+
