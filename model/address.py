@@ -122,6 +122,7 @@ class AddressRenderer(Renderer):
             self.number_lot = r.lot_number
             self.number_lot_suffix = r.lot_number_suffix
             self.flat_type_code = r.flat_type_code
+            self.flat_type_uri = r.uri5
             self.number_flat_prefix = r.flat_number_prefix
             self.number_flat = r.flat_number
             self.number_flat_suffix = r.flat_number_suffix
@@ -144,7 +145,6 @@ class AddressRenderer(Renderer):
             self.locality_pid = r.locality_pid
             # self.private_street = True r.private_street private street seemingly unused in address_detail
             self.is_primary = True if r.primary_secondary == 'P' else False
-
             self.address_string, self.street_string = make_address_street_strings(
                 level_type_code=self.level_type_code,
                 level_number_prefix=self.number_level_prefix,
@@ -285,7 +285,7 @@ class AddressRenderer(Renderer):
                 geocode_type_uri=self.geocode_type_uri,
                 confidence_uri=self.confidence_uri,
                 confidence_prefLabel=self.confidence_prefLabel,
-                geometry_wkt=make_wkt_literal(self.longitude, self.latitude),
+                geometry_wkt=self.make_wkt_literal(longitude=self.longitude, latitude=self.latitude),
                 date_created=self.date_created,
                 date_last_modified=self.date_last_modified,
                 date_retired=self.date_retired,
@@ -294,6 +294,7 @@ class AddressRenderer(Renderer):
                 number_lot=self.number_lot,
                 number_lot_suffix=self.number_lot_suffix,
                 flat_type_code=self.flat_type_code,
+                flat_type_uri=self.flat_type_uri,
                 number_flat_prefix=self.number_flat_prefix,
                 number_flat=self.number_flat,
                 number_flat_suffix=self.number_flat_suffix,
@@ -347,7 +348,7 @@ class AddressRenderer(Renderer):
             for record in self.cursor:
                 address_string = '{} {} {}, {}, {} {}' \
                     .format(record[2], record[3].title(), record[4].title(), record[5].title(), record[6], record[7])
-                coverage_wkt = make_wkt_literal(self.longitude, self.latitude)
+                coverage_wkt = self.make_wkt_literal(longitude=self.longitude, latitude=self.latitude)
 
             view_html = render_template(
                 'class_address_dct.html',
@@ -743,7 +744,9 @@ class AddressRenderer(Renderer):
             g.add((geocode, GNAF.gnafType, URIRef(self.geocode_type_uri)))
             g.add((geocode, RDFS.label, Literal(self.geocode_type_label, datatype=XSD.string)))
             g.add((geocode, GEO.asWKT,
-                   Literal(make_wkt_literal(self.longitude, self.latitude), datatype=GEO.wktLiteral)))
+                   Literal(self.make_wkt_literal(
+                       longitude=self.longitude, latitude=self.latitude
+                   ), datatype=GEO.wktLiteral)))
             g.add((a, GEO.hasGeometry, geocode))
 
             # g.add((a, GNAF.hasPrivateStreet,
@@ -830,7 +833,7 @@ class AddressRenderer(Renderer):
             g.add((a, GNAF.hasPostcode, Literal(self.postcode, datatype=XSD.integer)))
 
             if self.building_name is not None:
-                g.add((a, GNAF.hasBuldingName, Literal(self.building_name, datatype=XSD.string)))
+                g.add((a, GNAF.hasBuildingName, Literal(self.building_name, datatype=XSD.string)))
 
             g.add((a, GNAF.hasDateCreated, Literal(self.date_created, datatype=XSD.date)))
             g.add((a, GNAF.hasDateLastModified, Literal(self.date_last_modified, datatype=XSD.date)))
@@ -980,12 +983,6 @@ def make_address_street_strings(
             )
 
         return address_string, street_string
-
-
-def make_wkt_literal(longitude, latitude):
-    return '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(
-        longitude, latitude
-    )
 
 
 def make_gml_literal(longitude, latitude):

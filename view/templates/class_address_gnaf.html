@@ -17,7 +17,9 @@
         {% endif %}
 
         {% if flat_type_code is not none %}
-        <tr><td><a href="http://gnafld.net/def/gnaf#">Flat Type Code</a></td><td><code>{{ flat_type_code }}</code></td></tr>
+        <tr>
+            <td><a href="http://gnafld.net/def/gnaf#">Flat Type Code</a></td>
+            <td><a href="{{ flat_type_uri }}">{{ flat_type_code }}</a></td></tr>
         {% endif %}
 
         {% if number_flat is not none %}
