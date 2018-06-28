@@ -290,7 +290,7 @@ class LDAPI:
             return Response(g.serialize(format=rdflib_format), status=200, mimetype=mimetype)
         else:  # HTML
             return render_template(
-                'alternates.html',
+                'alternates_view.html',
                 class_uri=class_uri,
                 class_uri_encoded=class_uri_encoded,
                 instance_uri=instance_uri,
