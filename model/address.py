@@ -1,6 +1,6 @@
 from model.renderer import Renderer
 from flask import Response, render_template
-from rdflib import Graph, URIRef, RDF, XSD, Namespace, Literal, BNode
+from rdflib import Graph, URIRef, RDF, RDFS, XSD, Namespace, Literal, BNode
 import _config as config
 from _ldapi import LDAPI, LdapiParameterError
 from psycopg2 import sql
@@ -715,9 +715,6 @@ class AddressRenderer(Renderer):
                     ))
 
         elif view == 'gnaf':
-            RDFS = Namespace('http://www.w3.org/2000/01/rdf-schema#')
-            g.bind('rdfs', RDFS)
-
             GNAF = Namespace('http://gnafld.net/def/gnaf#')
             g.bind('gnaf', GNAF)
 
