@@ -26,7 +26,7 @@
     dct:source <https://data.gov.au/dataset/geocoded-national-address-file-g-naf> ;
     rdfs:comment """A Linked Data version of the Geocoded National Address File (G-NAF).
 
-The G-NAF is Australia’s authoritative, geocoded address file. It contains more than 13 million Australian physical address records. The records include geocodes which are latitude and longitude map coordinates with coordinate reference system details and other information necissary to prcicely locate addresses on the earth's surface.
+The G-NAF is Australia’s authoritative, geocoded address file. It contains more than 13 million Australian physical address records. The records include geocodes which are latitude and longitude map coordinates with coordinate reference system details and other information necessary to precisely locate addresses on the earth's surface.
 
 The G-NAF does not contain any names or personal information.
 
