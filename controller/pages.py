@@ -28,7 +28,8 @@ def index():
 
 @pages.route('/index.ttl')
 def index_rdf():
-    return Response(open(config.APP_DIR + '/index.ttl').read(), mimetype="text/turtle")
+    with io.open(config.APP_DIR + '/index.ttl', 'r', encoding='utf8') as f:
+        return Response(f.read(), mimetype="text/turtle")
 
 
 @pages.route('/api')
