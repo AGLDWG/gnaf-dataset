@@ -14,9 +14,21 @@ pages = Blueprint('routes', __name__)
 
 @pages.route('/')
 def index():
+    if request.headers['Accept'].startswith('text/turtle'):
+        return index_rdf()
+
+    if '_format' in request.values:
+        if request.values['_format'] == 'text/turtle':
+            return index_rdf()
+
     return render_template(
         'page_index.html'
     )
+
+
+@pages.route('/index.ttl')
+def index_rdf():
+    return Response(open(config.APP_DIR + '/index.ttl').read(), mimetype="text/turtle")
 
 
 @pages.route('/api')
