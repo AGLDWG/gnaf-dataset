@@ -1,4 +1,6 @@
 psycopg2
+requests
 flask
 rdflib
 rdflib-jsonld
+git+https://github.com/CSIRO-enviro-informatics/pyldapi.git@v2.0.9#egg=pyldapi

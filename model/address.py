@@ -1,26 +1,23 @@
-from model.renderer import Renderer
-from flask import Response, render_template
+# -*- coding: utf-8 -*-
+from .model import GNAFModel
+from flask import render_template
 from rdflib import Graph, URIRef, RDF, RDFS, XSD, Namespace, Literal, BNode
 import _config as config
-from _ldapi import LDAPI, LdapiParameterError
 from psycopg2 import sql
 import json
 import decimal
 
 
-class AddressRenderer(Renderer):
+class Address(GNAFModel):
     """
     This class represents an Address and methods in this class allow an Address to be loaded from the GNAF database
     and to be exported in a number of formats including RDF, according to the 'GNAF Ontology' and an
     expression of the Dublin Core ontology, HTML, XML in the form according to the AS4590 XML schema.
     """
 
-    def __init__(self, id, focus=False, db_cursor=None):
-        # TODO: why doesn't this super thing work?
-        # super(AddressRenderer, self).__init__(id)
-        self.id = id
-        self.uri = config.URI_ADDRESS_INSTANCE_BASE + id
-
+    def __init__(self, identifier, focus=False, db_cursor=None):
+        self.id = identifier
+        self.uri = config.URI_ADDRESS_INSTANCE_BASE + identifier
         # DB connection
         if db_cursor is not None:
             self.cursor = db_cursor
@@ -29,69 +26,69 @@ class AddressRenderer(Renderer):
 
         # get basic properties
         s = sql.SQL('''SELECT 
-                            d.location_description,
-                            d.street_locality_pid, 
-                            s.street_name, 
-                            s.street_type_code, 
-                            d.locality_pid,
-                            l.locality_name, 
-                            l.locality_class_code,
-                            TRIM(BOTH '0123456789' FROM d.locality_pid) state_abbreviation,
-                            d.postcode,
-                            g.latitude,
-                            g.longitude,
-                            CAST(d.date_created AS text),
-                            CAST(d.date_last_modified AS text),
-                            CAST(d.date_retired AS text),
-                            d.building_name,
-                            d.lot_number_prefix,
-                            d.lot_number,
-                            d.lot_number_suffix,
-                            d.flat_type_code,
-                            d.flat_number_prefix,
-                            CAST(d.flat_number AS text),
-                            d.flat_number_suffix,
-                            d.level_type_code,
-                            d.level_number_prefix,
-                            CAST(d.level_number AS text),
-                            d.level_number_suffix,
-                            d.number_first_prefix,
-                            CAST(d.number_first AS text), 
-                            d.number_first_suffix,
-                            d.number_last_prefix,
-                            CAST(d.number_last AS text),
-                            d.number_last_suffix,
-                            d.alias_principal,
-                            d.legal_parcel_id,
-                            d.address_site_pid,
-                            d.level_geocoded_code,
-                            d.property_pid,
-                            d.primary_secondary ,
-                            u.uri, 
-                            u.prefLabel,
-                            u2.uri uri2,
-                            u2.prefLabel prefLabel2,
-                            u3.uri uri3,
-                            u3.prefLabel prefLabel3,
-                            u4.uri uri4,
-                            u4.prefLabel prefLabel4,
-                            u5.uri uri5,
-                            u5.prefLabel prefLabel5,
-                            u6.uri uri6,
-                            u6.prefLabel prefLabel6                                               
-                            FROM gnaf.address_detail d
-                            INNER JOIN gnaf.street_locality s ON d.street_locality_pid = s.street_locality_pid
-                            INNER JOIN gnaf.locality l ON d.locality_pid = l.locality_pid
-                            INNER JOIN gnaf.address_default_geocode g ON d.address_detail_pid = g.address_detail_pid                
-                            LEFT JOIN codes.geocode u ON g.geocode_type_code = u.code           
-                            LEFT JOIN codes.gnafconfidence u2 ON CAST(d.confidence AS text) = u2.code 
-                            LEFT JOIN codes.locality u3 ON l.locality_class_code = u3.code 
-                            INNER JOIN gnaf.address_site a ON d.address_site_pid = a.address_site_pid
-                            LEFT JOIN codes.address u4 ON a.address_type = u4.code 
-                            LEFT JOIN codes.flat u5 ON d.flat_type_code = u5.code 
-                            LEFT JOIN codes.state u6 ON TRIM(BOTH '0123456789' FROM d.locality_pid) = u6.code 
-                            WHERE d.address_detail_pid = {id};
-                            ''').format(id=sql.Literal(self.id))
+                       d.location_description,
+                       d.street_locality_pid, 
+                       s.street_name, 
+                       s.street_type_code, 
+                       d.locality_pid,
+                       l.locality_name, 
+                       l.locality_class_code,
+                       TRIM(BOTH '0123456789' FROM d.locality_pid) state_abbreviation,
+                       d.postcode,
+                       g.latitude,
+                       g.longitude,
+                       CAST(d.date_created AS text),
+                       CAST(d.date_last_modified AS text),
+                       CAST(d.date_retired AS text),
+                       d.building_name,
+                       d.lot_number_prefix,
+                       d.lot_number,
+                       d.lot_number_suffix,
+                       d.flat_type_code,
+                       d.flat_number_prefix,
+                       CAST(d.flat_number AS text),
+                       d.flat_number_suffix,
+                       d.level_type_code,
+                       d.level_number_prefix,
+                       CAST(d.level_number AS text),
+                       d.level_number_suffix,
+                       d.number_first_prefix,
+                       CAST(d.number_first AS text), 
+                       d.number_first_suffix,
+                       d.number_last_prefix,
+                       CAST(d.number_last AS text),
+                       d.number_last_suffix,
+                       d.alias_principal,
+                       d.legal_parcel_id,
+                       d.address_site_pid,
+                       d.level_geocoded_code,
+                       d.property_pid,
+                       d.primary_secondary ,
+                       u.uri, 
+                       u.prefLabel,
+                       u2.uri uri2,
+                       u2.prefLabel prefLabel2,
+                       u3.uri uri3,
+                       u3.prefLabel prefLabel3,
+                       u4.uri uri4,
+                       u4.prefLabel prefLabel4,
+                       u5.uri uri5,
+                       u5.prefLabel prefLabel5,
+                       u6.uri uri6,
+                       u6.prefLabel prefLabel6                                               
+                       FROM gnaf.address_detail d
+                       INNER JOIN gnaf.street_locality s ON d.street_locality_pid = s.street_locality_pid
+                       INNER JOIN gnaf.locality l ON d.locality_pid = l.locality_pid
+                       INNER JOIN gnaf.address_default_geocode g ON d.address_detail_pid = g.address_detail_pid                
+                       LEFT JOIN codes.geocode u ON g.geocode_type_code = u.code           
+                       LEFT JOIN codes.gnafconfidence u2 ON CAST(d.confidence AS text) = u2.code 
+                       LEFT JOIN codes.locality u3 ON l.locality_class_code = u3.code 
+                       INNER JOIN gnaf.address_site a ON d.address_site_pid = a.address_site_pid
+                       LEFT JOIN codes.address u4 ON a.address_type = u4.code 
+                       LEFT JOIN codes.flat u5 ON d.flat_type_code = u5.code 
+                       LEFT JOIN codes.state u6 ON TRIM(BOTH '0123456789' FROM d.locality_pid) = u6.code 
+                       WHERE d.address_detail_pid = {id};
+                       ''').format(id=sql.Literal(self.id))
 
         # get just IDs, ordered, from the address_detail table, paginated by class init args
         self.cursor.execute(s)
@@ -182,7 +179,7 @@ class AddressRenderer(Renderer):
         for row in self.cursor.fetchall():
             r = config.reg(self.cursor, row)
             self.alias_addresses[r.alias_pid] = {
-                'address_string': AddressRenderer(r.alias_pid, focus=False).address_string,
+                'address_string': Address(r.alias_pid, focus=False).address_string,
                 'subclass_uri': r.uri,
                 'subclass_label': r.preflabel  # note use of preflabel, not prefLabel: capital letter dies in reg
             }
@@ -199,7 +196,7 @@ class AddressRenderer(Renderer):
             self.cursor.execute(s3)
             for row in self.cursor.fetchall():
                 r = config.reg(self.cursor, row)
-                ar = AddressRenderer(r.principal_pid, focus=False)
+                ar = Address(r.principal_pid, focus=False)
                 self.principal_addresses[r.principal_pid] = {
                     'address_string': ar.address_string,
                     'subclass_uri': r.uri,
@@ -213,7 +210,7 @@ class AddressRenderer(Renderer):
             self.cursor.execute(s4)
             for row in self.cursor.fetchall():
                 r = config.reg(self.cursor, row)
-                a = AddressRenderer(r.primary_pid, focus=False)
+                a = Address(r.primary_pid, focus=False)
                 self.primary_addresses[r.primary_pid] = a.address_string
 
             # get secondaries
@@ -224,7 +221,7 @@ class AddressRenderer(Renderer):
             rows = self.cursor.fetchall()
             for row in rows:
                 r = config.reg(self.cursor, row)
-                a = AddressRenderer(r.secondary_pid, focus=False)
+                a = Address(r.secondary_pid, focus=False)
                 self.secondary_addresses[r.secondary_pid] = a.address_string
 
             # MBs
@@ -259,14 +256,6 @@ class AddressRenderer(Renderer):
                     'subclass_uri': r.mb2016_uri,
                     'subclass_label': r.mb2016_preflabel  # note use of preflabel, not prefLabel
                 }
-
-    def render(self, view, format):
-        if view == 'schemaorg':
-            return Response(self.export_schemaorg(), mimetype='application/ld+json')
-        if format == 'text/html':
-            return self.export_html(view=view)
-        else:
-            return Response(self.export_rdf(view, format), mimetype=format)
 
     def export_html(self, view='gnaf'):
         if view == 'gnaf':
@@ -345,10 +334,12 @@ class AddressRenderer(Renderer):
 
             # get just IDs, ordered, from the address_detail table, paginated by class init args
             self.cursor.execute(s)
+            address_string = "Not found"
             for record in self.cursor:
                 address_string = '{} {} {}, {}, {} {}' \
                     .format(record[2], record[3].title(), record[4].title(), record[5].title(), record[6], record[7])
-                coverage_wkt = self.make_wkt_literal(longitude=self.longitude, latitude=self.latitude)
+                break
+            coverage_wkt = self.make_wkt_literal(longitude=self.longitude, latitude=self.latitude)
 
             view_html = render_template(
                 'class_address_dct.html',
@@ -359,15 +350,12 @@ class AddressRenderer(Renderer):
                 source='G-NAF, 2016',
                 type='Address'
             )
+        else:
+            return NotImplementedError("HTML representation of View '{}' is not implemented.".format(view))
 
-        return render_template(
-            'class_address.html',
-            view_html=view_html,
-            address_id=self.id,
-            address_uri=self.uri,
-        )
+        return view_html
 
-    def exp_19160_Address(self, g):
+    def exp_19160_address(self, g):
         ISO = Namespace('http://reference.data.gov.au/def/ont/iso19160-1-address#')
         g.bind('iso19160', ISO)
         g.add((URIRef(self.uri), RDF.type, ISO.Address))
@@ -401,7 +389,7 @@ class AddressRenderer(Renderer):
             URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address/Address/code/AddressStatus/official')
         ))
 
-    def exp_19160_AddressPosition(self, g):
+    def exp_19160_address_position(self, g):
         ISO = Namespace('http://reference.data.gov.au/def/ont/iso19160-1-address#')
         g.bind('iso19160', ISO)
         GEO = Namespace('http://www.opengis.net/ont/geosparql#')
@@ -427,7 +415,7 @@ class AddressRenderer(Renderer):
         ))
         g.add((URIRef(self.uri), ISO.position, pos))
 
-    def exp_19160_AddressComponent(self, g, ac_type, acv_value, acv_type='defaultValue'):
+    def exp_19160_address_component(self, g, ac_type, acv_value, acv_type='defaultValue'):
         ISO = Namespace('http://reference.data.gov.au/def/ont/iso19160-1-address#')
         g.bind('iso19160', ISO)
         ac_type_base = 'http://reference.data.gov.au/def/ont/iso19160-1-address/Address/code/AddressComponentType/'
@@ -505,7 +493,7 @@ class AddressRenderer(Renderer):
 
         return ac
 
-    def exp_19160_AddressAlias(self, g, alias_uri_str):
+    def exp_19160_address_alias(self, g, alias_uri_str):
         ISO = Namespace('http://reference.data.gov.au/def/ont/iso19160-1-address#')
         g.bind('iso19160', ISO)
 
@@ -529,7 +517,7 @@ class AddressRenderer(Renderer):
             aa
         ))
 
-    def exp_19160_AddressProvenance(self, g):
+    def exp_19160_address_provenance(self, g):
         ORG = Namespace('http://www.w3.org/ns/org#')
         g.bind('org', ORG)
 
@@ -560,7 +548,7 @@ class AddressRenderer(Renderer):
             prov
         ))
 
-    def exp_19160_AddressedPeriod(self, g):
+    def exp_19160_addressed_period(self, g):
         ISO = Namespace('http://reference.data.gov.au/def/ont/iso19160-1-address#')
         g.bind('iso19160', ISO)
 
@@ -582,7 +570,7 @@ class AddressRenderer(Renderer):
 
         return ap
 
-    def exp_19160_AddressableObject(self, g):
+    def exp_19160_addressable_object(self, g):
         ISO = Namespace('http://reference.data.gov.au/def/ont/iso19160-1-address#')
         g.bind('iso19160', ISO)
 
@@ -598,7 +586,7 @@ class AddressRenderer(Renderer):
         g.add((
             ao,
             URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#Address.theAddressedPeriod'),
-            self.exp_19160_AddressedPeriod(g)
+            self.exp_19160_addressed_period(g)
         ))
 
         g.add((
@@ -607,18 +595,18 @@ class AddressRenderer(Renderer):
             ao
         ))
 
-    def export_rdf(self, view='gnaf', format='text/turtle'):
+    def export_rdf(self, view='gnaf'):
         g = Graph()
 
         if view == 'ISO19160':
-            self.exp_19160_Address(g)
+            self.exp_19160_address(g)
 
-            self.exp_19160_AddressableObject(g)
+            self.exp_19160_addressable_object(g)
 
             ac_id_list = []
 
             if self.building_name is not None:
-                ac_id_list.append(self.exp_19160_AddressComponent(g, 'addressedObjectIdentifier', self.building_name))
+                ac_id_list.append(self.exp_19160_address_component(g, 'addressedObjectIdentifier', self.building_name))
 
             if self.number_flat is not None:
                 flat = str(self.number_flat)
@@ -627,7 +615,7 @@ class AddressRenderer(Renderer):
                 if self.number_flat_suffix is not None:
                     flat = flat + ' ' + self.number_flat_suffix
                 flat = 'Unit ' + flat
-                ac_id_list.append(self.exp_19160_AddressComponent(g, 'addressedObjectIdentifier', flat))
+                ac_id_list.append(self.exp_19160_address_component(g, 'addressedObjectIdentifier', flat))
 
             if self.number_level is not None:
                 level = str(self.number_level)
@@ -636,7 +624,7 @@ class AddressRenderer(Renderer):
                 if self.number_level_suffix is not None:
                     level = level + ' ' + self.number_level_suffix
                 level = 'Level ' + level
-                ac_id_list.append(self.exp_19160_AddressComponent(g, 'addressedObjectIdentifier', level))
+                ac_id_list.append(self.exp_19160_address_component(g, 'addressedObjectIdentifier', level))
 
             if self.number_lot is not None:
                 lot = str(self.number_lot)
@@ -645,7 +633,7 @@ class AddressRenderer(Renderer):
                 if self.number_lot_suffix is not None:
                     lot = lot + ' ' + self.number_lot_suffix
                 lot = 'Lot ' + lot
-                ac_id_list.append(self.exp_19160_AddressComponent(g, 'addressedObjectIdentifier', lot))
+                ac_id_list.append(self.exp_19160_address_component(g, 'addressedObjectIdentifier', lot))
 
             if self.number_first is not None:
                 num = str(self.number_first)
@@ -661,7 +649,7 @@ class AddressRenderer(Renderer):
                     if self.number_last_suffix is not None:
                         num_last = num_last + ' ' + self.number_last_suffix
                     num = num + '-' + num_last
-                ac_id_list.append(self.exp_19160_AddressComponent(g, 'addressedObjectIdentifier', num))
+                ac_id_list.append(self.exp_19160_address_component(g, 'addressedObjectIdentifier', num))
 
             # order for all the addressedObjectIdentifier ACs
             OLO = Namespace('http://purl.org/ontology/olo/core#')
@@ -676,27 +664,27 @@ class AddressRenderer(Renderer):
                     g.add((s, OLO.item, val))
                     g.add((ord, OLO.slot, s))
 
-            self.exp_19160_AddressComponent(g, 'thoroughfareName', self.street_string, acv_type='abbreviatedAlternative')
+            self.exp_19160_address_component(g, 'thoroughfareName', self.street_string, acv_type='abbreviatedAlternative')
 
-            self.exp_19160_AddressComponent(g, 'localityName', self.locality_name)
+            self.exp_19160_address_component(g, 'localityName', self.locality_name)
 
-            self.exp_19160_AddressComponent(
+            self.exp_19160_address_component(
                 g, 'administrativeAreaName', self.state_territory, acv_type='abbreviatedAlternative'
             )
 
-            self.exp_19160_AddressComponent(g, 'postcode', self.postcode)
+            self.exp_19160_address_component(g, 'postcode', self.postcode)
 
-            self.exp_19160_AddressComponent(g, 'countryName', 'Australia')
+            self.exp_19160_address_component(g, 'countryName', 'Australia')
 
-            self.exp_19160_AddressComponent(g, 'countryCode', 'AUS')
+            self.exp_19160_address_component(g, 'countryCode', 'AUS')
 
-            self.exp_19160_AddressPosition(g)
+            self.exp_19160_address_position(g)
 
-            self.exp_19160_AddressProvenance(g)
+            self.exp_19160_address_provenance(g)
 
             if hasattr(self, 'alias_addresses'):
                 for k, v in self.alias_addresses.items():
-                    self.exp_19160_AddressAlias(g, config.URI_ADDRESS_INSTANCE_BASE + k)
+                    self.exp_19160_address_alias(g, config.URI_ADDRESS_INSTANCE_BASE + k)
 
             if hasattr(self, 'primary_addresses'):
                 for k, v in self.primary_addresses.items():
@@ -857,13 +845,12 @@ class AddressRenderer(Renderer):
                     # g.add((URIRef(k), RDFS.label, Literal(v, datatype=XSD.string)))
 
         elif view == 'dct':
-            pass
+            raise NotImplementedError("RDF Representation of the DCT View is not yet implemented.")
             # TODO: implement DCT RDF
-
         else:
-            raise LdapiParameterError('_view unknown')
+            raise RuntimeError("Cannot render an RDF representation of that View.")
 
-        return g.serialize(format=LDAPI.get_rdf_parser_for_mimetype(format))
+        return g
 
     def export_schemaorg(self):
         data = {
@@ -994,7 +981,7 @@ def make_gml_literal(longitude, latitude):
 
 
 if __name__ == '__main__':
-    a = AddressRenderer('GANSW703902211', focus=True)
+    a = Address('GANSW703902211', focus=True)
     print(a.export_rdf().decode('utf-8'))
 
 # has alias for which it can't get address subclass: GAACT715069724. Alias is GAACT718348352

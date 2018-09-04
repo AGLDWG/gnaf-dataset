@@ -1,0 +1,36 @@
+@prefix ns1: <https://promsns.org/def/eregistry#> .
+@prefix ns2: <http://purl.org/linked-data/registry#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://gnafld.net/address/> a ns2:Register ;
+    rdfs:label "Address Register"^^xsd:string ;
+    ns2:containedItemClass <http://gnafld.net/def/gnaf#Address> ;
+    rdfs:comment "Register of all GNAF Addresses"^^xsd:string ;
+    ns1:superregister <http://gnafld.net/> .
+
+<http://gnafld.net/addressSite/> a ns2:Register ;
+    rdfs:label "Address Site Register"^^xsd:string ;
+    ns2:containedItemClass <http://gnafld.net/def/gnaf#AddressSite> ;
+    rdfs:comment "Register of all GNAF Address Sites"^^xsd:string ;
+    ns1:superregister <http://gnafld.net/> .
+
+<http://gnafld.net/locality/> a ns2:Register ;
+    rdfs:label "Locality Register"^^xsd:string ;
+    ns2:containedItemClass <http://gnafld.net/def/gnaf#Locality> ;
+    rdfs:comment "Register of all GNAF Localities"^^xsd:string ;
+    ns1:superregister <http://gnafld.net/> .
+
+<http://gnafld.net/streetLocality/> a ns2:Register ;
+    rdfs:label "Street Locality Register"^^xsd:string ;
+    ns2:containedItemClass <http://gnafld.net/def/gnaf#StreetLocality> ;
+    rdfs:comment "Register of all GNAF Street Localities"^^xsd:string ;
+    ns1:superregister <http://gnafld.net/> .
+
+<http://gnafld.net/> ns2:subregister <http://gnafld.net/address/>,
+        <http://gnafld.net/addressSite/>,
+        <http://gnafld.net/locality/>,
+        <http://gnafld.net/streetLocality/> .
+

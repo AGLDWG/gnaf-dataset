@@ -1,16 +1,16 @@
 {% extends "template_layout.html" %}
 
 {% block content %}
-    <h1>Street Locality {{ street_id }}</h1>
+    <h1>Street Locality {{ instance_id }}</h1>
     {{ view_html|safe }}
 
     <h2>Other views</h2>
-    <p>Other model views of a Street Locality are listed in the <a href="{{ url_for('classes.streetLocality', street_locality_id=street_id) }}?_view=alternates">Alternates View</a>.</p>
+    <p>Other model views of a Street Locality are listed in the <a href="{{ url_for('classes.streetLocality', street_locality_id=instance_id) }}?_view=alternates">Alternates View</a>.</p>
 
     <h2>Citation</h2>
     <p>If you wish to cite this Street Locality as you would a publication, please use the following format:</p>
     <code style="display:block; margin: 0 5em 0 5em;">
-        PSMA Australia Limited (2017). Street Locality {{ street_id }}. Street Locality object from the Geocoded National Address File (G-NAF), 2016. {{ street_uri }}
+        PSMA Australia Limited (2017). Street Locality {{ instance_id }}. Street Locality object from the Geocoded National Address File (G-NAF), 2016. {{ instance_uri }}
     </code>
 
 {% endblock %}

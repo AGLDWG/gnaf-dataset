@@ -1,24 +1,21 @@
-from .renderer import Renderer
-from flask import Response, render_template
-from rdflib import Graph, URIRef, RDF, RDFS, XSD, OWL, Namespace, Literal, BNode
+# -*- coding: utf-8 -*-
+from .model import GNAFModel
+from flask import render_template
+from rdflib import Graph, URIRef, RDF, XSD, Namespace, Literal, BNode
 import _config as config
-from _ldapi import LDAPI
-import psycopg2
 from psycopg2 import sql
 
 
-class StreetRenderer(Renderer):
+class StreetLocality(GNAFModel):
     """
     This class represents a Street and methods in this class allow a Street to be loaded from the GNAF database
     and to be exported in a number of formats including RDF, according to the 'GNAF Ontology' and an
     expression of the Dublin Core ontology, HTML, XML in the form according to the AS4590 XML schema.
     """
 
-    def __init__(self, id):
-        # TODO: why doesn't this super thing work?
-        # super(StreetRenderer, self).__init__(id)
-        self.id = id
-        self.uri = config.URI_STREETLOCALITY_INSTANCE_BASE + id
+    def __init__(self, identifier):
+        self.id = identifier
+        self.uri = config.URI_STREETLOCALITY_INSTANCE_BASE + identifier
         self.street_locality_aliases = dict()
         self.street_name = None
         self.street_type = None
@@ -28,14 +25,6 @@ class StreetRenderer(Renderer):
         self.street_suffix_label = None
         self.street_suffix_uri = None
         self.locality_pid = None
-
-    def render(self, view, format):
-        if format == 'text/html':
-            return self.export_html(view=view)
-        elif format in LDAPI.get_rdf_mimetypes_list():
-            return Response(self.export_rdf(view, format), mimetype=format)
-        else:
-            return Response('The requested model model is not valid for this class', status=400, mimetype='text/plain')
 
     def export_html(self, view='gnaf'):
         if view == 'gnaf':
@@ -159,15 +148,7 @@ class StreetRenderer(Renderer):
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
             try:
-                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
-                    .format(
-                    config.DB_HOST,
-                    config.DB_DBNAME,
-                    config.DB_USR,
-                    config.DB_PWD
-                )
-                conn = psycopg2.connect(connect_str)
-                cursor = conn.cursor()
+                cursor = config.get_db_cursor()
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
                 cursor.execute(s)
                 for record in cursor:
@@ -194,15 +175,11 @@ class StreetRenderer(Renderer):
                 source='G-NAF, 2016',
                 type='Street'
             )
+        else:
+            return NotImplementedError("HTML representation of View '{}' for StreetLocality is not implemented.".format(view))
+        return view_html
 
-        return render_template(
-            'class_streetLocality.html',
-            view_html=view_html,
-            street_id=self.id,
-            street_uri=self.uri,
-        )
-
-    def export_rdf(self, view='ISO19160', format='text/turtle'):
+    def export_rdf(self, view='ISO19160'):
         g = Graph()
         a = URIRef(self.uri)
 
@@ -337,5 +314,9 @@ class StreetRenderer(Renderer):
                     g.add((URIRef(self.uri), GNAF.hasAlias, a))
                     g.add((a, GNAF.gnafType, URIRef('http://gnafld.net/def/gnaf/code/AliasTypes#Synonym')))
                     g.add((a, RDFS.label, Literal(v['street_locality_name'], datatype=XSD.string)))
-
-        return g.serialize(format=LDAPI.get_rdf_parser_for_mimetype(format))
+        elif view == 'dct':
+            raise NotImplementedError("RDF Representation of the DCT View for StreetLocality is not yet implemented.")
+            # TODO: implement DCT RDF
+        else:
+            raise RuntimeError("Cannot render an RDF representation of that View.")
+        return g
