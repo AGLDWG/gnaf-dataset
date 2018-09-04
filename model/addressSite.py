@@ -1,33 +1,22 @@
-from .renderer import Renderer
-from flask import Response, render_template
+# -*- coding: utf-8 -*-
+from .model import GNAFModel
+from flask import render_template
 from rdflib import Graph, URIRef, RDF, XSD, Namespace, Literal, BNode
 import _config as config
-from _ldapi import LDAPI
-import psycopg2
 from psycopg2 import sql
 
 
-class AddressSiteRenderer(Renderer):
+class AddressSite(GNAFModel):
     """
     This class represents an Address Site and methods in this class allow an Address Site to be loaded from the GNAF
     database and to be exported in a number of formats including RDF, according to the 'GNAF Ontology' and an
     expression of the Dublin Core ontology, HTML, XML in the form according to the AS4590 XML schema.
     """
 
-    def __init__(self, id):
-        # TODO: why doesn't this super thing work?
-        # super(AddressRenderer, self).__init__(id)
-        self.id = id
-        self.uri = config.URI_ADDRESS_SITE_INSTANCE_BASE + id
+    def __init__(self, identifier):
+        self.id = identifier
+        self.uri = config.URI_ADDRESS_SITE_INSTANCE_BASE + identifier
         self.address_site_geocode_ids = dict()
-
-    def render(self, view, format):
-        if format == 'text/html':
-            return self.export_html(view=view)
-        elif format in LDAPI.get_rdf_mimetypes_list():
-            return Response(self.export_rdf(view, format), mimetype=format)
-        else:
-            return Response('The requested model model is not valid for this class', status=400, mimetype='text/plain')
 
     def export_html(self, view='gnaf'):
         # connect to DB
@@ -98,13 +87,9 @@ class AddressSiteRenderer(Renderer):
                 source='G-NAF, 2016',
                 type='AddressSite'
             )
-
-        return render_template(
-            'class_addressSite.html',
-            view_html=view_html,
-            address_site_id=self.id,
-            address_site_uri=self.uri,
-        )
+        else:
+            return NotImplementedError("HTML representation of View '{}' is not implemented.".format(view))
+        return view_html
 
     def export_rdf(self, view='ISO19160', format='text/turtle'):
         g = Graph()
@@ -120,15 +105,7 @@ class AddressSiteRenderer(Renderer):
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
             try:
-                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
-                    .format(
-                        config.DB_HOST,
-                        config.DB_DBNAME,
-                        config.DB_USR,
-                        config.DB_PWD
-                    )
-                conn = psycopg2.connect(connect_str)
-                cursor = conn.cursor()
+                cursor = config.get_db_cursor()
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
                 cursor.execute(s)
                 for record in cursor:
@@ -152,6 +129,11 @@ class AddressSiteRenderer(Renderer):
             g.add((a, ISO.addressComponent, ac_site_name))
 
         elif view == 'gnaf':
-            pass
-
-        return g.serialize(format=LDAPI.get_rdf_parser_for_mimetype(format))
+            raise NotImplementedError("RDF Representation of the GNAF View of an addressSite is not yet implemented.")
+            # TODO: implement DCT RDF
+        elif view == 'dct':
+            raise NotImplementedError("RDF Representation of the DCT View of an addressSite is not yet implemented.")
+            # TODO: implement DCT RDF
+        else:
+            raise RuntimeError("Cannot render an RDF representation of that View.")
+        return g

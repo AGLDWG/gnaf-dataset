@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import _config as config
 import psycopg2
 from psycopg2 import sql
@@ -5,9 +6,10 @@ from psycopg2 import sql
 
 def test_connect():
     try:
-        connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
+        connect_str = "host='{}' port='{}' dbname='{}' user='{}' password='{}'" \
             .format(
             config.DB_HOST,
+            config.DB_PORT,
             config.DB_DBNAME,
             config.DB_USR,
             config.DB_PWD
@@ -44,9 +46,10 @@ def test_connect():
 
         cursor.execute(s)
         rows = cursor.fetchall()
+        address_string = "Not found"
         for row in rows:
             address_string = '{} {} {}, {}, {} {}'.format(row[2], row[3].title(), row[4].title(), row[5].title(), row[6], row[7])
-
+            break
         print(address_string)
     except Exception as e:
         print(e)

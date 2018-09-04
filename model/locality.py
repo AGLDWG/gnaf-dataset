@@ -1,24 +1,21 @@
-from .renderer import Renderer
-from flask import Response, render_template
-from rdflib import Graph, URIRef, RDF, RDFS, XSD, OWL, Namespace, Literal, BNode
+# -*- coding: utf-8 -*-
+from .model import GNAFModel
+from flask import render_template
+from rdflib import Graph, URIRef, RDF, XSD, Namespace, Literal, BNode
 import _config as config
-from _ldapi import LDAPI
-import psycopg2
 from psycopg2 import sql
 
 
-class LocalityRenderer(Renderer):
+class Locality(GNAFModel):
     """
     This class represents a Locality and methods in this class allow a Locality to be loaded from the GNAF database
     and to be exported in a number of formats including RDF, according to the 'GNAF Ontology' and an
     expression of the Dublin Core ontology, HTML, XML in the form according to the AS4590 XML schema.
     """
 
-    def __init__(self, id, db_cursor=None):
-        # TODO: why doesn't this super thing work?
-        # super(LocalityRenderer, self).__init__(id)
-        self.id = id
-        self.uri = config.URI_LOCALITY_INSTANCE_BASE + id
+    def __init__(self, identifier, db_cursor=None):
+        self.id = identifier
+        self.uri = config.URI_LOCALITY_INSTANCE_BASE + identifier
 
         # DB connection
         if db_cursor is not None:
@@ -99,14 +96,6 @@ class LocalityRenderer(Renderer):
             r = config.reg(self.cursor, row)
             self.locality_neighbours[r.neighbour_locality_pid] = r.locality_name.title()
 
-    def render(self, view, format):
-        if format == 'text/html':
-            return self.export_html(view=view)
-        elif format in LDAPI.get_rdf_mimetypes_list():
-            return Response(self.export_rdf(view, format), mimetype=format)
-        else:
-            return Response('The requested model model is not valid for this class', status=400, mimetype='text/plain')
-
     def export_html(self, view='gnaf'):
         if view == 'gnaf':
             view_html = render_template(
@@ -142,15 +131,7 @@ class LocalityRenderer(Renderer):
                 .format(id=sql.Literal(self.id))
 
             try:
-                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
-                    .format(
-                    config.DB_HOST,
-                    config.DB_DBNAME,
-                    config.DB_USR,
-                    config.DB_PWD
-                )
-                conn = psycopg2.connect(connect_str)
-                cursor = conn.cursor()
+                cursor = config.get_db_cursor()
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
                 cursor.execute(s)
                 for record in cursor:
@@ -174,13 +155,9 @@ class LocalityRenderer(Renderer):
                 source='G-NAF, 2016',
                 type='Locality'
             )
-
-        return render_template(
-            'class_locality.html',
-            view_html=view_html,
-            locality_id=self.id,
-            locality_uri=self.uri,
-        )
+        else:
+            return NotImplementedError("HTML representation of View '{}' for Location is not implemented.".format(view))
+        return view_html
 
     def export_rdf(self, view='gnaf', format='text/turtle'):
         g = Graph()
@@ -200,15 +177,7 @@ class LocalityRenderer(Renderer):
                 .format(id=sql.Literal(self.id))
 
             try:
-                connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
-                    .format(
-                        config.DB_HOST,
-                        config.DB_DBNAME,
-                        config.DB_USR,
-                        config.DB_PWD
-                    )
-                conn = psycopg2.connect(connect_str)
-                cursor = conn.cursor()
+                cursor = config.get_db_cursor()
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
                 cursor.execute(s)
                 for record in cursor:
@@ -298,6 +267,10 @@ class LocalityRenderer(Renderer):
             if hasattr(self, 'locality_neighbours'):
                 for k, v in self.locality_neighbours.items():
                     g.add((l, GNAF.hasNeighbour, URIRef(config.URI_LOCALITY_INSTANCE_BASE + k)))
-
-        return g.serialize(format=LDAPI.get_rdf_parser_for_mimetype(format))
+        elif view == 'dct':
+            raise NotImplementedError("RDF Representation of the DCT View for Locality is not yet implemented.")
+            # TODO: implement DCT RDF
+        else:
+            raise RuntimeError("Cannot render an RDF representation of that View.")
+        return g
 
