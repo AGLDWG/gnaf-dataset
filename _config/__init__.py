@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from os.path import dirname, realpath, join, abspath
 import psycopg2
 
@@ -9,31 +10,35 @@ DEBUG = True
 
 PAGE_SIZE = 10000
 
+URI_BASE = "http://gnafld.net/"  # must end in a trailing slash
+DEF_URI_PREFIX = ''.join([URI_BASE, 'def'])
+
 MB_2011_COUNT = 347627
-URI_MB_2011_CLASS = 'http://gnafld.net/def/2011MB'
+URI_MB_2011_CLASS = '/'.join([DEF_URI_PREFIX, '2011MB'])
 URI_MB_2011_INSTANCE_BASE = 'http://reference.data.gov.au/asgs/MB2011/'
 
 MB_2016_COUNT = 358122
-URI_MB_2016_CLASS = 'http://gnafld.net/def/MB2016MB'
+URI_MB_2016_CLASS = '/'.join([DEF_URI_PREFIX, 'MB2016MB'])
 URI_MB_2016_INSTANCE_BASE = 'http://reference.data.gov.au/asgs/MB2016/'
 
 ADDRESS_COUNT = 14500797
-URI_ADDRESS_CLASS = 'http://gnafld.net/def/gnaf#Address'
-URI_ADDRESS_INSTANCE_BASE = 'http://gnafld.net/address/'
+URI_ADDRESS_CLASS = '/'.join([DEF_URI_PREFIX, 'gnaf#Address'])
+URI_ADDRESS_INSTANCE_BASE = ''.join([URI_BASE, 'address/'])
 
 ADDRESS_SITE_COUNT = 14500797
-URI_ADDRESS_SITE_CLASS = 'http://gnafld.net/def/gnaf#AddressSite'
-URI_ADDRESS_SITE_INSTANCE_BASE = 'http://gnafld.net/addressSite/'
+URI_ADDRESS_SITE_CLASS = '/'.join([DEF_URI_PREFIX, 'gnaf#AddressSite'])
+URI_ADDRESS_SITE_INSTANCE_BASE = ''.join([URI_BASE, 'addressSite/'])
 
 STREET_LOCALITY_COUNT = 707075
-URI_STREETLOCALITY_CLASS = 'http://gnafld.net/def/gnaf#StreetLocality'
-URI_STREETLOCALITY_INSTANCE_BASE = 'http://gnafld.net/streetLocality/'
+URI_STREETLOCALITY_CLASS = '/'.join([DEF_URI_PREFIX, 'gnaf#StreetLocality'])
+URI_STREETLOCALITY_INSTANCE_BASE = ''.join([URI_BASE, 'streetLocality/'])
 
 LOCALITY_COUNT = 16445
-URI_LOCALITY_CLASS = 'http://gnafld.net/def/gnaf#Locality'
-URI_LOCALITY_INSTANCE_BASE = 'http://gnafld.net/locality/'
+URI_LOCALITY_CLASS = '/'.join([DEF_URI_PREFIX, 'gnaf#Locality'])
+URI_LOCALITY_INSTANCE_BASE = ''.join([URI_BASE, 'locality/'])
 
 DB_HOST = 'localhost'
+DB_PORT = '5435'
 DB_DBNAME = 'gnaf'
 DB_USR = 'gnafusr'
 DB_PWD = 'technicolour'
@@ -47,9 +52,10 @@ SPARQL_QUERY_URI = 'http://52.15.86.52/fuseki/gnaf/query'
 
 def get_db_cursor():
     try:
-        connect_str = "host='{}' dbname='{}' user='{}' password='{}'" \
+        connect_str = "host='{}' port='{}' dbname='{}' user='{}' password='{}'" \
             .format(
             DB_HOST,
+            DB_PORT,
             DB_DBNAME,
             DB_USR,
             DB_PWD

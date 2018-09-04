@@ -1,10 +1,11 @@
+# -*- coding: utf-8 -*-
 """
 This file contains all the HTTP routes for basic pages (usually HTML)
 """
 from flask import Blueprint, Response, request, render_template
-from _ldapi import LDAPI, LdapiParameterError
+import pyldapi
 import json
-from rdflib import Graph
+from rdflib import Graph, Literal
 import io
 import requests
 import _config as config
@@ -12,24 +13,24 @@ import _config as config
 pages = Blueprint('routes', __name__)
 
 
-@pages.route('/')
+@pages.route('/', strict_slashes=True)
 def index():
-    if request.headers['Accept'].startswith('text/turtle'):
-        return index_rdf()
+    rofr_comment =\
+"""A Linked Data version of the Geocoded National Address File (G-NAF).
 
-    if '_format' in request.values:
-        if request.values['_format'] == 'text/turtle':
-            return index_rdf()
+The G-NAF is Australia’s authoritative, geocoded address file. It contains more than 13 million Australian physical address records. The records include geocodes which are latitude and longitude map coordinates with coordinate reference system details and other information necessary to precisely locate addresses on the earth's surface.
 
-    return render_template(
-        'page_index.html'
-    )
+The G-NAF does not contain any names or personal information.
 
+The base content of the G-NAF is available freely online at <https://data.gov.au/dataset/geocoded-national-address-file-g-naf>.
 
-@pages.route('/index.ttl')
-def index_rdf():
-    with io.open(config.APP_DIR + '/index.ttl', 'r', encoding='utf8') as f:
-        return Response(f.read(), mimetype="text/turtle")
+The main ontology used to deliver the information in this dataset is the GNAF Ontology, online at <http://linked.data.gov.au/def/gnaf>. It draws heavily from the OWL ontology version of the ISO19160-1:2015 \"Addressing -- Part 1: Conceptual model\" standard (<https://www.iso.org/standard/61710.html>) which has been created by the ISO TC211, Group for Ontology Management (GOM) and published online by the Australian Government Linked Data Working Group at <http://reference.data.gov.au/def/ont/iso19160-1-address>."""
+    rofr_comment = Literal(rofr_comment, lang='en')
+    rofr_ttl_path = '/'.join([config.APP_DIR, 'rofr.ttl'])
+    rofr_renderer = pyldapi.RegisterOfRegistersRenderer(
+        request, request.base_url, "GNAF ontology", rofr_comment,
+        rofr_ttl_path, register_template='page_index.html')
+    return rofr_renderer.render()
 
 
 @pages.route('/api')
@@ -124,7 +125,7 @@ def sparql():
             )
         else:
             return query_result
-            #return Response(json.dumps(query_result), status=200, mimetype=request.values['output-format'])
+            # return Response(json.dumps(query_result), status=200, mimetype=request.values['output-format'])
     # No query, display form
     else:  # GET
         if request.args.get('query') is not None:
@@ -162,7 +163,7 @@ def sparql():
             (X)HTML by way of RDFa, and should use content negotiation if available in other RDF representations.
             '''
 
-            acceptable_mimes = [x[0] for x in LDAPI.MIMETYPES_PARSERS] + ['text/html']
+            acceptable_mimes = [x for x in pyldapi.Renderer.RDF_MIMETYPES] + ['text/html']
             best = request.accept_mimetypes.best_match(acceptable_mimes)
             if best == 'text/html':
                 # show the SPARQL query form
@@ -172,13 +173,12 @@ def sparql():
                     query=query
                 )
             elif best is not None:
-                for item in LDAPI.MIMETYPES_PARSERS:
+                for item in pyldapi.Renderer.RDF_MIMETYPES:
                     if item == best:
                         rdf_format = best
                         return Response(
                             get_sparql_service_description(
-                                rdf_format=rdf_format
-                            ),
+                                mimetype=rdf_format),
                             status=200,
                             mimetype=best)
 
@@ -193,10 +193,23 @@ def sparql():
                 )
 
 
-def get_sparql_service_description(rdf_format='turtle'):
+MIMETYPES_PARSERS = [
+    ('text/turtle', 'turtle'),
+    ('application/rdf+xml', 'xml'),
+    ('application/rdf xml', 'xml'),
+    ('application/ld+json', 'json-ld'),
+    ('application/ld json', 'json-ld'),
+    ('application/json', 'json-ld'),
+    ('text/ntriples', 'nt'),
+    ('text/nt', 'nt'),
+    ('text/n3', 'nt')
+]
+
+
+def get_sparql_service_description(mimetype):
     """Return an RDF description of PROMS' read only SPARQL endpoint in a requested format
 
-    :param rdf_format: 'turtle', 'n3', 'xml', 'json-ld'
+    :param mimetype: 'turtle', 'n3', 'xml', 'json-ld'
     :return: string of RDF in the requested format
     """
     sd_ttl = '''
@@ -222,11 +235,13 @@ def get_sparql_service_description(rdf_format='turtle'):
         .
     '''
     g = Graph().parse(io.StringIO(sd_ttl), format='turtle')
-    rdf_formats = list(set([x[1] for x in LDAPI.MIMETYPES_PARSERS]))
-    if rdf_format[0][1] in rdf_formats:
-        return g.serialize(format=rdf_format[0][1])
+    rdf_mimetypes_map = {x[0]: x[1] for x in MIMETYPES_PARSERS}
+    if mimetype in rdf_mimetypes_map.values():
+        return g.serialize(format=mimetype)
+    elif mimetype in rdf_mimetypes_map:
+        return g.serialize(format=rdf_mimetypes_map[mimetype])
     else:
-        raise ValueError('Input parameter rdf_format must be one of: ' + ', '.join(rdf_formats))
+        raise ValueError('Input parameter rdf_format must be one of: ' + ', '.join(rdf_mimetypes_map.values()))
 
 
 def sparql_query(sparql_query, format_mimetype='application/sparql-results+json'):
