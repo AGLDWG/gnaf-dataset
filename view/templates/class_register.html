@@ -9,19 +9,19 @@
             <td style="width:50%; vertical-align:top;">
                 <h3>Instances</h3>
                 <ul>
-                {% if class_name == 'http://gnafld.net/def/gnaf#Address' %}
+                {% if class_name == 'http://linked.data.gov.au/dataset/gnaf/def/gnaf#Address' %}
                 {% for instance in register_items %}
                     <li><a href="{{ url_for('classes.address', address_id=instance[2]) }}">{{ instance_uri_base }}{{ instance[2] }}</a></li>
                 {% endfor %}
-                {% elif class_name == 'http://gnafld.net/def/gnaf#Locality' %}
+                {% elif class_name == 'http://linked.data.gov.au/dataset/gnaf/def/gnaf#Locality' %}
                 {% for instance in register_items %}
                     <li><a href="{{ url_for('classes.locality', locality_id=instance[2]) }}">{{ instance_uri_base }}{{ instance[2] }}</a></li>
                 {% endfor %}
-                {% elif class_name == 'http://gnafld.net/def/gnaf#StreetLocality' %}
+                {% elif class_name == 'http://linked.data.gov.au/dataset/gnaf/def/gnaf#StreetLocality' %}
                 {% for instance in register_items %}
                     <li><a href="{{ url_for('classes.streetLocality', street_locality_id=instance[2]) }}">{{ instance_uri_base }}{{ instance[2] }}</a></li>
                 {% endfor %}
-                {% elif class_name == 'http://gnafld.net/def/gnaf#AddressSite' %}
+                {% elif class_name == 'http://linked.data.gov.au/dataset/gnaf/def/gnaf#AddressSite' %}
                 {% for instance in register_items %}
                     <li><a href="{{ url_for('classes.addressSite', address_site_id=instance[2]) }}">{{ instance_uri_base }}{{ instance[2] }}</a></li>
                 {% endfor %}

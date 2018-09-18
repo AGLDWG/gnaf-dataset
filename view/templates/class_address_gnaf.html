@@ -6,25 +6,25 @@
         <tr><th>Property</th><th>Value</th></tr>
         <tr><td>Address Line</td><td><code>{{ address_string }}</code></td></tr>
         {% if building_name is not none %}
-        <tr><td><a href="http://gnafld.net/def/gnaf#hasBuildingName">Building Name</a></td><td><code>{{ building_name }}</code></td></tr>
+        <tr><td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#hasBuildingName">Building Name</a></td><td><code>{{ building_name }}</code></td></tr>
         {% endif %}
 
         {% if number_lot is not none %}
             <tr>
-                <td><a href="http://gnafld.net/def/gnaf#Number">Lot Number</a></td>
+                <td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#Number">Lot Number</a></td>
                 <td><code>{{ number_lot_prefix if number_lot_prefix else '' }}{{ number_lot }}{{ number_lot_suffix if number_lot_suffix else '' }}</code></td>
             </tr>
         {% endif %}
 
         {% if flat_type_code is not none %}
         <tr>
-            <td><a href="http://gnafld.net/def/gnaf#">Flat Type Code</a></td>
+            <td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#">Flat Type Code</a></td>
             <td><a href="{{ flat_type_uri }}">{{ flat_type_code }}</a></td></tr>
         {% endif %}
 
         {% if number_flat is not none %}
             <tr>
-                <td><a href="http://gnafld.net/def/gnaf#FirstStreetNumber">First Number</a></td>
+                <td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#FirstStreetNumber">First Number</a></td>
                 <td><code>{{ number_flat_prefix if number_flat_prefix else '' }}{{ number_flat }}{{ number_flat_suffix if number_flat_suffix else '' }}</code></td>
             </tr>
         {% endif %}
@@ -35,60 +35,60 @@
 
         {% if number_level is not none %}
             <tr>
-                <td><a href="http://gnafld.net/def/gnaf#FirstStreetNumber">Level Number</a></td>
+                <td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#FirstStreetNumber">Level Number</a></td>
                 <td><code>{{ number_level_prefix if number_level_prefix else '' }}{{ number_level }}{{ number_level_suffix if number_level_suffix else '' }}</code></td>
             </tr>
         {% endif %}
 
         {% if number_first is not none %}
             <tr>
-                <td><a href="http://gnafld.net/def/gnaf#FirstStreetNumber">First Street Number</a></td>
+                <td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#FirstStreetNumber">First Street Number</a></td>
                 <td><code>{{ number_first_prefix if number_first_prefix else '' }}{{ number_first }}{{ number_first_suffix if number_first_suffix else '' }}</code></td>
             </tr>
         {% endif %}
 
         {% if number_last is not none %}
             <tr>
-                <td><a href="http://gnafld.net/def/gnaf#FirstStreetNumber">Last Street Number</a></td>
+                <td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#FirstStreetNumber">Last Street Number</a></td>
                 <td><code>{{ number_last_prefix if number_last_prefix else '' }}{{ number_last }}{{ number_last_suffix if number_last_suffix else '' }}</code></td>
             </tr>
         {% endif %}
 
         {% if street_string is not none %}
-        <tr><td><a href="http://gnafld.net/def/gnaf#hasStreetLocality">Street Locality</a></td><td><code><a href="{{ url_for('classes.streetLocality', street_locality_id=street_locality_pid) }}">{{ street_string }}</a></code></td></tr>
+        <tr><td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#hasStreetLocality">Street Locality</a></td><td><code><a href="{{ url_for('classes.streetLocality', street_locality_id=street_locality_pid) }}">{{ street_string }}</a></code></td></tr>
         {% endif %}
         {% if locality_name is not none %}
-        <tr><td><a href="http://gnafld.net/def/gnaf#hasLocality">Locality</a></td><td><code><a href="{{ url_for('classes.locality', locality_id=locality_pid) }}">{{ locality_name }}</a></code></td></tr>
+        <tr><td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#hasLocality">Locality</a></td><td><code><a href="{{ url_for('classes.locality', locality_id=locality_pid) }}">{{ locality_name }}</a></code></td></tr>
         {% endif %}
         {% if state_territory is not none %}
-        <tr><td><a href="http://gnafld.net/def/gnaf#hasState">State/Territory</a></td><td><code>{{ state_territory }}</code></td></tr>
+        <tr><td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#hasState">State/Territory</a></td><td><code>{{ state_territory }}</code></td></tr>
         {% endif %}
         {% if postcode is not none %}
-        <tr><td><a href="http://gnafld.net/def/gnaf#hasPostcode">Postcode</a></td><td><code>{{ postcode }}</code></td></tr>
+        <tr><td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#hasPostcode">Postcode</a></td><td><code>{{ postcode }}</code></td></tr>
         {% endif %}
         {% if legal_parcel_id is not none %}
-        <tr><td><a href="http://gnafld.net/def/gnaf#hasLegalParcelId">Legal Parcel ID</a></td><td><code>{{ legal_parcel_id }}</code></td></tr>
+        <tr><td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#hasLegalParcelId">Legal Parcel ID</a></td><td><code>{{ legal_parcel_id }}</code></td></tr>
         {% endif %}
         {% if address_site_pid is not none %}
-        <tr><td><a href="http://gnafld.net/def/gnaf#hasAddressSite">Address Site PID</a></td><td><code><a href="{{ url_for('classes.addressSite', address_site_id=address_site_pid) }}">{{ address_site_pid }}</a></code></td></tr>
+        <tr><td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#hasAddressSite">Address Site PID</a></td><td><code><a href="{{ url_for('classes.addressSite', address_site_id=address_site_pid) }}">{{ address_site_pid }}</a></code></td></tr>
         {% endif %}
         {% if level_geocoded_code is not none %}
-        <tr><td><a href="http://gnafld.net/def/gnaf#">Level Geocoded Code</a></td><td><code>{{ level_geocoded_code }}</code></td></tr>
+        <tr><td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#">Level Geocoded Code</a></td><td><code>{{ level_geocoded_code }}</code></td></tr>
         {% endif %}
         {% if property_pid is not none %}
-        <tr><td><a href="http://gnafld.net/def/gnaf#">Property PID</a></td><td><code>{{ property_pid }}</code></td></tr>
+        <tr><td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#">Property PID</a></td><td><code>{{ property_pid }}</code></td></tr>
         {% endif %}
         {% if confidence is not none %}
-            <tr><td><a href="http://gnafld.net/def/gnaf#hasGnafConfidence">GNAF Confidence</a></td><td><code><a href="{{ confidence_uri }}">{{ confidence_prefLabel }}</a></code></td></tr>
+            <tr><td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#hasGnafConfidence">GNAF Confidence</a></td><td><code><a href="{{ confidence_uri }}">{{ confidence_prefLabel }}</a></code></td></tr>
         {% endif %}
         {% if date_created is not none %}
-        <tr><td><a href="http://gnafld.net/def/gnaf#hasCreatedDate">Date Created</a></td><td><code>{{ date_created }}</code></td></tr>
+        <tr><td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#hasCreatedDate">Date Created</a></td><td><code>{{ date_created }}</code></td></tr>
         {% endif %}
         {% if date_last_modified is not none %}
-        <tr><td><a href="http://gnafld.net/def/gnaf#hasLastModifiedDate">Date Last Modified</a></td><td><code>{{ date_last_modified }}</code></td></tr>
+        <tr><td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#hasLastModifiedDate">Date Last Modified</a></td><td><code>{{ date_last_modified }}</code></td></tr>
         {% endif %}
         {% if date_retired is not none %}
-        <tr><td><a href="http://gnafld.net/def/gnaf#hasDetiredDate">Date Retired</a></td><td><code>{{ date_retired }}</code></td></tr>
+        <tr><td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#hasDetiredDate">Date Retired</a></td><td><code>{{ date_retired }}</code></td></tr>
         {% endif %}
         {% if geocode_type is not none %}
             <tr>
@@ -109,7 +109,7 @@
         {% endif %}
         {% if alias_addresses.items()|length > 0 %}
         <tr>
-            <td><a href="http://gnafld.net/def/gnaf#hasAlias">Has Alias</a></td><td>
+            <td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#hasAlias">Has Alias</a></td><td>
                 {% for alias_address_id, alias in alias_addresses.items() %}
                     <code>
                         <a href="{{ url_for('classes.address', address_id=alias_address_id) }}">{{ alias['address_string'] }}</a> (<a href="{{ alias['subclass_uri'] }}">{{ alias['subclass_label'] }}</a>)
@@ -120,7 +120,7 @@
         {% endif %}
         {% if primary_addresses.items()|length > 0 %}
         <tr>
-            <td><a href="http://gnafld.net/def/gnaf#hasAddressPrimary">Primary Addresses</a></td><td>
+            <td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#hasAddressPrimary">Primary Addresses</a></td><td>
                 {% for primary_address_id, primary_address in primary_addresses.items() %}
                     <code><a href="{{ url_for('classes.address', address_id=secondary_address_id) }}">{{ secondary_address }}</a></code><br />
                 {% endfor %}
@@ -129,7 +129,7 @@
         {% endif %}
         {% if secondary_addresses.items()|length > 0 %}
         <tr>
-            <td><a href="http://gnafld.net/def/gnaf#hasAddressSecondary">Secondary Addresses</a></td><td>
+            <td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#hasAddressSecondary">Secondary Addresses</a></td><td>
                 {% for secondary_address_id, secondary_address in secondary_addresses.items() %}
                     <code><a href="{{ url_for('classes.address', address_id=secondary_address_id) }}">{{ secondary_address }}</a></code><br />
                 {% endfor %}
@@ -138,7 +138,7 @@
         {% endif %}
         {% if mesh_block_2011s.items()|length > 0 %}
         <tr>
-            <td><a href="http://gnafld.net/def/gnaf#hasMeshBlockMatch">Mesh Blocks 2011</a></td><td>
+            <td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#hasMeshBlockMatch">Mesh Blocks 2011</a></td><td>
                 {% for mb_uri, mb in mesh_block_2011s.items() %}
                     <code><a href="{{ mb['subclass_uri'] }}">{{ mb['subclass_label'] }}</a> &rarr; <a href="{{ mb_uri }}">{{ mb['string'] }}</a></code><br />
                 {% endfor %}
@@ -147,7 +147,7 @@
         {% endif %}
         {% if mesh_block_2016s.items()|length > 0 %}
         <tr>
-            <td><a href="http://gnafld.net/def/gnaf#hasMeshBlockMatch">Mesh Blocks 2016</a></td><td>
+            <td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#hasMeshBlockMatch">Mesh Blocks 2016</a></td><td>
                 {% for mb_uri, mb in mesh_block_2016s.items() %}
                     <code><a href="{{ mb['subclass_uri'] }}">{{ mb['subclass_label'] }}</a> &rarr; <a href="{{ mb_uri }}">{{ mb['string'] }}</a></code><br />
                 {% endfor %}

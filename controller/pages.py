@@ -219,7 +219,7 @@ def get_sparql_service_description(mimetype):
         @prefix void: <http://rdfs.org/ns/void#> .
         @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-        <http://gnafld.net/sparql>
+        <http://linked.data.gov.au/dataset/gnaf/sparql>
             a                       sd:Service ;
             sd:endpoint             <%(BASE_URI)s/function/sparql> ;
             sd:supportedLanguage    sd:SPARQL11Query ; # yes, read only, sorry!

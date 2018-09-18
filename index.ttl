@@ -1,4 +1,4 @@
-@prefix : <http://gnafld.net/def/gnaf#> .
+@prefix : <http://linked.data.gov.au/dataset/gnaf/def/gnaf#> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
 @prefix dbo: <http://dbpedia.org/ontology/> .
 @prefix dct: <http://purl.org/dc/terms/> .

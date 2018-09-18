@@ -107,7 +107,7 @@ class Locality(GNAFModel):
                 geometry_wkt=self.make_wkt_literal(longitude=self.longitude, latitude=self.latitude),
                 state_uri=self.state_uri,
                 state_label=self.state_label,
-                geocode_uri='http://gnafld.net/def/gnaf/code/GeocodeTypes#Locality',
+                geocode_uri='http://linked.data.gov.au/dataset/gnaf/def/gnaf/code/GeocodeTypes#Locality',
                 geocode_label='Locality',
                 alias_localities=self.alias_localities,
                 locality_neighbours=self.locality_neighbours
@@ -224,7 +224,7 @@ class Locality(GNAFModel):
             RDFS = Namespace('http://www.w3.org/2000/01/rdf-schema#')
             g.bind('rdfs', RDFS)
 
-            GNAF = Namespace('http://gnafld.net/def/gnaf#')
+            GNAF = Namespace('http://linked.data.gov.au/dataset/gnaf/def/gnaf#')
             g.bind('gnaf', GNAF)
 
             GEO = Namespace('http://www.opengis.net/ont/geosparql#')
@@ -248,7 +248,7 @@ class Locality(GNAFModel):
             # RDF: geometry
             geocode = BNode()
             g.add((geocode, RDF.type, GNAF.Geocode))
-            g.add((geocode, GNAF.gnafType, URIRef('http://gnafld.net/def/gnaf/code/GeocodeTypes#Locality')))
+            g.add((geocode, GNAF.gnafType, URIRef('http://linked.data.gov.au/dataset/gnaf/def/gnaf/code/GeocodeTypes#Locality')))
             g.add((geocode, RDFS.label, Literal('Locality', datatype=XSD.string)))
             g.add((geocode, GEO.asWKT,
                    Literal(self.make_wkt_literal(
@@ -261,7 +261,7 @@ class Locality(GNAFModel):
                     a = BNode()
                     g.add((a, RDF.type, GNAF.Alias))
                     g.add((URIRef(self.uri), GNAF.hasAlias, a))
-                    g.add((a, GNAF.gnafType, URIRef('http://gnafld.net/def/gnaf/code/AliasTypes#Synonym')))
+                    g.add((a, GNAF.gnafType, URIRef('http://linked.data.gov.au/dataset/gnaf/def/gnaf/code/AliasTypes#Synonym')))
                     g.add((a, RDFS.label, Literal(v['locality_name'], datatype=XSD.string)))
 
             if hasattr(self, 'locality_neighbours'):

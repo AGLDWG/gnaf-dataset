@@ -64,7 +64,7 @@ Do this by logging into postgres as the postgres super user from within the gnaf
 `unzip feb18.zip`
 
 ### Get the latest GNAF code lists' SQL
-`curl http://gnafld.net/def/gnaf/code/codes.sql > create_codes.sql`
+`curl http://linked.data.gov.au/dataset/gnaf/def/gnaf/code/codes.sql > create_codes.sql`
 
 ### Prepare loading scripts, run them
 alter the PSV file location in prepare_scripts.sh to match new folder then
