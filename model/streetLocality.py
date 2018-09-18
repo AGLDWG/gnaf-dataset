@@ -122,7 +122,7 @@ class StreetLocality(GNAFModel):
                 locality_name=locality_name,
                 latitude=latitude,
                 longitude=longitude,
-                geocode_uri='http://linked.data.gov.au/dataset/gnaf/def/gnaf/code/GeocodeTypes#StreetLocality',
+                geocode_uri='http://linked.data.gov.au/def/gnaf/code/GeocodeTypes#StreetLocality',
                 geocode_label=geocode_type,
                 geometry_wkt=geometry_wkt,
                 locality_pid=self.locality_pid,
@@ -272,7 +272,7 @@ class StreetLocality(GNAFModel):
             RDFS = Namespace('http://www.w3.org/2000/01/rdf-schema#')
             g.bind('rdfs', RDFS)
 
-            GNAF = Namespace('http://linked.data.gov.au/dataset/gnaf/def/gnaf#')
+            GNAF = Namespace('http://linked.data.gov.au/def/gnaf#')
             g.bind('gnaf', GNAF)
 
             GEO = Namespace('http://www.opengis.net/ont/geosparql#')
@@ -291,9 +291,9 @@ class StreetLocality(GNAFModel):
             g.add((s, RDF.type, GNAF.StreetLocality))
             g.add((s, GNAF.hasName, Literal(self.street_name, datatype=XSD.string)))
             if self.street_type is not None:
-                g.add((s, GNAF.hasStreetType, URIRef('http://linked.data.gov.au/dataset/gnaf/def/gnaf/code/StreetTypes#'+self.street_type)))
+                g.add((s, GNAF.hasStreetType, URIRef('http://linked.data.gov.au/def/gnaf/code/StreetTypes#'+self.street_type)))
             if self.street_suffix is not None:
-                g.add((s, GNAF.hasStreetSuffix, URIRef('http://linked.data.gov.au/dataset/gnaf/def/gnaf/code/StreetSuffixes#'+self.street_suffix)))
+                g.add((s, GNAF.hasStreetSuffix, URIRef('http://linked.data.gov.au/def/gnaf/code/StreetSuffixes#'+self.street_suffix)))
 #            g.add((a, GNAF.hasDateCreated, Literal(self.date_created, datatype=XSD.date)))
 #            if self.date_retired is not None:
 #                g.add((s, GNAF.hasDateRetired, Literal(self.date_retired, datatype=XSD.date)))
@@ -302,7 +302,7 @@ class StreetLocality(GNAFModel):
             if geometry_wkt is not None:
                 geocode = BNode()
                 g.add((geocode, RDF.type, GNAF.Geocode))
-                g.add((geocode, GNAF.gnafType, URIRef('http://linked.data.gov.au/dataset/gnaf/def/gnaf/code/GeocodeTypes#Locality')))
+                g.add((geocode, GNAF.gnafType, URIRef('http://linked.data.gov.au/def/gnaf/code/GeocodeTypes#Locality')))
                 g.add((geocode, RDFS.label, Literal('Locality', datatype=XSD.string)))
                 g.add((geocode, GEO.asWKT, Literal(geometry_wkt, datatype=GEO.wktLiteral)))
                 g.add((s, GEO.hasGeometry, geocode))
@@ -312,7 +312,7 @@ class StreetLocality(GNAFModel):
                     a = BNode()
                     g.add((a, RDF.type, GNAF.Alias))
                     g.add((URIRef(self.uri), GNAF.hasAlias, a))
-                    g.add((a, GNAF.gnafType, URIRef('http://linked.data.gov.au/dataset/gnaf/def/gnaf/code/AliasTypes#Synonym')))
+                    g.add((a, GNAF.gnafType, URIRef('http://linked.data.gov.au/def/gnaf/code/AliasTypes#Synonym')))
                     g.add((a, RDFS.label, Literal(v['street_locality_name'], datatype=XSD.string)))
         elif view == 'dct':
             raise NotImplementedError("RDF Representation of the DCT View for StreetLocality is not yet implemented.")

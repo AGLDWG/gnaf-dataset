@@ -31,7 +31,7 @@ The capabilities of the SPARQL endpoint are described with metadata in accordanc
 This query gets all the aliases of an Address (ADDRESS_X) and the Alias type:
 
 ```
-PREFIX gnaf: <http://linked.data.gov.au/dataset/gnaf/def/gnaf#>
+PREFIX gnaf: <http://linked.data.gov.au/def/gnaf#>
 SELECT ?aliasAddress ?aliasType
 WHERE {
     <ADDRESS_X>
@@ -45,7 +45,7 @@ For the Address <http://linked.data.gov.au/dataset/gnaf/address/GAACT714875297>,
 
 `?aliasType = <http://linked.data.gov.au/dataset/gnaf/address/GAACT715708026>`
 and  
-`?aliasAddress = <http://linked.data.gov.au/dataset/gnaf/def/gnaf#RangedAddressAlias>`
+`?aliasAddress = <http://linked.data.gov.au/def/gnaf#RangedAddressAlias>`
 so we can understand that the original address and the alias address are about a large block with one Address having a first and Last street number and the other having just one number.
 
 

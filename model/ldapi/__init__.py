@@ -197,7 +197,7 @@ class GNAFRegisterRenderer(pyldapi.RegisterRenderer):
         cic = self.contained_item_classes[0]
         try:
             cursor = config.get_db_cursor()
-            if cic == 'http://linked.data.gov.au/dataset/gnaf/def/gnaf#Address':
+            if cic == 'http://linked.data.gov.au/def/gnaf#Address':
                 id_query = sql.SQL('''SELECT address_detail_pid
                                    FROM gnaf.address_detail
                                    ORDER BY address_detail_pid
@@ -207,7 +207,7 @@ class GNAFRegisterRenderer(pyldapi.RegisterRenderer):
                     offset=sql.Literal((page - 1) * per_page)
                 )
                 label_prefix = 'Address'
-            elif cic == 'http://linked.data.gov.au/dataset/gnaf/def/gnaf#Locality':
+            elif cic == 'http://linked.data.gov.au/def/gnaf#Locality':
                 id_query = sql.SQL('''SELECT locality_pid
                                    FROM gnaf.locality
                                    ORDER BY locality_pid
@@ -217,7 +217,7 @@ class GNAFRegisterRenderer(pyldapi.RegisterRenderer):
                     offset=sql.Literal((page - 1) * per_page)
                 )
                 label_prefix = 'Locality'
-            elif cic == 'http://linked.data.gov.au/dataset/gnaf/def/gnaf#StreetLocality':
+            elif cic == 'http://linked.data.gov.au/def/gnaf#StreetLocality':
                 id_query = sql.SQL('''SELECT street_locality_pid
                                    FROM gnaf.street_locality
                                    ORDER BY street_locality_pid
@@ -227,7 +227,7 @@ class GNAFRegisterRenderer(pyldapi.RegisterRenderer):
                     offset=sql.Literal((page - 1) * per_page)
                 )
                 label_prefix = 'Street Locality'
-            elif cic == 'http://linked.data.gov.au/dataset/gnaf/def/gnaf#AddressSite':
+            elif cic == 'http://linked.data.gov.au/def/gnaf#AddressSite':
                 id_query = sql.SQL('''SELECT address_site_pid
                                    FROM gnaf.address_site
                                    ORDER BY address_site_pid

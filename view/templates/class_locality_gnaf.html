@@ -2,10 +2,10 @@
 <table class="content">
     <tr><th>Property</th><th>Value</th></tr>
     <tr>
-        <td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#hasName">Locality Name</a></td>
+        <td><a href="http://linked.data.gov.au/def/gnaf#hasName">Locality Name</a></td>
         <td><code>{{ locality_name }}</code></td>
     </tr>
-    <tr><td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#hasState">Has State</a></td><td><a href="{{ state_uri }}">{{ state_label }}</a></td></tr>
+    <tr><td><a href="http://linked.data.gov.au/def/gnaf#hasState">Has State</a></td><td><a href="{{ state_uri }}">{{ state_label }}</a></td></tr>
     {% if geometry_wkt is not none %}
     <tr>
         <td><a href="http://www.opengis.net/ont/geosparql#hasGeometry">Geometry</a></td>
@@ -14,7 +14,7 @@
     {% endif %}
     {% if alias_localities.items()|length > 0 %}
     <tr>
-        <td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#hasAlias">Has Alias</a></td><td>
+        <td><a href="http://linked.data.gov.au/def/gnaf#hasAlias">Has Alias</a></td><td>
             {% for locality_alias_pid, alias in alias_localities.items() %}
                 <ul>
                     <li><code>
@@ -28,7 +28,7 @@
     {% if locality_neighbours.items()|length > 0 %}
     <tr>
 
-        <td><a href="http://linked.data.gov.au/dataset/gnaf/def/gnaf#hasNeighbour">Has Neighbour</a></td>
+        <td><a href="http://linked.data.gov.au/def/gnaf#hasNeighbour">Has Neighbour</a></td>
         <td>
             <ul>
                 {% for locality_neighbour_id, locality_neighbour in locality_neighbours.items() %}

@@ -367,7 +367,7 @@ class Address(GNAFModel):
         g.add((
             URIRef(self.uri),
             URIRef('http://reference.data.gov.au/def/ont/iso19160-1-address#Address.class'),
-            URIRef('http://linked.data.gov.au/dataset/gnaf/def/gnaf#Address')  # always using this
+            URIRef('http://linked.data.gov.au/def/gnaf#Address')  # always using this
         ))
 
         # TODO: support all Address Lifecycle Stages: current, proposed, rejected, reserved, retired, unknown
@@ -703,7 +703,7 @@ class Address(GNAFModel):
                     ))
 
         elif view == 'gnaf':
-            GNAF = Namespace('http://linked.data.gov.au/dataset/gnaf/def/gnaf#')
+            GNAF = Namespace('http://linked.data.gov.au/def/gnaf#')
             g.bind('gnaf', GNAF)
 
             GEO = Namespace('http://www.opengis.net/ont/geosparql#')
@@ -750,7 +750,7 @@ class Address(GNAFModel):
             if self.number_lot is not None:
                 lot_number = BNode()
                 g.add((lot_number, RDF.type, GNAF.Number))
-                g.add((lot_number, GNAF.gnafType, URIRef('http://linked.data.gov.au/dataset/gnaf/def/gnaf/code/NumberTypes#Lot')))
+                g.add((lot_number, GNAF.gnafType, URIRef('http://linked.data.gov.au/def/gnaf/code/NumberTypes#Lot')))
                 g.add((lot_number, PROV.value, Literal(str(self.number_lot), datatype=XSD.integer)))
                 g.add((a, GNAF.hasNumber, lot_number))
                 if self.number_lot_prefix is not None:
@@ -764,7 +764,7 @@ class Address(GNAFModel):
             if self.number_flat is not None:
                 flat_number = BNode()
                 g.add((flat_number, RDF.type, GNAF.Number))
-                g.add((flat_number, GNAF.gnafType, URIRef('http://linked.data.gov.au/dataset/gnaf/def/gnaf/code/NumberTypes#Flat')))
+                g.add((flat_number, GNAF.gnafType, URIRef('http://linked.data.gov.au/def/gnaf/code/NumberTypes#Flat')))
                 g.add((flat_number, PROV.value, Literal(int(self.number_flat), datatype=XSD.integer)))
                 g.add((a, GNAF.hasNumber, flat_number))
                 if self.number_flat_prefix is not None:
@@ -775,7 +775,7 @@ class Address(GNAFModel):
             if self.number_level is not None:
                 level_number = BNode()
                 g.add((level_number, RDF.type, GNAF.Number))
-                g.add((level_number, GNAF.gnafType, URIRef('http://linked.data.gov.au/dataset/gnaf/def/gnaf/code/NumberTypes#Level')))
+                g.add((level_number, GNAF.gnafType, URIRef('http://linked.data.gov.au/def/gnaf/code/NumberTypes#Level')))
                 g.add((level_number, PROV.value, Literal(int(self.number_level), datatype=XSD.integer)))
                 g.add((a, GNAF.hasNumber, level_number))
                 if self.number_level_prefix is not None:
@@ -786,7 +786,7 @@ class Address(GNAFModel):
             if self.number_first is not None:
                 number_first = BNode()
                 g.add((number_first, RDF.type, GNAF.Number))
-                g.add((number_first, GNAF.gnafType, URIRef('http://linked.data.gov.au/dataset/gnaf/def/gnaf/code/NumberTypes#FirstStreet')))
+                g.add((number_first, GNAF.gnafType, URIRef('http://linked.data.gov.au/def/gnaf/code/NumberTypes#FirstStreet')))
                 g.add((number_first, PROV.value, Literal(int(self.number_first), datatype=XSD.integer)))
                 g.add((a, GNAF.hasNumber, number_first))
                 if self.number_first_prefix is not None:
@@ -797,7 +797,7 @@ class Address(GNAFModel):
             if self.number_last is not None:
                 number_last = BNode()
                 g.add((number_last, RDF.type, GNAF.Number))
-                g.add((number_last, GNAF.gnafType, URIRef('http://linked.data.gov.au/dataset/gnaf/def/gnaf/code/NumberTypes#LastStreet')))
+                g.add((number_last, GNAF.gnafType, URIRef('http://linked.data.gov.au/def/gnaf/code/NumberTypes#LastStreet')))
                 g.add((number_last, PROV.value, Literal(int(self.number_last), datatype=XSD.integer)))
                 g.add((a, GNAF.hasNumber, number_last))
                 if self.number_last_prefix is not None:
