@@ -4,3 +4,4 @@ flask
 rdflib
 rdflib-jsonld
 pyldapi
+flask_paginate

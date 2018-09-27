@@ -3,7 +3,30 @@
 {% block content %}
     <h1>G-NAF LDAPI</h1>
     <h2>SPARQL endpoint</h2>
-    <p>See the documentation for this SPARQL service at <a href="https://github.com/nicholascar/gnaf-ldapi-test/blob/master/_docs/sparql.md">https://github.com/nicholascar/gnaf-ldapi-test/blob/master/_docs/sparql.md</a>.</p>
+    <p>
+        This page allows you to lodge <a href="https://en.wikipedia.org/wiki/SPARQL">SPARQL</a> queries against a
+        <a href="https://en.wikipedia.org/wiki/Triplestore">triplestore</a> which acts as a cached graph of the data
+        from the point-of-truth G-NAF database.
+    </p>
+    <h3>Test Query</h3>
+    <p>
+        Here is an example query you can copy 'n paste into the text area below to do a count of the Address objects
+        within the cached graph. It should be the same number as within the GNAF point-of-truth database:
+    </p>
+    <pre>
+    <code>
+PREFIX gnaf: &lt;http://linked.data.gov.au/def/gnaf#&gt;
+SELECT (COUNT(?s) AS ?c)
+WHERE {
+    ?s a gnaf:Address .
+}
+    </code>
+    </pre>
+    <p>
+        See the complete documentation for this SPARQL service at
+        <a href="https://github.com/AGLDWG/gnaf-dataset/blob/master/_docs/sparql.md">the source code's SPARQL docs
+        page</a>.
+    </p>
     <h4>Enter your SPARQL query in the text box below:</h4>
      <form action="{{ url_for('routes.sparql') }}" method="post">
         <textarea name="query" id="query" style="width:955px; height:300px;">{% if query and query != '' %}{{query}}{% endif %}</textarea>

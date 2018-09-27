@@ -26,6 +26,7 @@ h3 {
 
 p, a, li {
     font-family: Arial,sans-serif;
+    line-height: 1.5em;
 }
 a {
     color: rgb(0, 92, 132);

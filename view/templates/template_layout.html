@@ -7,11 +7,25 @@
 </head>
 <body>
     <div id="widther">
-        {% include 'template_header.html' %}
+        <div id="header">
+            <div style="float:left;">
+                <a href="https://www.psma.com.au/">PSMA Australia Ltd.</a>
+            </div>
+            <div style="float:right;">
+                <a href="{{ url_for('routes.index') }}">Home</a>
+                <a href="{{ url_for('routes.api') }}">API</a>
+                <a href="{{ url_for('classes.addresses') }}">Address Register</a>
+                <a href="{{ url_for('routes.sparql' ) }}">SPARQL endpoint</a>
+                <a href="http://linked.data.gov.au/def/gnaf">GNAF ontology</a>
+                <a href="http://linked.data.gov.au/def/gnaf/code/">GNAF codes</a>
+                <a href="{{ url_for('routes.about') }}">About</a>
+            </div>
+            <div style="clear:both;"></div>
+        </div>
         <div id="container-content">
             {% block content %}{% endblock %}
         </div>
-        {% include 'template_footer.html' %}
+        <div id="footer"></div>
     </div>
 </body>
 </html>

@@ -2,8 +2,12 @@
 
 {% block content %}
     <h1>G-NAF LDAPI</h1>
-    <p>This is a <strong>test</strong> Linked Data API delivering data from the <a href="https://www.psma.com.au/products/g-naf">G-NAF, the Geocoded National Address File</a>.</p>
-    <h3>Starting points</h3>
+    <h2>About</h2>
+    <p>
+        This is a Linked Data API delivering data from the <a href="https://www.psma.com.au/products/g-naf">G-NAF, the
+        Geocoded National Address File</a>.
+    </p>
+    <h2>Starting points</h2>
     <ul>
         <li><a href="{{ url_for('classes.addresses') }}">Address Register</a> - the list of all Addresses, paged</li>
         <li><a href="{{ url_for('classes.address', address_id='GAACT714845933') }}">An Address</a> - example, GAACT714845933</li>
@@ -13,8 +17,8 @@
         <li><a href="{{ url_for('classes.locality', locality_id='198023') }}">A Locality</a> - example, 198023 (Argoon, Queensland)</li>
         <li><a href="{{ url_for('routes.sparql' ) }}">SPARQL endpoint</a></li>
     </ul>
-    <h3>More information</h3>
+    <h2>More information</h2>
     <ul>
-        <li>See the <a href="{{ url_for('routes.about') }}">About page</a> for more!</li>
+        <li>See the <a href="{{ url_for('routes.about') }}">About page</a> for technical and project information.</li>
     </ul>
 {% endblock %}
