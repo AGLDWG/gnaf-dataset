@@ -29,7 +29,7 @@ For Ubuntu Linux
 `ALTER USER gnafusr WITH PASSWORD 'xxxx';`  
 
 \# run the script prepare_scripts.sh using the directory of the GNAF content
-\# run the run_sql.sh script
+\# run the run_sql.sql script
 Do this by logging into postgres as the postgres super user from within the gnafldapi _load dir:
 `cd /var/www/gnafldapi/_load/`
 `su - postgres`  
@@ -71,4 +71,4 @@ alter the PSV file location in prepare_scripts.sh to match new folder then
 `./prepare_scripts.sh`
 
 inside Postgres:
-`\i run_sql.sh`
+`\i run_sql.sql`

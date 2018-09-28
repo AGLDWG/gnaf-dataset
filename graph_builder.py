@@ -33,7 +33,7 @@ def get_localities_in_state(state_pid):
             f.write(str(r.locality_pid) + '\n')
 
 
-def run(index_file, data_file_count):
+def run(index_file, file_id, data_file_count):
     logging.basicConfig(filename='graph_builder.log',
                         level=logging.DEBUG,
                         datefmt='%Y-%m-%d %H:%M:%S',
@@ -48,7 +48,7 @@ def run(index_file, data_file_count):
 
     cursor = config.get_db_cursor()
 
-    data_file_stem = 'data-'
+    data_file_stem = 'data-address-'+str(file_id)+"-"
     # for idx, addr in enumerate(cursor.fetchall()):
     for idx, addr in enumerate(open(index_file, 'r').readlines()):
         a = addr.strip()
@@ -59,8 +59,8 @@ def run(index_file, data_file_count):
                 data_file_count += 1
             with open(data_file_stem + str(data_file_count).zfill(4) + '.nt', 'a') as fl:
                 fl.write(
-                    model.address.AddressRenderer(a, focus=True, db_cursor=cursor)
-                        .export_rdf(view='gnaf', format='text/n3').decode('utf-8')
+                    model.address.Address(a, focus=True, db_cursor=cursor)
+                        .export_rdf(view='gnaf').serialize(format='nt').decode('utf-8')
                 )
         except Exception as e:
             logging.log(logging.DEBUG, 'address ' + a, e)
@@ -72,7 +72,7 @@ def run(index_file, data_file_count):
             logging.log(logging.INFO, 'Last accessed Address: ' + a)
 
 
-def run_localities(locality_index_file, data_file_count):
+def run_localities(locality_index_file, file_id, data_file_count):
     logging.basicConfig(filename='graph_builder.log',
                         level=logging.DEBUG,
                         datefmt='%Y-%m-%d %H:%M:%S',
@@ -87,7 +87,7 @@ def run_localities(locality_index_file, data_file_count):
 
     cursor = config.get_db_cursor()
 
-    data_file_stem = 'data-locality-'
+    data_file_stem = 'data-locality-'+str(file_id)+"-"
     # for idx, addr in enumerate(cursor.fetchall()):
     for idx, addr in enumerate(open(locality_index_file, 'r').readlines()):
         a = addr.strip()
@@ -97,8 +97,8 @@ def run_localities(locality_index_file, data_file_count):
             if (idx + 1) % DATA_FILE_LENGTH_MAX == 0:
                 data_file_count += 1
             with open(data_file_stem + str(data_file_count).zfill(4) + '.nt', 'a') as fl:
-                rdf = model.locality.LocalityRenderer(a, db_cursor=cursor)\
-                    .export_rdf(view='gnaf', format='text/n3').decode('utf-8')
+                rdf = model.locality.Locality(a, db_cursor=cursor)\
+                    .export_rdf(view='gnaf').serialize(format='nt').decode('utf-8')
                 print(rdf)
                 fl.write(
                     rdf
@@ -114,20 +114,39 @@ def run_localities(locality_index_file, data_file_count):
 
 
 if __name__ == '__main__':
-    #run('addresses_state_8.txt', '1')
-    # get_state_addresses('1')
-    # get_state_addresses('2')
-    # get_state_addresses('3')
-    # get_state_addresses('4')
-    # get_state_addresses('5')
-    # get_state_addresses('6')
-    # get_state_addresses('7')
-    # get_state_addresses('8')
-    # get_state_addresses('9')
-    # get_localities_in_state(8)
-    run_localities('localities_state_8.txt', 1)
-
-    # cursor = config.get_db_cursor()
-    # loc = model.locality.LocalityRenderer('ACT101', db_cursor=cursor)
-    # print(loc.export_rdf(view='gnaf', format='text/n3').decode('utf-8'))
-
+    get_state_addresses('1')
+    get_state_addresses('2')
+    get_state_addresses('3')
+    get_state_addresses('4')
+    get_state_addresses('5')
+    get_state_addresses('6')
+    get_state_addresses('7')
+    get_state_addresses('8')
+    get_state_addresses('9')
+    run('addresses_state_1.txt', '1', 1)
+    run('addresses_state_2.txt', '2', 1)
+    run('addresses_state_3.txt', '3', 1)
+    run('addresses_state_4.txt', '4', 1)
+    run('addresses_state_5.txt', '5', 1)
+    run('addresses_state_6.txt', '6', 1)
+    run('addresses_state_7.txt', '7', 1)
+    run('addresses_state_8.txt', '8', 1)
+    run('addresses_state_9.txt', '9', 1)
+    get_localities_in_state('1')
+    get_localities_in_state('2')
+    get_localities_in_state('3')
+    get_localities_in_state('4')
+    get_localities_in_state('5')
+    get_localities_in_state('6')
+    get_localities_in_state('7')
+    get_localities_in_state('8')
+    get_localities_in_state('9')
+    run_localities('localities_state_1.txt', '1', 1)
+    run_localities('localities_state_2.txt', '2', 1)
+    run_localities('localities_state_3.txt', '3', 1)
+    run_localities('localities_state_4.txt', '4', 1)
+    run_localities('localities_state_5.txt', '5', 1)
+    run_localities('localities_state_6.txt', '6', 1)
+    run_localities('localities_state_7.txt', '7', 1)
+    run_localities('localities_state_8.txt', '8', 1)
+    run_localities('localities_state_9.txt', '9', 1)
