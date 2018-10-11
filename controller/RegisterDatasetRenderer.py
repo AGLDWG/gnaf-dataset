@@ -1,5 +1,5 @@
 import pyldapi
-from rdflib import Graph, Namespace, URIRef, Literal, RDF, RDFS, XSD
+from rdflib import Graph, Namespace, URIRef, Literal, RDF, RDFS, XSD, BNode
 
 
 class RegisterDatasetRenderer(pyldapi.RegisterOfRegistersRenderer):
@@ -149,27 +149,58 @@ class RegisterDatasetRenderer(pyldapi.RegisterOfRegistersRenderer):
         g.add((register_uri, DCAT.keyword, Literal('addresses')))
 
         # contact point  (dcat:contactPoint -> vcard:Kind)
-        """
-        @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-        @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-        @prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
-        @prefix xml: <http://www.w3.org/XML/1998/namespace> .
-        @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-        
-        <http://example.com/me/corky> a vcard:Individual ;
-            vcard:fn "Corky Crystal" ;
-            vcard:hasAddress [ a vcard:Home ;
-                    vcard:country-name "Australia" ;
-                    vcard:locality "WonderCity" ;
-                    vcard:postal-code "5555" ;
-                    vcard:street-address "111 Lake Drive" ] ;
-            vcard:hasEmail <mailto:corky@example.com> ;
-            vcard:hasTelephone [ a vcard:Home,
-                        vcard:Voice ;
-                    vcard:hasValue <tel:+61755555555> ] ;
-            vcard:nickname "Corks" .
-        """
+        VCARD = Namespace('http://www.w3.org/2006/vcard/ns#')
+        g.bind('vcard', VCARD)
+        vcard = BNode()
+        g.add((vcard, RDF.type, VCARD.Individual))
+        g.add((vcard, VCARD.fn, "Nicholas Car"))
+        g.add((vcard, VCARD.hasEmail, URIRef('nicholas.car@csiro.au')))
+        phone = BNode()
+        g.add((phone, RDF.type, VCARD.Home))
+        g.add((phone, VCARD.hasValue, URIRef('tel:+61738335632')))
+        g.add((vcard, VCARD.hasTelephone, phone))
+        vcard2 = BNode()
+        g.add((vcard2, RDF.type, VCARD.Individual))
+        g.add((vcard2, VCARD.fn, "Joseph Abhayaratna"))
+        g.add((vcard2, VCARD.hasEmail, URIRef('joseph.abhayaratna@psma.com.au')))
+        g.add((vcard2, VCARD.hasTelephone, phone))
+        g.add((register_uri, DCAT.contactPoint, vcard))
 
-        # landing page (dcat:landingPage -> dcat:landingPage) use the main URI endpoint
+        # landing page (dcat:landingPage -> foaf:Document) use the main URI endpoint
+        g.add((register_uri, DCAT.landingPage, URIRef('http://linked.data.gov.au/dataset/gnaf')))
+
+        # from https://w3c.github.io/dxwg/dcat/#Class:Data_Distribution_Service
+        dist_service = URIRef('http://linked.data.gov.au/dataset/gnaf/sparql')
+        # rdf:type dcat:DataDistributionService
+        g.add((dist_service, RDF.type, DCAT.DataDistributionService))
+        g.add((register_uri, DCT.title, Literal('GNAF SPARQL Service')))
+        g.add((register_uri, DCT.description, Literal('A SPARQL 1.1 service accessing all of the content of the GNAF in RDF')))
+        # serves dataset (dcat:servesDataset -> dcat:Dataset) is it sensible when there's only 1?
+        g.add((dist_service, DCAT.servesDataset, register_uri))
+        # endpoint address (dcat:endpointURL -> xsd:anyURI) the SPARQL endpoint
+        g.add((dist_service, DCAT.endpointURL, dist_service))
+        # endpoint description (dcat:endpointDescription -> rdfs:Resource) SPARQL RDF description
+        g.add((dist_service, DCAT.endpointDescription, URIRef('http://linked.data.gov.au/dataset/gnaf/sparql.ttl')))
+        # license (dct:license -> dct:LicenseDocument) same as the other Distribution licenses, same as data.gov.au
+        g.add((dist_service, DCAT.license, URIRef('https://data.gov.au/dataset/19432f89-dc3a-4ef3-b943-5326ef1dbecc/resource/09f74802-08b1-4214-a6ea-3591b2753d30')))
+        # access rights (dct:accessRights -> dct:RightsStatement) same as the other Distribution licenses, same as data.gov.au
+        # not implemented
+
+        # from https://w3c.github.io/dxwg/dcat/#Class:Data_Distribution_Service
+        dist_service2 = URIRef('http://linked.data.gov.au/dataset/gnaf')
+        # rdf:type dcat:DataDistributionService
+        g.add((dist_service2, RDF.type, DCAT.DataDistributionService))
+        g.add((register_uri, DCT.title, Literal('GNAF Linked Data API Service')))
+        g.add((register_uri, DCT.description, Literal('A Linked Data API accessing all of the content of the GNAF in RDF & HTML')))
+        # serves dataset (dcat:servesDataset -> dcat:Dataset) is it sensible when there's only 1?
+        g.add((dist_service2, DCAT.servesDataset, register_uri))
+        # endpoint address (dcat:endpointURL -> xsd:anyURI) the SPARQL endpoint
+        g.add((dist_service2, DCAT.endpointURL, dist_service2))
+        # endpoint description (dcat:endpointDescription -> rdfs:Resource) SPARQL RDF description
+        g.add((dist_service2, DCAT.endpointDescription, URIRef('http://linked.data.gov.au/dataset/gnaf.ttl')))
+        # license (dct:license -> dct:LicenseDocument) same as the other Distribution licenses, same as data.gov.au
+        g.add((dist_service2, DCAT.license, URIRef('https://data.gov.au/dataset/19432f89-dc3a-4ef3-b943-5326ef1dbecc/resource/09f74802-08b1-4214-a6ea-3591b2753d30')))
+        # access rights (dct:accessRights -> dct:RightsStatement) same as the other Distribution licenses, same as data.gov.au
+        # not implemented
 
         return g
