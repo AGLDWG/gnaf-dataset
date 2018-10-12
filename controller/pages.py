@@ -59,6 +59,21 @@ def about():
     )
 
 
+@pages.route('/sparql.ttl', methods=['GET'])
+def sparql_description():
+    path_parts = request.path.rsplit('/', 1)
+    path_parts = list(filter(bool, path_parts))
+    if len(path_parts) == 1:
+        path_parent = '/'
+    else:
+        path_parent = path_parts[0]
+    base_url = request.host_url.rstrip('/') + path_parent
+    return Response(
+        get_sparql_service_description(
+            format='turtle', base_url=base_url),
+        status=200,
+        mimetype='text/turtle')
+
 @pages.route('/sparql', methods=['GET', 'POST'])
 def sparql():
     # Query submitted
@@ -187,10 +202,17 @@ def sparql():
             elif best is not None:
                 for item in pyldapi.Renderer.RDF_MIMETYPES:
                     if item == best:
+                        path_parts = request.path.rsplit('/', 1)
+                        path_parts = list(filter(bool, path_parts))
+                        if len(path_parts) == 1:
+                            path_parent = '/'
+                        else:
+                            path_parent = path_parts[0]
+                        base_url = request.host_url.rstrip('/') + path_parent
                         rdf_format = best
                         return Response(
                             get_sparql_service_description(
-                                mimetype=rdf_format),
+                                format=rdf_format, base_url=base_url),
                             status=200,
                             mimetype=best)
 
@@ -205,53 +227,44 @@ def sparql():
                 )
 
 
-MIMETYPES_PARSERS = [
-    ('text/turtle', 'turtle'),
-    ('application/rdf+xml', 'xml'),
-    ('application/rdf xml', 'xml'),
-    ('application/ld+json', 'json-ld'),
-    ('application/ld json', 'json-ld'),
-    ('application/json', 'json-ld'),
-    ('text/ntriples', 'nt'),
-    ('text/nt', 'nt'),
-    ('text/n3', 'nt')
-]
-
-
-def get_sparql_service_description(mimetype):
+def get_sparql_service_description(format, base_url):
     """Return an RDF description of PROMS' read only SPARQL endpoint in a requested format
 
     :param mimetype: 'turtle', 'n3', 'xml', 'json-ld'
     :return: string of RDF in the requested format
     """
-    sd_ttl = '''
-        @prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-        @prefix sd:     <http://www.w3.org/ns/sparql-service-description#> .
-        @prefix sdf:    <http://www.w3.org/ns/formats/> .
-        @prefix void: <http://rdfs.org/ns/void#> .
-        @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+    sd_ttl = '''\
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sd:     <http://www.w3.org/ns/sparql-service-description#> .
+@prefix sdf:    <http://www.w3.org/ns/formats/> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-        <http://linked.data.gov.au/dataset/gnaf/sparql>
-            a                       sd:Service ;
-            sd:endpoint             <%(BASE_URI)s/function/sparql> ;
-            sd:supportedLanguage    sd:SPARQL11Query ; # yes, read only, sorry!
-            sd:resultFormat         sdf:SPARQL_Results_JSON ;  # yes, we only deliver JSON results, sorry!
-            sd:feature sd:DereferencesURIs ;
-            sd:defaultDataset [
-                a sd:Dataset ;
-                sd:defaultGraph [
-                    a sd:Graph ;
-                    void:triples "100"^^xsd:integer
-                ]
-            ]
-        .
-    '''
+<http://linked.data.gov.au/dataset/gnaf/sparql>
+    a                       sd:Service ;
+    sd:endpoint             <{:s}/sparql> ;
+    sd:supportedLanguage    sd:SPARQL11Query ; # yes, read only, sorry!
+    sd:resultFormat         sdf:SPARQL_Results_JSON ;  # yes, we only deliver JSON results, sorry!
+    sd:feature sd:DereferencesURIs ;
+    sd:defaultDataset [
+        a sd:Dataset ;
+        sd:defaultGraph [
+            a sd:Graph ;
+            void:triples "100"^^xsd:integer
+        ]
+    ]
+.
+'''
+    base_url = base_url.rstrip("/")
+    sd_ttl = sd_ttl.format(base_url)
+    if format == "turtle" or format == "text/turtle":
+        return sd_ttl
     g = Graph().parse(io.StringIO(sd_ttl), format='turtle')
-    rdf_mimetypes_map = {x[0]: x[1] for x in MIMETYPES_PARSERS}
-    if mimetype in rdf_mimetypes_map.values():
-        return g.serialize(format=mimetype)
-    elif mimetype in rdf_mimetypes_map:
-        return g.serialize(format=rdf_mimetypes_map[mimetype])
+    rdf_mimetypes_map = pyldapi.Renderer.RDF_SERIALIZER_MAP
+    if format in rdf_mimetypes_map.values():
+        return g.serialize(format=format)
+    elif format in rdf_mimetypes_map:
+        return g.serialize(format=rdf_mimetypes_map[format])
     else:
         raise ValueError('Input parameter rdf_format must be one of: ' + ', '.join(rdf_mimetypes_map.values()))
 
@@ -265,7 +278,7 @@ def sparql_query(sparql_query, format_mimetype='application/sparql-results+json'
         'Accept': format_mimetype
     }
     try:
-        r = requests.post(config.SPARQL_QUERY_URI, auth=auth, data=data, headers=headers, timeout=1)
+        r = requests.post(config.SPARQL_QUERY_URI, auth=auth, data=data, headers=headers, timeout=30)
         import pprint
         pprint.pprint(r.headers)
         return r.content.decode('utf-8')
