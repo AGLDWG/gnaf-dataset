@@ -9,6 +9,7 @@ from rdflib import Graph, Literal
 import io
 import requests
 import _config as config
+import controller.RegisterDatasetRenderer as RDR
 
 pages = Blueprint('routes', __name__)
 
@@ -33,7 +34,7 @@ created by the ISO TC211, Group for Ontology Management (GOM) and published onli
 Linked Data Working Group at <http://reference.data.gov.au/def/ont/iso19160-1-address>."""
     rofr_comment = Literal(rofr_comment, lang='en')
     rofr_ttl_path = '/'.join([config.APP_DIR, 'rofr.ttl'])
-    rofr_renderer = pyldapi.RegisterOfRegistersRenderer(
+    rofr_renderer = RDR.RegisterDatasetRenderer(
         request,
         request.base_url,
         "GNAF Linked Data dataset top-level Register",

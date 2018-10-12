@@ -11,7 +11,7 @@ class RegisterDatasetRenderer(pyldapi.RegisterOfRegistersRenderer):
                  super_register=None, **kwargs):
 
         # push RofR properties up to the RofR constructor
-        super(pyldapi.RegisterOfRegistersRenderer, self).__init__(
+        super().__init__(
             request, uri, label, comment, rofr_file_path, *args, ['http://purl.org/linked-data/registry#Register'],
             super_register=super_register, **kwargs
         )
@@ -75,8 +75,15 @@ class RegisterDatasetRenderer(pyldapi.RegisterOfRegistersRenderer):
         g.bind('foaf', FOAF)
         DCT = Namespace('http://purl.org/dc/terms/')
         g.bind('dct', DCT)
+        VCARD = Namespace('http://www.w3.org/2006/vcard/ns#')
+        g.bind('vcard', VCARD)
+        # PROV = Namespace('http://www.w3.org/ns/prov-o#')
+        # g.bind('prov', PROV)
 
         register_uri = URIRef(self.uri)
+        #
+        #   Dataset
+        #
         # from https://w3c.github.io/dxwg/dcat/#Class:Dataset
         # rdf:type dcat:Dataset
         g.add((register_uri, RDF.type, DCAT.Dataset))
@@ -85,7 +92,7 @@ class RegisterDatasetRenderer(pyldapi.RegisterOfRegistersRenderer):
         psma = URIRef('http://catalogue.linked.data.gov.au/org/psma')
         g.add((psma, RDF.type, FOAF.Organization))
         g.add((psma, RDFS.label, Literal('PSMA Australia Ltd.')))
-        g.add((register_uri, RDF.type, psma))
+        g.add((register_uri, DCT.creator, psma))
 
         # dataset distribution (dcat:distribution -> dcat:Distribution) could be the SPARQL endpoint, HTML, RDF??
         # TODO: DCAT distribution decisions
@@ -105,12 +112,26 @@ class RegisterDatasetRenderer(pyldapi.RegisterOfRegistersRenderer):
 
         # from https://w3c.github.io/dxwg/dcat/#Class:Resource
         # title (dct:title -> rdfs:Literal)
-        g.add((register_uri, DCT.title, Literal(self.label, datatype=XSD.string)))
+        g.add((register_uri, DCT.title, Literal('PSMA Geocoded National Address File (G-NAF)', datatype=XSD.string)))
+        g.remove((register_uri, RDFS.label, Literal(self.label, datatype=XSD.string)))
         # TODO: DCAT remove the RDFS label
 
         # description (dct:description -> rdfs:Literal)
-        g.add((register_uri, DCT.description, Literal(self.comment, datatype=XSD.string)))
+        # description from
+        desc = """The Geocoded National Address File (referred to as G-NAF) is Australia’s authoritative, geocoded address file.
+
+G-NAF is one of the most ubiquitous and powerful spatial datasets. It contains more than 13 million Australian physical address records. The records include geocodes. These are latitude and longitude map coordinates. G-NAF does not contain any names or personal information.
+
+G-NAF is produced by PSMA Australia Limited (PSMA), an unlisted public company formed by the nine governments of Australia to collate and standardise, format and aggregate location data from each of the jurisdictions into authoritative location based national datasets.
+
+This initiative to make the G-NAF openly available has been achieved through collaboration between PSMA and the Commonwealth and State and Territory Governments.
+
+Updated versions of the G-NAF will be published on a quarterly basis from February 2016.
+
+For further information on G-NAF, including FAQs on the data, see: www.psma.com.au/products/g-naf or contact and PSMA’s network of value added resellers and integrators provide a range of commercial products based on G-NAF including software solutions, consultancy and support."""
+        g.add((register_uri, DCT.description, Literal(desc)))
         # TODO: DCAT remove the RDFS comment
+        g.remove((register_uri, RDFS.comment, Literal(self.comment, datatype=XSD.string)))
 
         # release data (dct:issued -> rdfs:Literal)
         g.add((register_uri, DCT.issued, Literal('2016-02-22', datatype=XSD.date)))  # from data.gov.au
@@ -122,12 +143,11 @@ class RegisterDatasetRenderer(pyldapi.RegisterOfRegistersRenderer):
         g.add((register_uri, DCT.language, URIRef('http://id.loc.gov/vocabulary/iso639-2/eng')))
 
         # publisher (dct:publisher -> foaf:Organization)
-        # same as creator, but also CSIRO
+        # same as creator (PSMA), but also CSIRO
         g.add((register_uri, DCT.publisher, psma))
         csiro = URIRef('http://catalogue.linked.data.gov.au/org/O-000886')
         g.add((csiro, RDF.type, FOAF.Organization))
-        g.add((psma, RDFS.label, Literal('CSIRO')))
-        g.add((register_uri, RDF.type, psma))
+        g.add((csiro, RDFS.label, Literal('CSIRO')))
         g.add((register_uri, DCT.publisher, csiro))
 
         # identifier (dct:identifier -> rdfs:Literal)
@@ -149,32 +169,32 @@ class RegisterDatasetRenderer(pyldapi.RegisterOfRegistersRenderer):
         g.add((register_uri, DCAT.keyword, Literal('addresses')))
 
         # contact point  (dcat:contactPoint -> vcard:Kind)
-        VCARD = Namespace('http://www.w3.org/2006/vcard/ns#')
-        g.bind('vcard', VCARD)
         vcard = BNode()
         g.add((vcard, RDF.type, VCARD.Individual))
-        g.add((vcard, VCARD.fn, "Nicholas Car"))
-        g.add((vcard, VCARD.hasEmail, URIRef('nicholas.car@csiro.au')))
-        phone = BNode()
-        g.add((phone, RDF.type, VCARD.Home))
-        g.add((phone, VCARD.hasValue, URIRef('tel:+61738335632')))
-        g.add((vcard, VCARD.hasTelephone, phone))
-        vcard2 = BNode()
-        g.add((vcard2, RDF.type, VCARD.Individual))
-        g.add((vcard2, VCARD.fn, "Joseph Abhayaratna"))
-        g.add((vcard2, VCARD.hasEmail, URIRef('joseph.abhayaratna@psma.com.au')))
-        g.add((vcard2, VCARD.hasTelephone, phone))
+        g.add((vcard, VCARD.fn, Literal("Joseph Abhayaratna")))
+        g.add((vcard, VCARD.hasEmail, URIRef('joseph.abhayaratna@psma.com.au')))
         g.add((register_uri, DCAT.contactPoint, vcard))
 
         # landing page (dcat:landingPage -> foaf:Document) use the main URI endpoint
         g.add((register_uri, DCAT.landingPage, URIRef('http://linked.data.gov.au/dataset/gnaf')))
 
+        #
+        #   Distributions
+        #
+        vcard2 = BNode()
+        g.add((vcard2, RDF.type, VCARD.Individual))
+        g.add((vcard2, VCARD.fn, Literal("Nicholas Car")))
+        g.add((vcard2, VCARD.hasEmail, URIRef('nicholas.car@csiro.au')))
+        phone = BNode()
+        g.add((phone, RDF.type, VCARD.Home))
+        g.add((phone, VCARD.hasValue, URIRef('tel:+61738335632')))
+        g.add((vcard2, VCARD.hasTelephone, phone))
         # from https://w3c.github.io/dxwg/dcat/#Class:Data_Distribution_Service
         dist_service = URIRef('http://linked.data.gov.au/dataset/gnaf/sparql')
         # rdf:type dcat:DataDistributionService
         g.add((dist_service, RDF.type, DCAT.DataDistributionService))
-        g.add((register_uri, DCT.title, Literal('GNAF SPARQL Service')))
-        g.add((register_uri, DCT.description, Literal('A SPARQL 1.1 service accessing all of the content of the GNAF in RDF')))
+        g.add((dist_service, DCT.title, Literal('GNAF SPARQL Service')))
+        g.add((dist_service, DCT.description, Literal('A SPARQL 1.1 service accessing all of the content of the GNAF in RDF')))
         # serves dataset (dcat:servesDataset -> dcat:Dataset) is it sensible when there's only 1?
         g.add((dist_service, DCAT.servesDataset, register_uri))
         # endpoint address (dcat:endpointURL -> xsd:anyURI) the SPARQL endpoint
@@ -185,13 +205,14 @@ class RegisterDatasetRenderer(pyldapi.RegisterOfRegistersRenderer):
         g.add((dist_service, DCAT.license, URIRef('https://data.gov.au/dataset/19432f89-dc3a-4ef3-b943-5326ef1dbecc/resource/09f74802-08b1-4214-a6ea-3591b2753d30')))
         # access rights (dct:accessRights -> dct:RightsStatement) same as the other Distribution licenses, same as data.gov.au
         # not implemented
+        g.add((dist_service, DCAT.contactPoint, vcard2))
 
         # from https://w3c.github.io/dxwg/dcat/#Class:Data_Distribution_Service
         dist_service2 = URIRef('http://linked.data.gov.au/dataset/gnaf')
         # rdf:type dcat:DataDistributionService
         g.add((dist_service2, RDF.type, DCAT.DataDistributionService))
-        g.add((register_uri, DCT.title, Literal('GNAF Linked Data API Service')))
-        g.add((register_uri, DCT.description, Literal('A Linked Data API accessing all of the content of the GNAF in RDF & HTML')))
+        g.add((dist_service2, DCT.title, Literal('GNAF Linked Data API Service')))
+        g.add((dist_service2, DCT.description, Literal('A Linked Data API accessing all of the content of the GNAF in RDF & HTML')))
         # serves dataset (dcat:servesDataset -> dcat:Dataset) is it sensible when there's only 1?
         g.add((dist_service2, DCAT.servesDataset, register_uri))
         # endpoint address (dcat:endpointURL -> xsd:anyURI) the SPARQL endpoint
@@ -202,5 +223,6 @@ class RegisterDatasetRenderer(pyldapi.RegisterOfRegistersRenderer):
         g.add((dist_service2, DCAT.license, URIRef('https://data.gov.au/dataset/19432f89-dc3a-4ef3-b943-5326ef1dbecc/resource/09f74802-08b1-4214-a6ea-3591b2753d30')))
         # access rights (dct:accessRights -> dct:RightsStatement) same as the other Distribution licenses, same as data.gov.au
         # not implemented
+        g.add((dist_service2, DCAT.contactPoint, vcard2))
 
         return g
