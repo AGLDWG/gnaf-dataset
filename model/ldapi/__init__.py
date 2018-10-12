@@ -135,14 +135,7 @@ class GNAFClassRenderer(pyldapi.Renderer):
 
     def _render_gnaf_view_rdf(self):
         g = self.instance.export_rdf('gnaf')
-        if self.format in ['application/ld+json', 'application/json']:
-            serial_format = 'json-ld'
-        elif self.format in self.RDF_MIMETYPES:
-            serial_format = self.format
-        else:
-            serial_format = 'text/turtle'
-            self.format = serial_format
-        return Response(g.serialize(format=serial_format), mimetype=self.format, headers=self.headers)
+        return self._make_rdf_response(g)
 
     def _render_dct_view(self):
         if self.format == 'text/html':
@@ -159,14 +152,7 @@ class GNAFClassRenderer(pyldapi.Renderer):
 
     def _render_dct_view_rdf(self):
         g = self.instance.export_rdf('dct')
-        if self.format in ['application/ld+json', 'application/json']:
-            serial_format = 'json-ld'
-        elif self.format in self.RDF_MIMETYPES:
-            serial_format = self.format
-        else:
-            serial_format = 'text/turtle'
-            self.format = serial_format
-        return Response(g.serialize(format=serial_format), mimetype=self.format, headers=self.headers)
+        return self._make_rdf_response(g)
 
     def _render_dct_view_html(self):
         view_html = self.instance.export_html(view='dct')
@@ -320,14 +306,7 @@ class ISO19160RendererMixin(object):
 
     def _render_iso19160_view_rdf(self):
         g = self.instance.export_rdf(view='ISO19160')
-        if self.format in ['application/ld+json', 'application/json']:
-            serial_format = 'json-ld'
-        elif self.format in GNAFClassRenderer.RDF_MIMETYPES:
-            serial_format = self.format
-        else:
-            serial_format = 'text/turtle'
-            self.format = serial_format
-        return Response(g.serialize(format=serial_format), mimetype=self.format, headers=self.headers)
+        return GNAFClassRenderer._make_rdf_response(self, g)
 
 
 class SchemaOrgRendererMixin(object):
