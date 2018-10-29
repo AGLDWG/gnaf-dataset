@@ -16,15 +16,15 @@
 @base <http://linked.data.gov.au/dataset/gnaf> .
 
 <http://linked.data.gov.au/dataset/gnaf> a dcat:Dataset , reg:Register ;
-    rdfs:label "GNAF ontology"^^xsd:string ;
+    dct:title "GNAF Dataset Distribution as Linked Data"^^xsd:string ;
     dc:creator "PSMA Australia"^^xsd:string ;
     dct:creator <http://www.psma.com.au> ;
     dc:contributor "Nicholas Car"@en ;
     dct:contributor <http://orcid.org/0000-0002-8742-7730> ;
-    dct:modified "2018-02-07"^^xsd:date ;
+    dct:modified "2018-07-15"^^xsd:date ;
     dc:publisher "PSMA Australia"^^xsd:string ;
     dct:source <https://data.gov.au/dataset/geocoded-national-address-file-g-naf> ;
-    rdfs:comment """A Linked Data version of the Geocoded National Address File (G-NAF).
+    dct:description """A Linked Data distribution of the Geocoded National Address File (G-NAF).
 
 The G-NAF is Australia’s authoritative, geocoded address file. It contains more than 13 million Australian physical address records. The records include geocodes which are latitude and longitude map coordinates with coordinate reference system details and other information necessary to precisely locate addresses on the earth's surface.
 

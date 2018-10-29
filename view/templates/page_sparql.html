@@ -16,10 +16,11 @@
     <pre>
     <code>
 PREFIX gnaf: &lt;http://linked.data.gov.au/def/gnaf#&gt;
-SELECT (COUNT(?s) AS ?c)
+SELECT ?s
 WHERE {
     ?s a gnaf:Address .
 }
+LIMIT 50
     </code>
     </pre>
     <p>
