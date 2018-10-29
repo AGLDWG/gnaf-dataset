@@ -1,0 +1,43 @@
+@prefix : <http://linked.data.gov.au/def/gnaf#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dbo: <http://dbpedia.org/ontology/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <http://schema.org/> .
+@prefix reg: <http://purl.org/linked-data/registry#> .
+@prefix xhv: <https://www.w3.org/1999/xhtml/vocab#> .
+@prefix gnaf: <http://linked.data.gov.au/def/gnaf#> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix : <http://linked.data.gov.au/dataset/gnaf/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@base <http://linked.data.gov.au/dataset/gnaf> .
+
+
+<http://linked.data.gov.au/dataset/gnaf> a void:Dataset ;
+    dc:contributor "Ashley Sommer" ;
+    dc:creator "Joseph Abhayaratna",
+        "Nicholas Car"@en ;
+    dct:creator <http://orcid.org/0000-0002-8742-7730> ;
+    dct:description "A Linked Data API accessing all of the content of the GNAF in RDF & HTML" ;
+    dct:license <https://data.gov.au/dataset/19432f89-dc3a-4ef3-b943-5326ef1dbecc/resource/09f74802-08b1-4214-a6ea-3591b2753d30> ;
+    dct:title "Geocoded National Address File" ;
+    dcat:contactPoint _:ncar ;
+    dcat:endpointDescription <http://linked.data.gov.au/dataset/gnaf.ttl> ;
+    dcat:endpointURL <http://linked.data.gov.au/dataset/gnaf> ;
+    dct:source <https://data.gov.au/dataset/geocoded-national-address-file-g-naf> ;
+    void:sparqlEndpoint <http://linked.data.gov.au/dataset/gnaf/sparql> ;
+    void:dataDump <http://linked.data.gov.au/dataset/gnaf/data> ;
+    void:uriSpace "http://linked.data.gov.au/dataset/gnaf/" ;
+    void:vocabulary <http://linked.data.gov.au/def/gnaf> , <http://linked.data.gov.au/def/iso19160-1-address> ;
+    void:triples 300000000;
+    void:entities 20000000;
+
+:turtle a void:Dataset ;
+    void:uriRegexPattern "^http://linked\\.data\\.gov\\.au/dataset/gnaf/(.+)\\.ttl$";
+    void:feature <http://www.w3.org/ns/formats/Turtle>;;

@@ -1,0 +1,63 @@
+@prefix : <http://linked.data.gov.au/dataset/gnaf/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix gnaf: <http://linked.data.gov.au/def/gnaf#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://linked.data.gov.au/dataset/gnaf> a dcat:DataDistributionService ;
+    dc:contributor "Ashley Sommer" ;
+    dc:creator "Joseph Abhayaratna",
+        "Nicholas Car"@en ;
+    dct:creator <http://orcid.org/0000-0002-8742-7730> ;
+    dct:description "A Linked Data API accessing all of the content of the GNAF in RDF & HTML" ;
+    dct:license <https://data.gov.au/dataset/19432f89-dc3a-4ef3-b943-5326ef1dbecc/resource/09f74802-08b1-4214-a6ea-3591b2753d30> ;
+    dct:title "GNAF Linked Data API Service" ;
+    dcat:contactPoint _:ncar ;
+    dcat:endpointDescription <http://linked.data.gov.au/dataset/gnaf.ttl> ;
+    dcat:endpointURL <http://linked.data.gov.au/dataset/gnaf> ;
+    dcat:servesDataset <https://data.gov.au/dataset/geocoded-national-address-file-g-naf> .
+
+:sparql a dcat:DataDistributionService ;
+    dc:contributor "Ashley Sommer" ;
+    dc:creator "Joseph Abhayaratna",
+        "Nicholas Car"@en ;
+    dct:creator <http://orcid.org/0000-0002-8742-7730> ;
+    dct:description "A SPARQL 1.1 service accessing all of the content of the GNAF in RDF" ;
+    dct:license <https://data.gov.au/dataset/19432f89-dc3a-4ef3-b943-5326ef1dbecc/resource/09f74802-08b1-4214-a6ea-3591b2753d30> ;
+    dct:title "GNAF SPARQL Service" ;
+    dcat:contactPoint _:ncar ;
+    dcat:endpointDescription :sparql.ttl ;
+    dcat:endpointURL :sparql ;
+    dcat:servesDataset <https://data.gov.au/dataset/geocoded-national-address-file-g-naf> .
+
+<https://data.gov.au/dataset/geocoded-national-address-file-g-naf> a dcat:Dataset ;
+    dct:description """The Geocoded National Address File (referred to as G-NAF) is Australia’s authoritative, geocoded address file.
+
+G-NAF is one of the most ubiquitous and powerful spatial datasets. It contains more than 13 million Australian physical address records. The records include geocodes. These are latitude and longitude map coordinates. G-NAF does not contain any names or personal information.
+
+G-NAF is produced by PSMA Australia Limited (PSMA), an unlisted public company formed by the nine governments of Australia to collate and standardise, format and aggregate location data from each of the jurisdictions into authoritative location based national datasets.
+
+This initiative to make the G-NAF openly available has been achieved through collaboration between PSMA and the Commonwealth and State and Territory Governments.
+
+Updated versions of the G-NAF will be published on a quarterly basis from February 2016.
+
+For further information on G-NAF, including FAQs on the data, see: www.psma.com.au/products/g-naf or contact and PSMA’s network of value added resellers and integrators provide a range of commercial products based on G-NAF including software solutions, consultancy and support.""";
+    dct:issued "2016-02-22"^^xsd:date ;
+    dct:landingPage <https://data.gov.au/dataset/19432f89-dc3a-4ef3-b943-5326ef1dbecc> ;
+    dct:title "PSMA Geocoded National Address File (G-NAF)" ;
+    dct:updated "2018-08-27"^^xsd:date ;
+    dcat:contactPoint [ a vcard:Organization ;
+            vcard:fn "Department of Industry, Innovation and Science" ;
+            vcard:hasEmail <http://linked.data.gov.au/dataset/spatial@industry.gov.au> ] .
+
+_:ncar a vcard:Individual ;
+    vcard:fn "Nicholas Car" ;
+    vcard:hasEmail <http://linked.data.gov.au/dataset/nicholas.car@csiro.au> ;
+    vcard:hasTelephone [ vcard:hasValue <tel:+61738335632> ] .
+

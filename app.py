@@ -2,7 +2,6 @@ import logging
 import _config
 from flask import Flask
 from controller import pages, classes
-import os
 
 app = Flask(__name__, template_folder=_config.TEMPLATES_DIR, static_folder=_config.STATIC_DIR)
 
