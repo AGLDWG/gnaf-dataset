@@ -37,9 +37,9 @@ Product Owner:
 PSMA Australia Ltd.
 <Joseph.Abhayaratna@psma.com.au>  
 
-Developer:
-**Nicholas Car**
-*Senior Experimental Scientist*
-CSIRO Land & Water
-<nicholas.car@csiro.au>
-<http://orcid.org/0000-0002-8742-7730>
+Developer:  
+**Nicholas Car**  
+*Senior Experimental Scientist*  
+CSIRO Land & Water  
+<nicholas.car@csiro.au>  
+<http://orcid.org/0000-0002-8742-7730>  
