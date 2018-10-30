@@ -8,7 +8,7 @@
     {% endif %}
     <table class="alternates">
     <tr><th>View</th><th>Formats</th><th>View Desc.</th><th>View Namespace</th></tr>
-    {% for v, vals in views_formats.items() %}
+    {% for v, vals in views.items() %}
         {% if v == 'default' %}
             <tr><td>default</td><td><a href="{{ request.base_url }}?_view={{ vals }}">{{ vals }}</a></td><td></td><td></td></tr>
         {% else %}

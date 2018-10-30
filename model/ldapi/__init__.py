@@ -60,7 +60,7 @@ class GNAFClassRenderer(pyldapi.Renderer):
 
     def __init__(self, request, uri, views, default_view_token, *args,
                  gnaf_template=None, dct_template=None, **kwargs):
-        kwargs.setdefault('alternates_template', 'alternates_view.html')
+        kwargs.setdefault('alternates_template', 'alternates.html')
         _views = views or {}
         self._add_default_gnaf_views(_views)
         super(GNAFClassRenderer, self).__init__(request, uri, _views, default_view_token, *args, **kwargs)
@@ -101,7 +101,7 @@ class GNAFClassRenderer(pyldapi.Renderer):
         views_formats['default'] = self.default_view_token
         return Response(
             render_template(
-                self.alternates_template or 'alternates_view.html',
+                self.alternates_template or 'alternates.html',
                 class_uri=self.GNAF_CLASS,
                 instance_uri=self.uri,
                 default_view_token=self.default_view_token,
@@ -240,7 +240,7 @@ class GNAFRegisterRenderer(pyldapi.RegisterRenderer):
     def __init__(self, _request, uri, label, comment, contained_item_classes,
                  register_total_count, *args, views=None,
                  default_view_token=None, **kwargs):
-        kwargs.setdefault('alternates_template', 'alternates_view.html')
+        kwargs.setdefault('alternates_template', 'alternates.html')
         kwargs.setdefault('register_template', 'class_register.html')
         super(GNAFRegisterRenderer, self).__init__(
             _request, uri, label, comment, None, contained_item_classes,
@@ -269,7 +269,7 @@ class GNAFRegisterRenderer(pyldapi.RegisterRenderer):
         views_formats['default'] = self.default_view_token
         return Response(
             render_template(
-                self.alternates_template or 'alternates_view.html',
+                self.alternates_template or 'alternates.html',
                 class_uri="http://purl.org/linked-data/registry#Register",
                 instance_uri=None,
                 default_view_token=self.default_view_token,

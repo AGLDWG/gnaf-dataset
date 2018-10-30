@@ -68,7 +68,7 @@ ENDPOINTS = [
         'label': 'SPARQL endpoint localities count == 150',
         'uri': '{}/sparql?query=SELECT(COUNT(%3Fs)AS%20%3Fc)%20WHERE%20%7B%20%3Fs%20a%20%3Chttp%3A%2F%2Flinked.data.gov.au%2Fdef%2Fgnaf%23Locality%3E%20.%20%7D'.format(SYSTEM_URI),
         'headers': {},
-        'regex': '150'
+        'regex': '15926'
     },
     {
         'label': 'Address GAACT714857880 as GNAF HTML',
