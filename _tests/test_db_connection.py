@@ -51,6 +51,15 @@ def test_connect():
             address_string = '{} {} {}, {}, {} {}'.format(row[2], row[3].title(), row[4].title(), row[5].title(), row[6], row[7])
             break
         print(address_string)
+
+        s = sql.SQL('''SELECT * FROM codes.geocode LIMIT 1''')
+        cursor.execute(s)
+        rows = cursor.fetchall()
+        p = 'Not founc'
+        for row in rows:
+            p = row[2]
+        print('p: ' + str(p))
+
     except Exception as e:
         print(e)
 

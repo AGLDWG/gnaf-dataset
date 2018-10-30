@@ -10,35 +10,19 @@ import io
 import requests
 import _config as config
 import os
+import controller.LOCIDatasetRenderer
 
 pages = Blueprint('routes', __name__)
 
 
 @pages.route('/', strict_slashes=True)
 def home():
-    if request.values.get('_view') is not None:
-        if request.values.get('_view') == 'reg':
-            return render_template('page_home_reg.html')
-        elif request.values.get('_view') == 'void':
-            # no HTML format for this view
-            txt = open(os.path.join(config.APP_DIR, 'void.ttl')).read().encode('utf-8')
-            return Response(txt, mimetype='text/plain')
-
-    # DCAT
-    if request.values.get('_format') is not None:
-        if request.values.get('_format') == 'text/turtle':  # TODO: generalise this to all RDF formats
-            return home_ttl_ext()
-
-    # if request.accept_mimetypes.best_match(['text/turtle']) == 'text/turtle':
-    #     return home_ttl_ext()
-
-    return render_template('page_home.html')
+    return controller.LOCIDatasetRenderer.LOCIDatasetRenderer(request).render()
 
 
 @pages.route('/index.ttl')
-def home_ttl_ext():
-    txt = open(os.path.join(config.APP_DIR, 'dcat.ttl')).read().encode('utf-8')
-    return Response(txt, mimetype='text/plain')
+def home_ttl():
+    return controller.LOCIDatasetRenderer.LOCIDatasetRenderer(request, view='dcat', format='text/turtle').render()
 
 
 @pages.route('/about')

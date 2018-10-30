@@ -2,74 +2,92 @@
 import requests
 import re
 
-
+SYSTEM_URI = 'http://localhost:5000'
 ENDPOINTS = [
     {
         'label': 'GNAF landing page',
-        'uri': 'http://localhost:5000',
+        'uri': '{}'.format(SYSTEM_URI),
         'headers': None,
         'regex': '<h1>G-NAF - distributed as Linked Data</h1>'
     },
     {
         'label': 'GNAF landing page slash',
-        'uri': 'http://localhost:5000/',
+        'uri': '{}/'.format(SYSTEM_URI),
         'headers': None,
         'regex': '<h1>G-NAF - distributed as Linked Data</h1>'
     },
     {
+        'label': 'GNAF/index.ttl',
+        'uri': '{}/index.ttl'.format(SYSTEM_URI),
+        'headers': None,
+        'regex': 'dct:title "G-NAF - distributed as Linked Data" ;'
+    },
+    {
         'label': 'GNAF as a DCAT Distribution, HTML',
-        'uri': 'http://localhost:5000?_view=dcat',
+        'uri': '{}?_view=dcat'.format(SYSTEM_URI),
         'headers': None,
         'regex': '<h1>G-NAF - distributed as Linked Data</h1>'
     },
     {
         'label': 'GNAF as a DCAT Distribution, RDF (turtle), QSA',
-        'uri': 'http://localhost:5000?_format=text/turtle',
-        'headers': None,
-        'regex': 'dct:title "G-NAF - distributed as Linked Data" ;'
-    },
-    {
-        'label': 'GNAF as a DCAT Distribution, RDF (turtle), file ext',
-        'uri': 'http://localhost:5000/index.ttl',
+        'uri': '{}?_format=text/turtle'.format(SYSTEM_URI),
         'headers': None,
         'regex': 'dct:title "G-NAF - distributed as Linked Data" ;'
     },
     {
         'label': 'GNAF as a DCAT Distribution, RDF (turtle), Accept',
-        'uri': 'http://localhost:5000',
+        'uri': '{}'.format(SYSTEM_URI),
         'headers': {'Accept': 'text/turtle'},
-        'regex': 'dct:title "G-NAF - as Linked Data" ;'
+        'regex': 'dct:title "G-NAF - distributed as Linked Data" ;'
     },
     {
         'label': 'GNAF as a VOID Dataset, RDF (turtle)',
-        'uri': 'http://localhost:5000?_view=void',
+        'uri': '{}?_view=void'.format(SYSTEM_URI),
         'headers': None,
         'regex': '<http://linked.data.gov.au/dataset/gnaf> a void:Dataset ;'
     },
     {
         'label': 'GNAF as a REG Register, HTML',
-        'uri': 'http://localhost:5000',
+        'uri': '{}?_view=reg'.format(SYSTEM_URI),
         'headers': None,
         'regex': '<h1>G-NAF - as a Register of Registers</h1>'
     },
     {
         'label': 'GNAF as a REG Register, RDF (turtle)',
-        'uri': 'http://localhost:5000',
+        'uri': '{}?_view=reg&_format=text/turtle'.format(SYSTEM_URI),
         'headers': None,
         'regex': '<http://linked.data.gov.au/dataset/gnaf> a reg:Register ;'
     },
-    # {
-    #     'label': '',
-    #     'uri': 'http://linked.data.gov.au/dataset/gnaf?_format=text/turtle',
-    #     'headers': {},
-    #     'regex': 'dct:title \"GNAF Dataset Distribution as Linked Data\"\^\^xsd:string ;'
-    # },
-    # {
-    #     'label': '',
-    #     'uri': 'http://gnafld.net/sparql?query=SELECT(COUNT(%3Fs)AS%20%3Fc)%20WHERE%20%7B%20%3Fs%20a%20%3Chttp%3A%2F%2Flinked.data.gov.au%2Fdef%2Fgnaf%23Locality%3E%20.%20%7D',
-    #     'headers': {},
-    #     'regex': '15926'
-    # }
+    {
+        'label': 'GNAF as a REG Register, RDF (turtle), Accept with preferences',
+        'uri': '{}?_view=reg'.format(SYSTEM_URI),
+        'headers': {'Accept': 'text/xml,text/turtle,text/html'},
+        'regex': '<http://linked.data.gov.au/dataset/gnaf> a reg:Register ;'
+    },
+    {
+        'label': 'SPARQL endpoint localities count == 150',
+        'uri': '{}/sparql?query=SELECT(COUNT(%3Fs)AS%20%3Fc)%20WHERE%20%7B%20%3Fs%20a%20%3Chttp%3A%2F%2Flinked.data.gov.au%2Fdef%2Fgnaf%23Locality%3E%20.%20%7D'.format(SYSTEM_URI),
+        'headers': {},
+        'regex': '150'
+    },
+    {
+        'label': 'Address GAACT714857880 as GNAF HTML',
+        'uri': '{}/address/GAACT714857880'.format(SYSTEM_URI),
+        'headers': None,
+        'regex': '<h1>Address GAACT714857880</h1>'
+    },
+    {
+        'label': 'Address GAACT714857880 as GNAF RDF (turtle) QSA',
+        'uri': '{}/address/GAACT714857880?_format=text/turtle'.format(SYSTEM_URI),
+        'headers': None,
+        'regex': 'rdfs:label "Address GAACT714857880 of Unknown type"\^\^xsd:string ;'
+    },
+    {
+        'label': 'Address GAACT714857880 as GNAF RDF (turtle) Accept',
+        'uri': '{}/address/GAACT714857880?_format=text/turtle'.format(SYSTEM_URI),
+        'headers': {'Accept': 'text/xml,text/turtle,text/html'},
+        'regex': 'rdfs:label "Address GAACT714857880 of Unknown type"\^\^xsd:string ;'
+    },
 ]
 
 
