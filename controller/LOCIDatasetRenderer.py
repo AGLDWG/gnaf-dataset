@@ -65,8 +65,9 @@ class LOCIDatasetRenderer(pyldapi.Renderer):
 
     def _render_rdf_from_file(self, file, format):
         if self.format == 'text/turtle':
-            txt = open(os.path.join(config.APP_DIR, 'view', file)).read().encode('utf-8')
+            txt = open(os.path.join(config.APP_DIR, 'view', file), 'rb').read().decode('utf-8')
             return Response(txt, mimetype='text/turtle')
         else:
-            g = Graph().parse(os.path.join(config.APP_DIR, file), format='turtle')
-            return Response(g.serialize(format), mimetype=format)
+            g = Graph().parse(os.path.join(config.APP_DIR, 'view', file), format='turtle')
+            return Response(g.serialize(format).decode('utf-8'), mimetype=format)
+

@@ -2,7 +2,7 @@
 import requests
 import re
 
-SYSTEM_URI = 'http://localhost:5000'
+SYSTEM_URI = 'http://gnafld.net'
 ENDPOINTS = [
     {
         'label': 'GNAF landing page',
@@ -104,4 +104,6 @@ def valid_endpoint_content(uri, headers, pattern):
 
 if __name__ == '__main__':
     for e in ENDPOINTS:
-        assert valid_endpoint_content(e['uri'], e['headers'], e['regex']), e['label']
+        if not valid_endpoint_content(e['uri'], e['headers'], e['regex']):
+            print(e['label'] + ' failed')
+            break
