@@ -1,0 +1,19 @@
+{% extends "template.html" %}
+
+{% block content %}
+    <h1>G-NAF - distributed as Linked Data</h1>
+    <h2>About</h2>
+    <p>
+        This is a Linked Data distribution of the <a href="https://www.psma.com.au/products/g-naf">G-NAF, the
+        Geocoded National Address File</a>. It is delivered in two ways: a Linked Data directly and also as RDF triples
+        from a triplestore via a SPARQL endpoint.
+    </p>
+    <h2>Linked Data</h2>
+    <p>See the <a href="{{ url_for('routes.home', _view='reg') }}">this API viewed as a register</a> for the listing of Registers and examples of links to individual items.</p>
+    <h2>SPARQL Endpoint</h2>
+    <p>See the <a href="{{ url_for('routes.sparql') }}">SPARQL Endpoint</a> page.</p>
+    <h2>More information</h2>
+    <ul>
+        <li>See the <a href="{{ url_for('routes.about') }}">About page</a> for technical and project information.</li>
+    </ul>
+{% endblock %}

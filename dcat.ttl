@@ -17,7 +17,7 @@
     dct:creator <http://orcid.org/0000-0002-8742-7730> ;
     dct:description "A Linked Data API accessing all of the content of the GNAF in RDF & HTML" ;
     dct:license <https://data.gov.au/dataset/19432f89-dc3a-4ef3-b943-5326ef1dbecc/resource/09f74802-08b1-4214-a6ea-3591b2753d30> ;
-    dct:title "GNAF Linked Data API Service" ;
+    dct:title "G-NAF - distributed as Linked Data" ;
     dcat:contactPoint _:ncar ;
     dcat:endpointDescription <http://linked.data.gov.au/dataset/gnaf.ttl> ;
     dcat:endpointURL <http://linked.data.gov.au/dataset/gnaf> ;

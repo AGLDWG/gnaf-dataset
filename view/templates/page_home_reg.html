@@ -1,0 +1,39 @@
+{% extends "template.html" %}
+
+{% block content %}
+    <h1>G-NAF - as a Register of Registers</h1>
+    <h2>About</h2>
+    <p>
+        This is a Register view of the Linked Data API delivering data from the
+        <a href="https://www.psma.com.au/products/g-naf">G-NAF, the Geocoded National Address File</a>.
+    </p>
+    <p>
+        Here you see a 'Register of Registers', each of which contains classes of item from the Linked Data
+        representation of G-NAF content.
+    </p>
+    <h2>Register</h2>
+    <ul>
+        <li>
+            <a href="{{ url_for('classes.addresses') }}">Address Register</a>
+            <ul>
+                <li><a href="{{ url_for('classes.address', address_id='GAACT714845933') }}">An Address</a> - example, GAACT714845933</li>
+            </ul>
+        </li>
+        <li>
+            <a href="{{ url_for('classes.streetLocalities') }}">Street Locality Register</a> - the list of all Addresses, paged
+            <ul>
+                <li><a href="{{ url_for('classes.streetLocality', street_locality_id='NSW2856338') }}">A Street Locality</a> - example, NSW2856338</li>
+            </ul>
+        </li>
+        <li>
+            <a href="{{ url_for('classes.localities') }}">Locality Register</a> - the list of all Localities, paged
+            <ul>
+                <li><a href="{{ url_for('classes.locality', locality_id='198023') }}">A Locality</a> - example, 198023 (Argoon, Queensland)</li>
+            </ul>
+        </li>
+    </ul>
+    <h2>More information</h2>
+    <ul>
+        <li>See the <a href="{{ url_for('routes.about') }}">About page</a> for technical and project information.</li>
+    </ul>
+{% endblock %}

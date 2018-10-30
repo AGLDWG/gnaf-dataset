@@ -9,20 +9,36 @@ from rdflib import Graph
 import io
 import requests
 import _config as config
+import os
 
 pages = Blueprint('routes', __name__)
 
 
 @pages.route('/', strict_slashes=True)
-def index():
-    return render_template('page_index.html')
+def home():
+    if request.values.get('_view') is not None:
+        if request.values.get('_view') == 'reg':
+            return render_template('page_home_reg.html')
+        elif request.values.get('_view') == 'void':
+            # no HTML format for this view
+            txt = open(os.path.join(config.APP_DIR, 'void.ttl')).read().encode('utf-8')
+            return Response(txt, mimetype='text/plain')
+
+    # DCAT
+    if request.values.get('_format') is not None:
+        if request.values.get('_format') == 'text/turtle':  # TODO: generalise this to all RDF formats
+            return home_ttl_ext()
+
+    # if request.accept_mimetypes.best_match(['text/turtle']) == 'text/turtle':
+    #     return home_ttl_ext()
+
+    return render_template('page_home.html')
 
 
-@pages.route('/api')
-def api():
-    return render_template(
-        'page_api.html'
-    )
+@pages.route('/index.ttl')
+def home_ttl_ext():
+    txt = open(os.path.join(config.APP_DIR, 'dcat.ttl')).read().encode('utf-8')
+    return Response(txt, mimetype='text/plain')
 
 
 @pages.route('/about')

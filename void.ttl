@@ -35,9 +35,11 @@
     void:dataDump <http://linked.data.gov.au/dataset/gnaf/data> ;
     void:uriSpace "http://linked.data.gov.au/dataset/gnaf/" ;
     void:vocabulary <http://linked.data.gov.au/def/gnaf> , <http://linked.data.gov.au/def/iso19160-1-address> ;
-    void:triples 300000000;
-    void:entities 20000000;
+    void:triples 300000000 ;
+    void:entities 20000000 ;
+.
 
 :turtle a void:Dataset ;
-    void:uriRegexPattern "^http://linked\\.data\\.gov\\.au/dataset/gnaf/(.+)\\.ttl$";
-    void:feature <http://www.w3.org/ns/formats/Turtle>;;
+    void:uriRegexPattern "^http://linked\\.data\\.gov\\.au/dataset/gnaf/(.+)\\.ttl$" ;
+    void:feature <http://www.w3.org/ns/formats/Turtle> ;
+.
