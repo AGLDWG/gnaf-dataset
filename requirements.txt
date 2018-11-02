@@ -3,5 +3,5 @@ requests
 flask
 rdflib
 rdflib-jsonld
-pyldapi>=2.0.10
+pyldapi>=2.0.12
 flask_paginate
