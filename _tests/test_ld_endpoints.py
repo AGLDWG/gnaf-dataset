@@ -17,9 +17,21 @@ ENDPOINTS = [
         'regex': '<h1>G-NAF - distributed as Linked Data</h1>'
     },
     {
-        'label': 'GNAF/index.ttl',
+        'label': 'GNAF landing page RDF (turtle) file extension',
         'uri': '{}/index.ttl'.format(SYSTEM_URI),
         'headers': None,
+        'regex': 'dct:title "G-NAF - distributed as Linked Data" ;'
+    },
+    {
+        'label': 'GNAF landing page RDF (turtle) QSA',
+        'uri': f'{SYSTEM_URI}/?_format=text/turtle',
+        'headers': None,
+        'regex': 'dct:title "G-NAF - distributed as Linked Data" ;'
+    },
+    {
+        'label': 'GNAF landing page RDF (turtle) Accept header',
+        'uri': f'{SYSTEM_URI}/',
+        'headers': {'Accept': 'text/turtle'},
         'regex': 'dct:title "G-NAF - distributed as Linked Data" ;'
     },
     {
@@ -71,11 +83,35 @@ ENDPOINTS = [
         'regex': '15926'
     },
     {
+        'label': 'Address Register as GNAF HTML',
+        'uri': f'{SYSTEM_URI}/address/',
+        'headers': None,
+        'regex': '<h2>Of <em><a href="http:\/\/linked.data.gov.au\/def\/gnaf#Address">http:\/\/linked.data.gov.au\/def\/gnaf#Address<\/a><\/em> class items<\/h2>'
+    },
+    {
+        'label': 'Address Register as GNAF RDF (turtle) QSA',
+        'uri': f'{SYSTEM_URI}/address/?_format=text/turtle',
+        'headers': None,
+        'regex': '<http:\/\/linked.data.gov.au\/dataset\/gnaf\/address\/GAACT714845933> a <http:\/\/linked.data.gov.au\/def\/gnaf#Address> ;'
+    },
+    {
+        'label': 'Address Register as GNAF RDF (turtle) Accept header',
+        'uri': f'{SYSTEM_URI}/address/',
+        'headers': {'Accept': 'text/turtle'},
+        'regex': '<http:\/\/linked.data.gov.au\/dataset\/gnaf\/address\/GAACT714845933> a <http:\/\/linked.data.gov.au\/def\/gnaf#Address> ;'
+    },
+    {
         'label': 'Address GAACT714857880 as GNAF HTML',
         'uri': '{}/address/GAACT714857880'.format(SYSTEM_URI),
         'headers': None,
         'regex': '<h1>Address GAACT714857880</h1>'
     },
+    # { #TODO
+    #     'label': 'Address GAACT714857880 as GNAF RDF (turtle) file extension',
+    #     'uri': f'{SYSTEM_URI}/address/GAACT714857880.ttl',
+    #     'headers': None,
+    #     'regex': 'rdfs:label "Address GAACT714857880 of Unknown type"\^\^xsd:string ;'
+    # },
     {
         'label': 'Address GAACT714857880 as GNAF RDF (turtle) QSA',
         'uri': '{}/address/GAACT714857880?_format=text/turtle'.format(SYSTEM_URI),
@@ -83,11 +119,77 @@ ENDPOINTS = [
         'regex': 'rdfs:label "Address GAACT714857880 of Unknown type"\^\^xsd:string ;'
     },
     {
-        'label': 'Address GAACT714857880 as GNAF RDF (turtle) Accept',
+        'label': 'Address GAACT714857880 as GNAF RDF (turtle) Accept header',
         'uri': '{}/address/GAACT714857880?_format=text/turtle'.format(SYSTEM_URI),
         'headers': {'Accept': 'text/xml,text/turtle,text/html'},
         'regex': 'rdfs:label "Address GAACT714857880 of Unknown type"\^\^xsd:string ;'
     },
+    {
+        'label': 'Street Locality Register as GNAF HTML',
+        'uri': f'{SYSTEM_URI}/streetLocality/',
+        'headers': None,
+        'regex': '<h2>Of <em><a href="http:\/\/linked.data.gov.au\/def\/gnaf#StreetLocality">http:\/\/linked.data.gov.au\/def\/gnaf#StreetLocality<\/a><\/em> class items<\/h2>'
+    },
+    {
+        'label': 'Street Locality Register as GNAF RDF (turtle) QSA',
+        'uri': f'{SYSTEM_URI}/streetLocality/?_format=text/turtle',
+        'headers': None,
+        'regex': '<http:\/\/linked.data.gov.au\/dataset\/gnaf\/streetLocality\/ACT1> a <http:\/\/linked.data.gov.au\/def\/gnaf#StreetLocality> ;'
+    },
+    {
+        'label': 'Street Locality Register as GNAF RDF (turtle) Accept header',
+        'uri': f'{SYSTEM_URI}/streetLocality/',
+        'headers': {'Accept': 'text/turtle'},
+        'regex': '<http:\/\/linked.data.gov.au\/dataset\/gnaf\/streetLocality\/ACT1> a <http:\/\/linked.data.gov.au\/def\/gnaf#StreetLocality> ;'
+    },
+    {
+        'label': 'Street Locality ACT1046 as GNAF HTML',
+        'uri': f'{SYSTEM_URI}/streetLocality/ACT1046',
+        'headers': None,
+        'regex': '<h1>Street Locality ACT1046<\/h1>'
+    },
+    # { #TODO
+    #     'label': 'Street Locality ACT1046 as GNAF RDF (turtle) file extension',
+    #     'uri': f'{SYSTEM_URI}/streetLocality/ACT1046.ttl',
+    #     'headers': None,
+    #     'regex': '<http:\/\/linked.data.gov.au\/dataset\/gnaf\/streetLocality\/ACT1046> a gnaf:StreetLocality ;'
+    # },
+    {
+        'label': 'Street Locality ACT1046 as GNAF RDF (turtle) QSA',
+        'uri': f'{SYSTEM_URI}/streetLocality/ACT1046?_format=text/turtle',
+        'headers': None,
+        'regex': '<http:\/\/linked.data.gov.au\/dataset\/gnaf\/streetLocality\/ACT1046> a gnaf:StreetLocality ;'
+    },
+    {
+        'label': 'Street Locality ACT1046 as GNAF RDF (turtle) Accept header',
+        'uri': f'{SYSTEM_URI}/streetLocality/ACT1046',
+        'headers': {'Accept': 'text/turtle'},
+        'regex': '<http:\/\/linked.data.gov.au\/dataset\/gnaf\/streetLocality\/ACT1046> a gnaf:StreetLocality ;'
+    },
+    {
+        'label': 'Locality Register as GNAF HTML',
+        'uri': f'{SYSTEM_URI}/locality/',
+        'headers': None,
+        'regex': '<h2>Of <em><a href="http:\/\/linked.data.gov.au\/def\/gnaf#Locality">http:\/\/linked.data.gov.au\/def\/gnaf#Locality<\/a><\/em> class items<\/h2>'
+    },
+    # { #TODO
+    #     'label': 'Locality Register as GNAF RDF (turtle) file extension',
+    #     'uri': f'{SYSTEM_URI}/locality/index.ttl',
+    #     'headers': None,
+    #     'regex': '<http:\/\/linked.data.gov.au\/dataset\/gnaf\/locality\/198023> a <http:\/\/linked.data.gov.au\/def\/gnaf#Locality> ;'
+    # },
+    {
+        'label': 'Locality Register as GNAF RDF (turtle) QSA',
+        'uri': f'{SYSTEM_URI}/locality/?_format=text/turtle',
+        'headers': None,
+        'regex': '<http:\/\/linked.data.gov.au\/dataset\/gnaf\/locality\/198023> a <http:\/\/linked.data.gov.au\/def\/gnaf#Locality> ;'
+    },
+    {
+        'label': 'Locality Register as GNAF RDF (turtle) Accept header',
+        'uri': f'{SYSTEM_URI}/locality/',
+        'headers': {'Accept': 'text/turtle'},
+        'regex': '<http:\/\/linked.data.gov.au\/dataset\/gnaf\/locality\/198023> a <http:\/\/linked.data.gov.au\/def\/gnaf#Locality> ;'
+    }
 ]
 
 
