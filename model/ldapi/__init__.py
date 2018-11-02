@@ -105,7 +105,7 @@ class GNAFClassRenderer(pyldapi.Renderer):
                 class_uri=self.GNAF_CLASS,
                 instance_uri=self.uri,
                 default_view_token=self.default_view_token,
-                views_formats=views_formats
+                views=views_formats
             ),
             headers=self.headers
         )
@@ -273,7 +273,7 @@ class GNAFRegisterRenderer(pyldapi.RegisterRenderer):
                 class_uri="http://purl.org/linked-data/registry#Register",
                 instance_uri=None,
                 default_view_token=self.default_view_token,
-                views_formats=views_formats
+                views=views_formats
             ),
             headers=self.headers
         )
