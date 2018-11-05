@@ -5,3 +5,4 @@ rdflib
 rdflib-jsonld
 pyldapi>=2.0.12
 flask_paginate
+pytest
