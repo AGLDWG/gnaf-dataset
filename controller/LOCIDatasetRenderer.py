@@ -10,7 +10,7 @@ class LOCIDatasetRenderer(pyldapi.Renderer):
     Specialised implementation of the Renderer for displaying DCAT v2, VOID & Reg properties for the GNAF dataset as a
     whole. All content is contained in static HTML & RDT (turtle) files
     """
-    def __init__(self, request, view=None, format=None):
+    def __init__(self, request, url=None, view=None, format=None):
 
         views = {
             'dcat': pyldapi.View(
@@ -36,7 +36,9 @@ class LOCIDatasetRenderer(pyldapi.Renderer):
             ),
         }
         # push RofR properties up to the RofR constructor
-        super().__init__(request, request.url, views, 'dcat')
+        if url is None:
+            url = request.url
+        super().__init__(request, url, views, 'dcat')
 
         # replace automatically-calculated view & format with specifically set ones
         if view is not None:

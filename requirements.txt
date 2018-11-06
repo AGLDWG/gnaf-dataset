@@ -3,6 +3,6 @@ requests
 flask
 rdflib
 rdflib-jsonld
-pyldapi>=2.0.12
+pyldapi>=2.0.13
 flask_paginate
 pytest

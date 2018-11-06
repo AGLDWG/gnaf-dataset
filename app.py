@@ -18,5 +18,5 @@ if __name__ == '__main__':
                         level=logging.DEBUG,
                         datefmt='%Y-%m-%d %H:%M:%S',
                         format='%(asctime)s %(levelname)s %(filename)s:%(lineno)s %(message)s')
-    pyldapi.setup(app, conf.APP_DIR, str(conf.URI_BASE).rstrip('/'))
+    pyldapi.setup(app, conf.APP_DIR, conf.URI_BASE)
     app.run(debug=conf.DEBUG, threaded=True, use_reloader=False)

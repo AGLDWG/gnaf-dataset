@@ -17,7 +17,7 @@ pages = Blueprint('routes', __name__)
 
 @pages.route('/', strict_slashes=True)
 def home():
-    return controller.LOCIDatasetRenderer.LOCIDatasetRenderer(request).render()
+    return controller.LOCIDatasetRenderer.LOCIDatasetRenderer(request, url=config.URI_BASE).render()
 
 
 @pages.route('/index.ttl')
