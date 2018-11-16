@@ -4,11 +4,11 @@ This file contains all the HTTP routes for classes from the GNAF model, such as 
 """
 from flask import Blueprint, request
 import _config as config
-from model.ldapi import GNAFRegisterRenderer
-from model.ldapi.address import AddressRenderer
-from model.ldapi.addressSite import AddressSiteRenderer
-from model.ldapi.locality import LocalityRenderer
-from model.ldapi.streetLocality import StreetLocalityRenderer
+from view.ldapi import GNAFRegisterRenderer
+from view.ldapi.address import AddressRenderer
+from view.ldapi.addressSite import AddressSiteRenderer
+from view.ldapi.locality import LocalityRenderer
+from view.ldapi.streetLocality import StreetLocalityRenderer
 
 
 classes = Blueprint('classes', __name__)

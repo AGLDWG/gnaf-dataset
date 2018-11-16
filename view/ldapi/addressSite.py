@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from model.addressSite import AddressSite
-from model.ldapi import GNAFClassRenderer
+from view.ldapi import GNAFClassRenderer
 import _config as config
 
 
@@ -14,7 +14,10 @@ class AddressSiteRenderer(GNAFClassRenderer):
         kwargs.setdefault('dct_template', 'class_addressSite.html')
         super(AddressSiteRenderer, self).__init__(request, _uri, _views, default_view_token, *args, **kwargs)
         self.identifier = identifier
-        self.instance = AddressSite(self.identifier)
+        if self.view == 'alternates':
+            self.instance = None
+        else:
+            self.instance = AddressSite(self.identifier)
 
     def _render_dct_view_xml(self):
         raise NotImplementedError("DCT XML view of AddressSite is not yet implemented.")

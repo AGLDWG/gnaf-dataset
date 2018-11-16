@@ -4,7 +4,7 @@ import re
 import pytest
 
 SYSTEM_URI = 'http://gnafld.net'
-
+#SYSTEM_URI = 'http://localhost:5000'
 
 def valid_endpoint_content(uri, headers, pattern):
     # dereference the URI
@@ -133,7 +133,7 @@ def test_gnaf_alternates_view_default():
     assert valid_endpoint_content(
         f'{SYSTEM_URI}/?_view=alternates',
         None,
-        r'<a href="http:\/\/gnafld\.net\/\?_view=reg&_format=text\/html">text\/html<\/a>'
+        rf'<a href="{SYSTEM_URI}/\?_view=reg&_format=text\/html">text\/html<\/a>'
     ), 'GNAF alternates view default failed'
 
 
@@ -141,7 +141,7 @@ def test_gnaf_alternates_view_html():
     assert valid_endpoint_content(
         f'{SYSTEM_URI}/?_view=alternates&_format=text/html',
         None,
-        r'<a href="http:\/\/gnafld\.net\/\?_view=reg&_format=text\/html">text\/html<\/a>'
+        rf'<a href="{SYSTEM_URI}/\?_view=reg&_format=text\/html">text\/html<\/a>'
     ), 'GNAF alternates view qsa html failed'
 
 
@@ -190,7 +190,7 @@ def test_gnaf_alternates_view_rdf_n3():
     assert valid_endpoint_content(
         f'{SYSTEM_URI}/?_view=alternates&_format=text/n3',
         None,
-        r'rdfs:comment "VoID is \'an RDF Schema vocabulary for expressing metadata about RDF datasets"\^\^xsd:string ;'
+        r'rdfs:comment "VoID is \'an RDF Schema vocabulary for expressing metadata about RDF datasets\'"\^\^xsd:string ;'
     ), 'GNAF alternates view qsa text/n3 failed'
 
 
@@ -336,7 +336,7 @@ def test_gnaf_address_instance_GAACT714857880_alternates_view_rdf_turtle_qsa():
     assert valid_endpoint_content(
         f'{SYSTEM_URI}/address/GAACT714857880?_view=alternates&_format=text/turtle',
         None,
-        r'dct:conformsTo <http:\/\/reference\.data\.gov\.au\/def\/ont\/iso19160-1-address#> ;'
+        r'dct:conformsTo <http:\/\/reference\.data\.gov\.au\/def\/ont\/iso19160-1-address> ;'
     ), 'Address GAACT714857880 alternates view rdf turtle qsa failed'
 
 
@@ -344,7 +344,7 @@ def test_gnaf_address_instance_GAACT714857880_alternates_view_rdf_turtle_accept_
     assert valid_endpoint_content(
         f'{SYSTEM_URI}/address/GAACT714857880?_view=alternates',
         {'Accept': 'text/turtle'},
-        r'dct:conformsTo <http:\/\/reference\.data\.gov\.au\/def\/ont\/iso19160-1-address#> ;'
+        r'dct:conformsTo <http:\/\/reference\.data\.gov\.au\/def\/ont\/iso19160-1-address> ;'
     ), 'Address GAACT714857880 alternates view rdf turtle accept header failed'
 
 
@@ -450,7 +450,7 @@ def test_gnaf_street_locality_ACT1046_alternates_view_html():
     assert valid_endpoint_content(
         f'{SYSTEM_URI}/streetLocality/ACT1046?_view=alternates&_format=text/html',
         None,
-        r'<td><a href="http:\/\/gnafld\.net\/streetLocality\/ACT1046\?_view=dct">dct<\/a><\/td>'
+        rf'<td><a href="{SYSTEM_URI}\/streetLocality\/ACT1046\?_view=dct">dct<\/a><\/td>'
     ), 'Street Locality ACT1046 alternates view as html failed'
 
 
@@ -548,7 +548,7 @@ def test_gnaf_locality_register_alternates_view_html():
     assert  valid_endpoint_content(
         f'{SYSTEM_URI}/locality/?_view=alternates',
         None,
-        r'<td><a href="http:\/\/gnafld\.net\/locality\/\?_view=alternates">alternates<\/a><\/td>'
+        rf'<td><a href="{SYSTEM_URI}\/locality\/\?_view=alternates">alternates<\/a><\/td>'
     ), 'GNAF Locality Register alternates view html failed'
 
 

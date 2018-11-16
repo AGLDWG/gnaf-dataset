@@ -16,7 +16,7 @@ GNAFView = pyldapi.View('gnaf',
 ISOView = pyldapi.View('ISO19160',
                        "The OWL ontology view of the ISO 19160-1:2015 Address standard from the OGC's TC211 UML to OWL mapping: https://github.com/ISO-TC211/GOM/tree/master/isotc211_GOM_harmonizedOntology/19160-1/2015",
                        ["text/turtle", "application/rdf+xml", "application/ld+json"],
-                        "text/turtle", namespace="http://reference.data.gov.au/def/ont/iso19160-1-address#")
+                        "text/turtle", namespace="http://reference.data.gov.au/def/ont/iso19160-1-address")
 SchemaOrgView = pyldapi.View('schemaorg',
                              "An initiative by Bing, Google and Yahoo! to create and support a common set of schemas for structured data markup on web pages. It is serialised in JSON-LD",
                              ["application/ld+json"], "application/ld+json", namespace="http://schema.org")
@@ -79,10 +79,11 @@ class GNAFClassRenderer(pyldapi.Renderer):
         self.instance = None  # inheriting classes will need to add the Instance themselves.
 
     def render(self):
+        response = super(GNAFClassRenderer, self).render()
+        if response is not None:
+            return response
         try:
-            if self.view == 'alternates':
-                return self._render_alternates_view()
-            elif self.view == 'gnaf':
+            if self.view == 'gnaf':
                 return self._render_gnaf_view()
             elif self.view == 'dct':
                 return self._render_dct_view()
@@ -96,19 +97,15 @@ class GNAFClassRenderer(pyldapi.Renderer):
             from flask import request
             return render_error(request, e)
 
-    def _render_alternates_view_html(self):
-        views_formats = {k: v for k, v in self.views.items()}
-        views_formats['default'] = self.default_view_token
-        return Response(
-            render_template(
-                self.alternates_template or 'alternates.html',
-                class_uri=self.GNAF_CLASS,
-                instance_uri=self.uri,
-                default_view_token=self.default_view_token,
-                views=views_formats
-            ),
-            headers=self.headers
-        )
+    def _render_alternates_view_html(self, template_context=None):
+        _template_context = {
+            'class_uri': self.GNAF_CLASS,
+            'instance_uri': self.uri
+        }
+        if template_context is not None and isinstance(template_context, dict):
+            _template_context.update(template_context)
+        return super(GNAFClassRenderer, self)\
+            ._render_alternates_view_html(template_context=_template_context)
 
     def _render_gnaf_view(self):
         if self.format == 'text/html':
@@ -255,7 +252,10 @@ class GNAFRegisterRenderer(pyldapi.RegisterRenderer):
                     self.format = 'text/html'
         except AttributeError:
             pass
-        self._get_contained_items_from_db(self.page, self.per_page)
+        if self.view == "alternates":
+            pass
+        else:
+            self._get_contained_items_from_db(self.page, self.per_page)
 
     def render(self):
         try:
@@ -264,19 +264,15 @@ class GNAFRegisterRenderer(pyldapi.RegisterRenderer):
             from flask import request
             return render_error(request, e)
 
-    def _render_alternates_view_html(self):
-        views_formats = {k: v for k, v in self.views.items()}
-        views_formats['default'] = self.default_view_token
-        return Response(
-            render_template(
-                self.alternates_template or 'alternates.html',
-                class_uri="http://purl.org/linked-data/registry#Register",
-                instance_uri=None,
-                default_view_token=self.default_view_token,
-                views=views_formats
-            ),
-            headers=self.headers
-        )
+    def _render_alternates_view_html(self, template_context=None):
+        _template_context = {
+            'class_uri': "http://purl.org/linked-data/registry#Register",
+            'instance_uri': None
+        }
+        if template_context is not None and isinstance(template_context, dict):
+            _template_context.update(template_context)
+        return super(GNAFRegisterRenderer, self)\
+            ._render_alternates_view_html(template_context=_template_context)
 
 
 class ISO19160RendererMixin(object):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from model.address import Address
-from model.ldapi import GNAFClassRenderer, SchemaOrgRendererMixin, ISO19160RendererMixin
+from view.ldapi import GNAFClassRenderer, SchemaOrgRendererMixin, ISO19160RendererMixin
 import _config as config
 
 
@@ -14,7 +14,10 @@ class AddressRenderer(SchemaOrgRendererMixin, ISO19160RendererMixin, GNAFClassRe
         kwargs.setdefault('dct_template', 'class_address.html')
         super(AddressRenderer, self).__init__(request, _uri, _views, default_view_token, *args, **kwargs)
         self.identifier = identifier
-        self.instance = Address(self.identifier, focus=True)
+        if self.view == 'alternates':
+            self.instance = None
+        else:
+            self.instance = Address(self.identifier, focus=True)
 
     def _render_dct_view_xml(self):
         raise NotImplementedError("DCT XML view of Address is not yet implemented.")

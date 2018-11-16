@@ -18,21 +18,21 @@ class LOCIDatasetRenderer(pyldapi.Renderer):
                 'The DCAT view, according to DCATv2 (2018)',
                 ['text/html'] + pyldapi.Renderer.RDF_MIMETYPES,
                 'text/html',
-                namespace='http://www.w3.org/ns/dcat#'
+                namespace='http://www.w3.org/ns/dcat'
             ),
             'reg': pyldapi.View(
                 'Registry Ontology view',
                 'A \'core ontology for registry services\': items are listed in Registers with acceptance statuses',
                 ['text/html'] + pyldapi.Renderer.RDF_MIMETYPES,
                 'text/html',
-                namespace='http://purl.org/linked-data/registry#'
+                namespace='http://purl.org/linked-data/registry'
             ),
             'void': pyldapi.View(
                 'Vocabulary of Interlinked Data Ontology view',
-                'VoID is \'an RDF Schema vocabulary for expressing metadata about RDF datasets',
+                'VoID is \'an RDF Schema vocabulary for expressing metadata about RDF datasets\'',
                 pyldapi.Renderer.RDF_MIMETYPES,
                 'text/turtle',
-                namespace='http://purl.org/linked-data/registry#'
+                namespace='http://rdfs.org/ns/void'
             ),
         }
         # push RofR properties up to the RofR constructor
@@ -71,5 +71,7 @@ class LOCIDatasetRenderer(pyldapi.Renderer):
             return Response(txt, mimetype='text/turtle')
         else:
             g = Graph().parse(os.path.join(config.APP_DIR, 'view', file), format='turtle')
+            if format == "_internal":
+                return g
             return Response(g.serialize(format).decode('utf-8'), mimetype=format)
 
