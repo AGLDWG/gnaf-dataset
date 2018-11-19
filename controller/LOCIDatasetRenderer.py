@@ -73,5 +73,8 @@ class LOCIDatasetRenderer(pyldapi.Renderer):
             g = Graph().parse(os.path.join(config.APP_DIR, 'view', file), format='turtle')
             if format == "_internal":
                 return g
-            return Response(g.serialize(format).decode('utf-8'), mimetype=format)
+            return Response(
+                g.serialize(destination=None, format=format, encoding='utf-8'),
+                mimetype=format
+            )
 
