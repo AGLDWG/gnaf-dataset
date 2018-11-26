@@ -722,7 +722,8 @@ class Address(GNAFModel):
             g.add((a, GNAF.gnafType, URIRef(self.address_subclass_uri)))
             g.add((a, RDFS.label,
                    Literal('Address ' + self.id + ' of ' + self.address_subclass_label + ' type', datatype=XSD.string)))
-
+            g.add((a, RDFS.comment,
+                   Literal(self.address_string, datatype=XSD.string)))
             # RDF: geometry
             geocode = BNode()
             g.add((geocode, RDF.type, GNAF.Geocode))
