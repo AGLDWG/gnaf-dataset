@@ -76,19 +76,19 @@ class Address(GNAFModel):
                        u5.prefLabel prefLabel5,
                        u6.uri uri6,
                        u6.prefLabel prefLabel6                                               
-                       FROM gnaf.address_detail d
-                       INNER JOIN gnaf.street_locality s ON d.street_locality_pid = s.street_locality_pid
-                       INNER JOIN gnaf.locality l ON d.locality_pid = l.locality_pid
-                       INNER JOIN gnaf.address_default_geocode g ON d.address_detail_pid = g.address_detail_pid                
+                       FROM {dbschema}.address_detail d
+                       INNER JOIN {dbschema}.street_locality s ON d.street_locality_pid = s.street_locality_pid
+                       INNER JOIN {dbschema}.locality l ON d.locality_pid = l.locality_pid
+                       INNER JOIN {dbschema}.address_default_geocode g ON d.address_detail_pid = g.address_detail_pid                
                        LEFT JOIN codes.geocode u ON g.geocode_type_code = u.code           
                        LEFT JOIN codes.gnafconfidence u2 ON CAST(d.confidence AS text) = u2.code 
                        LEFT JOIN codes.locality u3 ON l.locality_class_code = u3.code 
-                       INNER JOIN gnaf.address_site a ON d.address_site_pid = a.address_site_pid
+                       INNER JOIN {dbschema}.address_site a ON d.address_site_pid = a.address_site_pid
                        LEFT JOIN codes.address u4 ON a.address_type = u4.code 
                        LEFT JOIN codes.flat u5 ON d.flat_type_code = u5.code 
                        LEFT JOIN codes.state u6 ON TRIM(BOTH '0123456789' FROM d.locality_pid) = u6.code 
                        WHERE d.address_detail_pid = {id};
-                       ''').format(id=sql.Literal(self.id))
+                       ''').format(dbschema=sql.Identifier(config.DB_SCHEMA), id=sql.Literal(self.id))
 
         # get just IDs, ordered, from the address_detail table, paginated by class init args
         self.cursor.execute(s)
@@ -171,10 +171,10 @@ class Address(GNAFModel):
         # get aliases
         self.alias_addresses = dict()
         s2 = sql.SQL('''SELECT alias_pid, uri, prefLabel 
-                        FROM gnaf.address_alias 
-                        LEFT JOIN codes.alias ON gnaf.address_alias.alias_type_code = codes.alias.code 
+                        FROM {dbschema}.address_alias 
+                        LEFT JOIN codes.alias ON {dbschema}.address_alias.alias_type_code = codes.alias.code 
                         WHERE principal_pid = {id}''') \
-            .format(id=sql.Literal(self.id))
+            .format(dbschema=sql.Identifier(config.DB_SCHEMA), id=sql.Literal(self.id))
         self.cursor.execute(s2)
         for row in self.cursor.fetchall():
             r = config.reg(self.cursor, row)
@@ -189,10 +189,10 @@ class Address(GNAFModel):
             # get principals
             self.principal_addresses = dict()
             s3 = sql.SQL('''SELECT principal_pid, uri, prefLabel  
-                            FROM gnaf.address_alias 
-                            LEFT JOIN codes.alias ON gnaf.address_alias.alias_type_code = codes.alias.code 
+                            FROM {dbschema}.address_alias 
+                            LEFT JOIN codes.alias ON {dbschema}.address_alias.alias_type_code = codes.alias.code 
                             WHERE alias_pid = {id}''') \
-                .format(id=sql.Literal(self.id))
+                .format(dbschema=sql.Identifier(config.DB_SCHEMA), id=sql.Literal(self.id))
             self.cursor.execute(s3)
             for row in self.cursor.fetchall():
                 r = config.reg(self.cursor, row)
@@ -205,8 +205,8 @@ class Address(GNAFModel):
 
             # get primary
             self.primary_addresses = dict()
-            s4 = sql.SQL('''SELECT primary_pid FROM gnaf.primary_secondary WHERE secondary_pid = {id}''') \
-                .format(id=sql.Literal(self.id))
+            s4 = sql.SQL('''SELECT primary_pid FROM {dbschema}.primary_secondary WHERE secondary_pid = {id}''') \
+                .format(dbschema=sql.Identifier(config.DB_SCHEMA), id=sql.Literal(self.id))
             self.cursor.execute(s4)
             for row in self.cursor.fetchall():
                 r = config.reg(self.cursor, row)
@@ -215,8 +215,8 @@ class Address(GNAFModel):
 
             # get secondaries
             self.secondary_addresses = dict()
-            s5 = sql.SQL('''SELECT secondary_pid FROM gnaf.primary_secondary WHERE primary_pid = {id}''') \
-                .format(id=sql.Literal(self.id))
+            s5 = sql.SQL('''SELECT secondary_pid FROM {dbschema}.primary_secondary WHERE primary_pid = {id}''') \
+                .format(dbschema=sql.Identifier(config.DB_SCHEMA), id=sql.Literal(self.id))
             self.cursor.execute(s5)
             rows = self.cursor.fetchall()
             for row in rows:
@@ -234,14 +234,14 @@ class Address(GNAFModel):
                               a.prefLabel mb2011_prefLabel,
                               b.uri mb2016_uri, 
                               b.prefLabel mb2016_prefLabel  
-                            FROM gnaf.address_mesh_block_2016_view
-                            INNER JOIN gnaf.address_mesh_block_2011_view 
-                            ON gnaf.address_mesh_block_2016_view.address_detail_pid 
-                            = gnaf.address_mesh_block_2011_view.address_detail_pid
-                            LEFT JOIN codes.meshblockmatch a ON gnaf.address_mesh_block_2011_view.mb_match_code = a.code 
-                            LEFT JOIN codes.meshblockmatch b ON gnaf.address_mesh_block_2016_view.mb_match_code = b.code 
-                            WHERE gnaf.address_mesh_block_2016_view.address_detail_pid = {id};''') \
-                .format(id=sql.Literal(self.id))
+                            FROM {dbschema}.address_mesh_block_2016_view
+                            INNER JOIN {dbschema}.address_mesh_block_2011_view 
+                            ON {dbschema}.address_mesh_block_2016_view.address_detail_pid 
+                            = {dbschema}.address_mesh_block_2011_view.address_detail_pid
+                            LEFT JOIN codes.meshblockmatch a ON {dbschema}.address_mesh_block_2011_view.mb_match_code = a.code 
+                            LEFT JOIN codes.meshblockmatch b ON {dbschema}.address_mesh_block_2016_view.mb_match_code = b.code 
+                            WHERE {dbschema}.address_mesh_block_2016_view.address_detail_pid = {id};''') \
+                .format(dbschema=sql.Identifier(config.DB_SCHEMA), id=sql.Literal(self.id))
 
             self.cursor.execute(s6)
             for row in self.cursor.fetchall():
@@ -328,9 +328,9 @@ class Address(GNAFModel):
                          postcode,
                          longitude,
                          latitude
-                     FROM gnaf.address_view 
+                     FROM {dbschema}.address_view 
                      WHERE address_detail_pid = {id}''') \
-                .format(id=sql.Literal(self.id))
+                .format(dbschema=sql.Identifier(config.DB_SCHEMA), id=sql.Literal(self.id))
 
             # get just IDs, ordered, from the address_detail table, paginated by class init args
             self.cursor.execute(s)

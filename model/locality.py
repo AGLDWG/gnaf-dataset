@@ -44,11 +44,11 @@ class Locality(GNAFModel):
                             longitude,
                             s.uri AS state_uri, 
                             s.prefLabel AS state_label
-                        FROM gnaf.locality l
-                        INNER JOIN gnaf.locality_point lp on l.locality_pid = lp.locality_pid
+                        FROM {dbschema}.locality l
+                        INNER JOIN {dbschema}.locality_point lp on l.locality_pid = lp.locality_pid
                         LEFT JOIN codes.state s ON CAST(l.state_pid AS text) = s.code
                         WHERE l.locality_pid = {id}''') \
-            .format(id=sql.Literal(self.id))
+            .format(dbschema=sql.Identifier(config.DB_SCHEMA), id=sql.Literal(self.id))
 
         self.cursor.execute(s)
         rows = self.cursor.fetchall()
@@ -65,10 +65,10 @@ class Locality(GNAFModel):
                 self.geometry_wkt = self.make_wkt_literal(longitude=self.longitude, latitude=self.latitude)
 
         s2 = sql.SQL('''SELECT locality_alias_pid, name, uri, prefLabel 
-                        FROM gnaf.locality_alias 
-                        LEFT JOIN codes.alias a ON gnaf.locality_alias.alias_type_code = a.code 
+                        FROM {dbschema}.locality_alias 
+                        LEFT JOIN codes.alias a ON {dbschema}.locality_alias.alias_type_code = a.code 
                         WHERE locality_pid = {id}''') \
-            .format(id=sql.Literal(self.id))
+            .format(dbschema=sql.Identifier(config.DB_SCHEMA), id=sql.Literal(self.id))
 
         # get just IDs, ordered, from the address_detail table, paginated by class init args
         self.cursor.execute(s2)
@@ -85,10 +85,10 @@ class Locality(GNAFModel):
         s3 = sql.SQL('''SELECT 
                     a.neighbour_locality_pid,
                     b.locality_name                
-                FROM gnaf.locality_neighbour a
-                INNER JOIN gnaf.locality_view b ON a.neighbour_locality_pid = b.locality_pid
+                FROM {dbschema}.locality_neighbour a
+                INNER JOIN {dbschema}.locality_view b ON a.neighbour_locality_pid = b.locality_pid
                 WHERE a.locality_pid = {id}''') \
-            .format(id=sql.Literal(self.id))
+            .format(dbschema=sql.Identifier(config.DB_SCHEMA), id=sql.Literal(self.id))
         # get just IDs, ordered, from the address_detail table, paginated by class init args
         self.cursor.execute(s3)
         rows = self.cursor.fetchall()
@@ -126,9 +126,9 @@ class Locality(GNAFModel):
                         geocode_type,
                         locality_pid,
                         state_pid
-                    FROM gnaf.locality_view
+                    FROM {dbschema}.locality_view
                     WHERE locality_pid = {id}''') \
-                .format(id=sql.Literal(self.id))
+                .format(dbschema=sql.Identifier(config.DB_SCHEMA), id=sql.Literal(self.id))
 
             try:
                 cursor = config.get_db_cursor()
@@ -159,7 +159,7 @@ class Locality(GNAFModel):
             return NotImplementedError("HTML representation of View '{}' for Location is not implemented.".format(view))
         return view_html
 
-    def export_rdf(self, view='gnaf', format='text/turtle'):
+    def export_rdf(self, view='gnaf'):
         g = Graph()
         a = URIRef(self.uri)
 
@@ -172,9 +172,9 @@ class Locality(GNAFModel):
                         geocode_type,
                         locality_pid,
                         state_pid
-                    FROM gnaf.locality_view
+                    FROM {dbschema}.locality_view
                     WHERE locality_pid = {id}''') \
-                .format(id=sql.Literal(self.id))
+                .format(dbschema=sql.Identifier(config.DB_SCHEMA), id=sql.Literal(self.id))
 
             try:
                 cursor = config.get_db_cursor()

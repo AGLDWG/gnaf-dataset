@@ -182,42 +182,46 @@ class GNAFRegisterRenderer(pyldapi.RegisterRenderer):
             cursor = config.get_db_cursor()
             if cic == 'http://linked.data.gov.au/def/gnaf#Address':
                 id_query = sql.SQL('''SELECT address_detail_pid
-                                   FROM gnaf.address_detail
+                                   FROM {dbschema}.address_detail
                                    ORDER BY address_detail_pid
                                    LIMIT {limit}
                                    OFFSET {offset}''').format(
                     limit=sql.Literal(per_page),
-                    offset=sql.Literal((page - 1) * per_page)
+                    offset=sql.Literal((page - 1) * per_page),
+                    dbschema=sql.Identifier(config.DB_SCHEMA)
                 )
                 label_prefix = 'Address'
             elif cic == 'http://linked.data.gov.au/def/gnaf#Locality':
                 id_query = sql.SQL('''SELECT locality_pid
-                                   FROM gnaf.locality
+                                   FROM {dbschema}.locality
                                    ORDER BY locality_pid
                                    LIMIT {limit}
                                    OFFSET {offset}''').format(
                     limit=sql.Literal(per_page),
-                    offset=sql.Literal((page - 1) * per_page)
+                    offset=sql.Literal((page - 1) * per_page),
+                    dbschema=sql.Identifier(config.DB_SCHEMA)
                 )
                 label_prefix = 'Locality'
             elif cic == 'http://linked.data.gov.au/def/gnaf#StreetLocality':
                 id_query = sql.SQL('''SELECT street_locality_pid
-                                   FROM gnaf.street_locality
+                                   FROM {dbschema}.street_locality
                                    ORDER BY street_locality_pid
                                    LIMIT {limit}
                                    OFFSET {offset}''').format(
                     limit=sql.Literal(per_page),
-                    offset=sql.Literal((page - 1) * per_page)
+                    offset=sql.Literal((page - 1) * per_page),
+                    dbschema=sql.Identifier(config.DB_SCHEMA)
                 )
                 label_prefix = 'Street Locality'
             elif cic == 'http://linked.data.gov.au/def/gnaf#AddressSite':
                 id_query = sql.SQL('''SELECT address_site_pid
-                                   FROM gnaf.address_site
+                                   FROM {dbschema}.address_site
                                    ORDER BY address_site_pid
                                    LIMIT {limit}
                                    OFFSET {offset}''').format(
                     limit=sql.Literal(per_page),
-                    offset=sql.Literal((page - 1) * per_page)
+                    offset=sql.Literal((page - 1) * per_page),
+                    dbschema=sql.Identifier(config.DB_SCHEMA)
                 )
                 label_prefix = 'Address Site'
             else:
