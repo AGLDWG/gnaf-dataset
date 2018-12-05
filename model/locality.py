@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from db import get_db_cursor, reg
 from .model import GNAFModel
 from flask import render_template
 from rdflib import Graph, URIRef, RDF, XSD, Namespace, Literal, BNode
@@ -20,8 +21,10 @@ class Locality(GNAFModel):
         # DB connection
         if db_cursor is not None:
             self.cursor = db_cursor
+            self._cursor_context_manager = None
         else:
-            self.cursor = config.get_db_cursor()
+            self._cursor_context_manager = get_db_cursor()
+            self.cursor = self._cursor_context_manager.__enter__()
 
         self.locality_name = None
         self.latitude = None
@@ -53,7 +56,7 @@ class Locality(GNAFModel):
         self.cursor.execute(s)
         rows = self.cursor.fetchall()
         for row in rows:
-            r = config.reg(self.cursor, row)
+            r = reg(self.cursor, row)
             self.locality_name = r.locality_name.title()
             self.latitude = r.latitude
             self.longitude = r.longitude
@@ -74,7 +77,7 @@ class Locality(GNAFModel):
         self.cursor.execute(s2)
         rows = self.cursor.fetchall()
         for row in rows:
-            r = config.reg(self.cursor, row)
+            r = reg(self.cursor, row)
             alias = dict()
             alias['locality_name'] = r.name.title()
             alias['subclass_uri'] = r.uri
@@ -93,8 +96,12 @@ class Locality(GNAFModel):
         self.cursor.execute(s3)
         rows = self.cursor.fetchall()
         for row in rows:
-            r = config.reg(self.cursor, row)
+            r = reg(self.cursor, row)
             self.locality_neighbours[r.neighbour_locality_pid] = r.locality_name.title()
+
+    def __del__(self):
+        if self._cursor_context_manager:
+            self._cursor_context_manager.__exit__(None, None, None)
 
     def export_html(self, view='gnaf'):
         if view == 'gnaf':
@@ -131,7 +138,7 @@ class Locality(GNAFModel):
                 .format(dbschema=sql.Identifier(config.DB_SCHEMA), id=sql.Literal(self.id))
 
             try:
-                cursor = config.get_db_cursor()
+                cursor = self.cursor
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
                 cursor.execute(s)
                 for record in cursor:
@@ -177,7 +184,7 @@ class Locality(GNAFModel):
                 .format(dbschema=sql.Identifier(config.DB_SCHEMA), id=sql.Literal(self.id))
 
             try:
-                cursor = config.get_db_cursor()
+                cursor = self.cursor
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
                 cursor.execute(s)
                 for record in cursor:

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from db import get_db_cursor
 from .model import GNAFModel
 from flask import render_template
 from rdflib import Graph, URIRef, RDF, XSD, Namespace, Literal, BNode
@@ -13,14 +14,24 @@ class AddressSite(GNAFModel):
     expression of the Dublin Core ontology, HTML, XML in the form according to the AS4590 XML schema.
     """
 
-    def __init__(self, identifier):
+    def __init__(self, identifier, db_cursor=None):
         self.id = identifier
         self.uri = config.URI_ADDRESS_SITE_INSTANCE_BASE + identifier
         self.address_site_geocode_ids = dict()
+        if db_cursor is not None:
+            self.cursor = db_cursor
+            self._cursor_context_manager = None
+        else:
+            self._cursor_context_manager = get_db_cursor()
+            self.cursor = self._cursor_context_manager.__enter__()
+
+    def __del__(self):
+        if self._cursor_context_manager:
+            self._cursor_context_manager.__exit__(None, None, None)
 
     def export_html(self, view='gnaf'):
         # connect to DB
-        cursor = config.get_db_cursor()
+        cursor = self.cursor
 
         if view == 'gnaf':
             # make a human-readable address
@@ -105,7 +116,7 @@ class AddressSite(GNAFModel):
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
             try:
-                cursor = config.get_db_cursor()
+                cursor = self.cursor
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
                 cursor.execute(s)
                 for record in cursor:

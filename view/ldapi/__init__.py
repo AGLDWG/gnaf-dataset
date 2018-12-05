@@ -4,6 +4,7 @@ from psycopg2 import sql
 import pyldapi
 
 import _config as config
+from db import get_db_cursor
 
 DCTView = pyldapi.View('dct',
                        "Dublin Core Terms from the Dublin Core Metadata Initiative",
@@ -179,56 +180,56 @@ class GNAFRegisterRenderer(pyldapi.RegisterRenderer):
     def _get_contained_items_from_db(self, page, per_page):
         cic = self.contained_item_classes[0]
         try:
-            cursor = config.get_db_cursor()
-            if cic == 'http://linked.data.gov.au/def/gnaf#Address':
-                id_query = sql.SQL('''SELECT address_detail_pid
-                                   FROM {dbschema}.address_detail
-                                   ORDER BY address_detail_pid
-                                   LIMIT {limit}
-                                   OFFSET {offset}''').format(
-                    limit=sql.Literal(per_page),
-                    offset=sql.Literal((page - 1) * per_page),
-                    dbschema=sql.Identifier(config.DB_SCHEMA)
-                )
-                label_prefix = 'Address'
-            elif cic == 'http://linked.data.gov.au/def/gnaf#Locality':
-                id_query = sql.SQL('''SELECT locality_pid
-                                   FROM {dbschema}.locality
-                                   ORDER BY locality_pid
-                                   LIMIT {limit}
-                                   OFFSET {offset}''').format(
-                    limit=sql.Literal(per_page),
-                    offset=sql.Literal((page - 1) * per_page),
-                    dbschema=sql.Identifier(config.DB_SCHEMA)
-                )
-                label_prefix = 'Locality'
-            elif cic == 'http://linked.data.gov.au/def/gnaf#StreetLocality':
-                id_query = sql.SQL('''SELECT street_locality_pid
-                                   FROM {dbschema}.street_locality
-                                   ORDER BY street_locality_pid
-                                   LIMIT {limit}
-                                   OFFSET {offset}''').format(
-                    limit=sql.Literal(per_page),
-                    offset=sql.Literal((page - 1) * per_page),
-                    dbschema=sql.Identifier(config.DB_SCHEMA)
-                )
-                label_prefix = 'Street Locality'
-            elif cic == 'http://linked.data.gov.au/def/gnaf#AddressSite':
-                id_query = sql.SQL('''SELECT address_site_pid
-                                   FROM {dbschema}.address_site
-                                   ORDER BY address_site_pid
-                                   LIMIT {limit}
-                                   OFFSET {offset}''').format(
-                    limit=sql.Literal(per_page),
-                    offset=sql.Literal((page - 1) * per_page),
-                    dbschema=sql.Identifier(config.DB_SCHEMA)
-                )
-                label_prefix = 'Address Site'
-            else:
-                raise RuntimeError("Cannot get DB objects for unknown contained item class.")
+            with get_db_cursor() as cursor:
+                if cic == 'http://linked.data.gov.au/def/gnaf#Address':
+                    id_query = sql.SQL('''SELECT address_detail_pid
+                                       FROM {dbschema}.address_detail
+                                       ORDER BY address_detail_pid
+                                       LIMIT {limit}
+                                       OFFSET {offset}''').format(
+                        limit=sql.Literal(per_page),
+                        offset=sql.Literal((page - 1) * per_page),
+                        dbschema=sql.Identifier(config.DB_SCHEMA)
+                    )
+                    label_prefix = 'Address'
+                elif cic == 'http://linked.data.gov.au/def/gnaf#Locality':
+                    id_query = sql.SQL('''SELECT locality_pid
+                                       FROM {dbschema}.locality
+                                       ORDER BY locality_pid
+                                       LIMIT {limit}
+                                       OFFSET {offset}''').format(
+                        limit=sql.Literal(per_page),
+                        offset=sql.Literal((page - 1) * per_page),
+                        dbschema=sql.Identifier(config.DB_SCHEMA)
+                    )
+                    label_prefix = 'Locality'
+                elif cic == 'http://linked.data.gov.au/def/gnaf#StreetLocality':
+                    id_query = sql.SQL('''SELECT street_locality_pid
+                                       FROM {dbschema}.street_locality
+                                       ORDER BY street_locality_pid
+                                       LIMIT {limit}
+                                       OFFSET {offset}''').format(
+                        limit=sql.Literal(per_page),
+                        offset=sql.Literal((page - 1) * per_page),
+                        dbschema=sql.Identifier(config.DB_SCHEMA)
+                    )
+                    label_prefix = 'Street Locality'
+                elif cic == 'http://linked.data.gov.au/def/gnaf#AddressSite':
+                    id_query = sql.SQL('''SELECT address_site_pid
+                                       FROM {dbschema}.address_site
+                                       ORDER BY address_site_pid
+                                       LIMIT {limit}
+                                       OFFSET {offset}''').format(
+                        limit=sql.Literal(per_page),
+                        offset=sql.Literal((page - 1) * per_page),
+                        dbschema=sql.Identifier(config.DB_SCHEMA)
+                    )
+                    label_prefix = 'Address Site'
+                else:
+                    raise RuntimeError("Cannot get DB objects for unknown contained item class.")
 
-            cursor.execute(id_query)
-            rows = cursor.fetchall()
+                cursor.execute(id_query)
+                rows = cursor.fetchall()
             for row in rows:
                 item_pid = row[0]
                 uri = ''.join([self.uri, item_pid])

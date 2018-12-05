@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from db import get_db_cursor, reg
 from .model import GNAFModel
 from flask import render_template
 from rdflib import Graph, URIRef, RDF, RDFS, XSD, Namespace, Literal, BNode
@@ -21,8 +22,10 @@ class Address(GNAFModel):
         # DB connection
         if db_cursor is not None:
             self.cursor = db_cursor
+            self._cursor_context_manager = None
         else:
-            self.cursor = config.get_db_cursor()
+            self._cursor_context_manager = get_db_cursor()
+            self.cursor = self._cursor_context_manager.__enter__()
 
         # get basic properties
         s = sql.SQL('''SELECT 
@@ -93,7 +96,7 @@ class Address(GNAFModel):
         # get just IDs, ordered, from the address_detail table, paginated by class init args
         self.cursor.execute(s)
         for row in self.cursor.fetchall():
-            r = config.reg(self.cursor, row)
+            r = reg(self.cursor, row)
             # assign this Address' instance variables
             self.address_subclass_uri = r.uri4
             self.address_subclass_label = r.preflabel4
@@ -177,7 +180,7 @@ class Address(GNAFModel):
             .format(dbschema=sql.Identifier(config.DB_SCHEMA), id=sql.Literal(self.id))
         self.cursor.execute(s2)
         for row in self.cursor.fetchall():
-            r = config.reg(self.cursor, row)
+            r = reg(self.cursor, row)
             self.alias_addresses[r.alias_pid] = {
                 'address_string': Address(r.alias_pid, focus=False).address_string,
                 'subclass_uri': r.uri,
@@ -195,7 +198,7 @@ class Address(GNAFModel):
                 .format(dbschema=sql.Identifier(config.DB_SCHEMA), id=sql.Literal(self.id))
             self.cursor.execute(s3)
             for row in self.cursor.fetchall():
-                r = config.reg(self.cursor, row)
+                r = reg(self.cursor, row)
                 ar = Address(r.principal_pid, focus=False)
                 self.principal_addresses[r.principal_pid] = {
                     'address_string': ar.address_string,
@@ -209,7 +212,7 @@ class Address(GNAFModel):
                 .format(dbschema=sql.Identifier(config.DB_SCHEMA), id=sql.Literal(self.id))
             self.cursor.execute(s4)
             for row in self.cursor.fetchall():
-                r = config.reg(self.cursor, row)
+                r = reg(self.cursor, row)
                 a = Address(r.primary_pid, focus=False)
                 self.primary_addresses[r.primary_pid] = a.address_string
 
@@ -220,7 +223,7 @@ class Address(GNAFModel):
             self.cursor.execute(s5)
             rows = self.cursor.fetchall()
             for row in rows:
-                r = config.reg(self.cursor, row)
+                r = reg(self.cursor, row)
                 a = Address(r.secondary_pid, focus=False)
                 self.secondary_addresses[r.secondary_pid] = a.address_string
 
@@ -245,7 +248,7 @@ class Address(GNAFModel):
 
             self.cursor.execute(s6)
             for row in self.cursor.fetchall():
-                r = config.reg(self.cursor, row)
+                r = reg(self.cursor, row)
                 self.mesh_block_2011s[config.URI_MB_2011_INSTANCE_BASE + r.mb_2011_code] = {
                     'string': r.mb_2011_code,
                     'subclass_uri': r.mb2011_uri,
@@ -256,6 +259,10 @@ class Address(GNAFModel):
                     'subclass_uri': r.mb2016_uri,
                     'subclass_label': r.mb2016_preflabel  # note use of preflabel, not prefLabel
                 }
+
+    def __del__(self):
+        if self._cursor_context_manager:
+            self._cursor_context_manager.__exit__(None, None, None)
 
     def export_html(self, view='gnaf'):
         if view == 'gnaf':

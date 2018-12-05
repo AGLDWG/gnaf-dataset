@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from db import get_db_cursor, reg
 from .model import GNAFModel
 from flask import render_template
 from rdflib import Graph, URIRef, RDF, XSD, Namespace, Literal, BNode
@@ -13,7 +14,7 @@ class StreetLocality(GNAFModel):
     expression of the Dublin Core ontology, HTML, XML in the form according to the AS4590 XML schema.
     """
 
-    def __init__(self, identifier):
+    def __init__(self, identifier, db_cursor=None):
         self.id = identifier
         self.uri = config.URI_STREETLOCALITY_INSTANCE_BASE + identifier
         self.street_locality_aliases = dict()
@@ -25,6 +26,16 @@ class StreetLocality(GNAFModel):
         self.street_suffix_label = None
         self.street_suffix_uri = None
         self.locality_pid = None
+        if db_cursor is not None:
+            self.cursor = db_cursor
+            self._cursor_context_manager = None
+        else:
+            self._cursor_context_manager = get_db_cursor()
+            self.cursor = self._cursor_context_manager.__enter__()
+
+    def __del__(self):
+        if self._cursor_context_manager:
+            self._cursor_context_manager.__exit__(None, None, None)
 
     def export_html(self, view='gnaf'):
         if view == 'gnaf':
@@ -57,13 +68,12 @@ class StreetLocality(GNAFModel):
                     WHERE street_locality_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
-            cursor = config.get_db_cursor()
-
+            cursor = self.cursor
             # get just IDs, ordered, from the address_detail table, paginated by class init args
             cursor.execute(s)
             rows = cursor.fetchall()
             for row in rows:
-                r = config.reg(cursor, row)
+                r = reg(cursor, row)
                 self.street_name = r.street_name.title()
                 self.street_type = r.street_type_code.title()
                 self.street_suffix = r.street_suffix_code.title() if r.street_suffix_code is not None else None
@@ -100,7 +110,7 @@ class StreetLocality(GNAFModel):
             cursor.execute(s2)
             rows = cursor.fetchall()
             for row in rows:
-                r = config.reg(cursor, row)
+                r = reg(cursor, row)
                 street_string = '{}{}{}'.format(
                     r.street_name,
                     ' ' + r.street_type_code.title() if r.street_type_code is not None else '',
@@ -148,7 +158,7 @@ class StreetLocality(GNAFModel):
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
             try:
-                cursor = config.get_db_cursor()
+                cursor = self.cursor
                 # get just IDs, ordered, from the address_detail table, paginated by class init args
                 cursor.execute(s)
                 for record in cursor:
@@ -197,7 +207,7 @@ class StreetLocality(GNAFModel):
                     WHERE street_locality_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
-            cursor = config.get_db_cursor()
+            cursor = self.cursor
             # get just IDs, ordered, from the address_detail table, paginated by class init args
             cursor.execute(s)
             for record in cursor:
@@ -254,14 +264,14 @@ class StreetLocality(GNAFModel):
                     WHERE street_locality_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
-            cursor = config.get_db_cursor()
+            cursor = self.cursor
             # get just IDs, ordered, from the address_detail table, paginated by class init args
             cursor.execute(s)
             for record in cursor:
                 self.street_name = record[0].title()
-                if(record[1] is not None):
+                if record[1] is not None:
                     self.street_type = record[1].title()
-                if(record[2] is not None):
+                if record[2] is not None:
                     self.street_suffix = record[2].title()
                 latitude = record[3]
                 longitude = record[4]
