@@ -1,36 +1,14 @@
 from collections import defaultdict
-
-import psycopg2
 from psycopg2 import pool
 from contextlib import contextmanager
 
 from _config import DB_HOST, DB_PORT, DB_DBNAME, DB_USR, DB_PWD
 
 
-class PersistentThreadConnectionPool(pool.ThreadedConnectionPool):
-    def __init__(self, minconn, maxconn, *args, **kwargs):
-        super(PersistentThreadConnectionPool, self).__init__(minconn, maxconn, *args, **kwargs)
-        import _thread as _thread
-        self.__thread = _thread
-
-    def getconn(self, key=None):
-        """Generate thread id and return a connection."""
-        if key is None:
-            key = self.__thread.get_ident()
-        return super(PersistentThreadConnectionPool, self).getconn(key)
-
-    def putconn(self, conn=None, key=None, close=False):
-        """Put away an unused connection."""
-        if key is None:
-            key = self.__thread.get_ident()
-        return super(PersistentThreadConnectionPool, self).putconn(conn, key, close)
-
-
-
 connect_str = "host='{}' port='{}' dbname='{}' user='{}' password='{}'" \
     .format(DB_HOST, DB_PORT, DB_DBNAME, DB_USR, DB_PWD)
 try:
-    tcp = PersistentThreadConnectionPool(minconn=4, maxconn=24, dsn=connect_str)
+    tcp = pool.ThreadedConnectionPool(minconn=8, maxconn=24, dsn=connect_str)
 except Exception as e:
     print("Can't connect to DB {}".format(DB_DBNAME))
     print(e)
@@ -60,7 +38,7 @@ def get_db_cursor(con=None):
             con = tcp.getconn()
             put_con = True
         except Exception as e:
-            print("Can't connect a db connection from the connection pool.".format(DB_DBNAME))
+            print("Can't connect a db connection from the connection pool.")
             raise e
 
     con_id = id(con)
@@ -73,7 +51,7 @@ def get_db_cursor(con=None):
             try:
                 cur = con.cursor()
             except Exception as e:
-                print("Can't connect a cursor from the connection.".format(DB_DBNAME))
+                print("Can't get a cursor from the connection.")
                 print(e)
         yield cur
     finally:

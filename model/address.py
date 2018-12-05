@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from db import get_db_cursor, reg
-from .model import GNAFModel
+from model import NotFoundError, GNAFModel
 from flask import render_template
 from rdflib import Graph, URIRef, RDF, RDFS, XSD, Namespace, Literal, BNode
 import _config as config
@@ -170,6 +170,9 @@ class Address(GNAFModel):
                 state_territory=self.state_territory,
                 postcode=self.postcode
             )
+            break
+        else:
+            raise NotFoundError()
 
         # get aliases
         self.alias_addresses = dict()

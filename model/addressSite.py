@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from db import get_db_cursor
-from .model import GNAFModel
+from model import GNAFModel, NotFoundError
 from flask import render_template
 from rdflib import Graph, URIRef, RDF, XSD, Namespace, Literal, BNode
 import _config as config
@@ -48,6 +48,9 @@ class AddressSite(GNAFModel):
             for row in rows:
                 address_type = row[0]
                 address_site_name = row[1]
+                break
+            else:
+                raise NotFoundError()
 
             # get a list of addressSiteGeocodeIds from the address_site_geocode table
             s2 = sql.SQL('''SELECT 
@@ -89,6 +92,9 @@ class AddressSite(GNAFModel):
             for record in cursor:
                 address_type = record[0]
                 address_site_name = record[1]
+                break
+            else:
+                raise NotFoundError()
 
             view_html = render_template(
                 'class_addressSite_dct.html',
@@ -115,16 +121,16 @@ class AddressSite(GNAFModel):
                     WHERE address_site_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
-            try:
-                cursor = self.cursor
-                # get just IDs, ordered, from the address_detail table, paginated by class init args
-                cursor.execute(s)
-                for record in cursor:
-                    address_type = record[0]
-                    address_site_name = record[1]
-            except Exception as e:
-                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
-                print(e)
+            cursor = self.cursor
+            # get just IDs, ordered, from the address_detail table, paginated by class init args
+            cursor.execute(s)
+            for record in cursor:
+                address_type = record[0]
+                address_site_name = record[1]
+                break
+            else:
+                raise NotFoundError()
+
 
             AddressComponentTypeUriBase = 'http://def.isotc211.org/iso19160/-1/2015/Address/code/AddressComponentType/'
 

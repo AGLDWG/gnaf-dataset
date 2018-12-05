@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from db import get_db_cursor, reg
-from .model import GNAFModel
+from model import GNAFModel, NotFoundError
 from flask import render_template
 from rdflib import Graph, URIRef, RDF, XSD, Namespace, Literal, BNode
 import _config as config
@@ -95,7 +95,9 @@ class StreetLocality(GNAFModel):
                     ' ' + self.street_type.title() if self.street_type is not None else '',
                     ' ' + self.street_suffix.title() if self.street_suffix is not None else ''
                 )
-
+                break
+            else:
+                raise NotFoundError()
             # aliases
             s2 = sql.SQL('''SELECT 
                           street_locality_alias_pid,
@@ -109,6 +111,7 @@ class StreetLocality(GNAFModel):
 
             cursor.execute(s2)
             rows = cursor.fetchall()
+            street_string = "Not Found"
             for row in rows:
                 r = reg(cursor, row)
                 street_string = '{}{}{}'.format(
@@ -117,7 +120,7 @@ class StreetLocality(GNAFModel):
                     ' ' + r.street_suffix_code.title() if r.street_suffix_code is not None else ''
                 )
                 self.street_locality_aliases[r.street_locality_alias_pid] = street_string
-
+                break
             view_html = render_template(
                 'class_streetLocality_gnaf.html',
                 street_string=street_string,
@@ -157,24 +160,23 @@ class StreetLocality(GNAFModel):
                     WHERE street_locality_pid = {id}''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
-            try:
-                cursor = self.cursor
-                # get just IDs, ordered, from the address_detail table, paginated by class init args
-                cursor.execute(s)
-                for record in cursor:
-                    self.street_name = record[0]
-                    self.street_type = record[1]
-                    self.street_suffix = record[2]
-                    latitude = record[3]
-                    longitude = record[4]
-                    geocode_type = record[5].title()
-                    self.locality_pid = record[6]
-                    geometry_wkt = self.make_wkt_literal(longitude=longitude, latitude=latitude)
-                    street_string = '{} {} {}'\
-                        .format(self.street_name, self.street_type, self.street_suffix)
-            except Exception as e:
-                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
-                print(e)
+            cursor = self.cursor
+            # get just IDs, ordered, from the address_detail table, paginated by class init args
+            cursor.execute(s)
+            for record in cursor:
+                self.street_name = record[0]
+                self.street_type = record[1]
+                self.street_suffix = record[2]
+                latitude = record[3]
+                longitude = record[4]
+                geocode_type = record[5].title()
+                self.locality_pid = record[6]
+                geometry_wkt = self.make_wkt_literal(longitude=longitude, latitude=latitude)
+                street_string = '{} {} {}'\
+                    .format(self.street_name, self.street_type, self.street_suffix)
+                break
+            else:
+                raise NotFoundError()
 
             view_html = render_template(
                 'class_streetLocality_dct.html',
@@ -218,7 +220,9 @@ class StreetLocality(GNAFModel):
                     ac_street_value += ' {}'.format(record[2].title())
                 geometry_wkt = '<http://www.opengis.net/def/crs/EPSG/0/4283> POINT({} {})'.format(record[3], record[4])
                 self.locality_pid = record[6]
-
+                break
+            else:
+                raise NotFoundError()
             AddressComponentTypeUriBase = 'http://def.isotc211.org/iso19160/-1/2015/Address/code/AddressComponentType/'
             AddressPositionTypeUriBase = 'http://def.isotc211.org/iso19160/-1/2015/Address/code/AddressPositionType/'
 

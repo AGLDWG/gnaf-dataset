@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from db import get_db_cursor, reg
-from .model import GNAFModel
+from model import GNAFModel, NotFoundError
 from flask import render_template
 from rdflib import Graph, URIRef, RDF, XSD, Namespace, Literal, BNode
 import _config as config
@@ -66,6 +66,9 @@ class Locality(GNAFModel):
             self.state_label = r.state_label
             if self.latitude is not None and self.longitude is not None:
                 self.geometry_wkt = self.make_wkt_literal(longitude=self.longitude, latitude=self.latitude)
+            break
+        else:
+            raise NotFoundError()
 
         s2 = sql.SQL('''SELECT locality_alias_pid, name, uri, prefLabel 
                         FROM {dbschema}.locality_alias 
@@ -137,21 +140,21 @@ class Locality(GNAFModel):
                     WHERE locality_pid = {id}''') \
                 .format(dbschema=sql.Identifier(config.DB_SCHEMA), id=sql.Literal(self.id))
 
-            try:
-                cursor = self.cursor
-                # get just IDs, ordered, from the address_detail table, paginated by class init args
-                cursor.execute(s)
-                for record in cursor:
-                    locality_name = record[0]
-                    latitude = record[1]
-                    longitude = record[2]
-                    geocode_type = record[3].title()
-                    locality_pid = record[4]
-                    state_pid = record[5]
-                    geometry_wkt = self.make_wkt_literal(longitude=longitude, latitude=latitude)
-            except Exception as e:
-                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
-                print(e)
+
+            cursor = self.cursor
+            # get just IDs, ordered, from the address_detail table, paginated by class init args
+            cursor.execute(s)
+            for record in cursor:
+                locality_name = record[0]
+                latitude = record[1]
+                longitude = record[2]
+                geocode_type = record[3].title()
+                locality_pid = record[4]
+                state_pid = record[5]
+                geometry_wkt = self.make_wkt_literal(longitude=longitude, latitude=latitude)
+                break
+            else:
+                raise NotFoundError()
 
             view_html = render_template(
                 'class_locality_dct.html',
@@ -183,18 +186,18 @@ class Locality(GNAFModel):
                     WHERE locality_pid = {id}''') \
                 .format(dbschema=sql.Identifier(config.DB_SCHEMA), id=sql.Literal(self.id))
 
-            try:
-                cursor = self.cursor
-                # get just IDs, ordered, from the address_detail table, paginated by class init args
-                cursor.execute(s)
-                for record in cursor:
-                    ac_locality_value = record[0].title()
-                    latitude = record[1]
-                    longitude = record[2]
-                    geometry_wkt = self.make_wkt_literal(longitude=longitude, latitude=latitude)
-            except Exception as e:
-                print("Uh oh, can't connect to DB. Invalid dbname, user or password?")
-                print(e)
+
+            cursor = self.cursor
+            # get just IDs, ordered, from the address_detail table, paginated by class init args
+            cursor.execute(s)
+            for record in cursor:
+                ac_locality_value = record[0].title()
+                latitude = record[1]
+                longitude = record[2]
+                geometry_wkt = self.make_wkt_literal(longitude=longitude, latitude=latitude)
+                break
+            else:
+                raise NotFoundError()
 
             AddressComponentTypeUriBase = 'http://def.isotc211.org/iso19160/-1/2015/Address/code/AddressComponentType/'
             AddressPositionTypeUriBase = 'http://def.isotc211.org/iso19160/-1/2015/Address/code/AddressPositionType/'
