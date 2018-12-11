@@ -26,6 +26,7 @@ class Address(GNAFModel):
         else:
             self._cursor_context_manager = get_db_cursor()
             self.cursor = self._cursor_context_manager.__enter__()
+        assert self.cursor is not None, "Cannot get a cursor!"
 
         # get basic properties
         s = sql.SQL('''SELECT 
