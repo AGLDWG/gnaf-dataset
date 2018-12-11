@@ -730,9 +730,11 @@ class Address(GNAFModel):
 
             # RDF: declare Address instance
             g.add((a, RDF.type, GNAF.Address))
-            g.add((a, GNAF.gnafType, URIRef(self.address_subclass_uri)))
-            g.add((a, RDFS.label,
-                   Literal('Address ' + self.id + ' of ' + self.address_subclass_label + ' type', datatype=XSD.string)))
+            if self.address_subclass_uri is not None:
+                g.add((a, GNAF.gnafType, URIRef(self.address_subclass_uri)))
+            if self.address_subclass_label is not None:
+                g.add((a, RDFS.label,
+                       Literal('Address ' + self.id + ' of ' + self.address_subclass_label + ' type', datatype=XSD.string)))
             g.add((a, RDFS.comment,
                    Literal(self.address_string, datatype=XSD.string)))
             # RDF: geometry
