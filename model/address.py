@@ -732,9 +732,15 @@ class Address(GNAFModel):
             g.add((a, RDF.type, GNAF.Address))
             if self.address_subclass_uri is not None:
                 g.add((a, GNAF.gnafType, URIRef(self.address_subclass_uri)))
+            else:
+                g.add((a, GNAF.gnafType, URIRef("http://gnafld.net/def/gnaf/code/AddressTypes#Unknown")))
             if self.address_subclass_label is not None:
-                g.add((a, RDFS.label,
-                       Literal('Address ' + self.id + ' of ' + self.address_subclass_label + ' type', datatype=XSD.string)))
+                subclass_label = self.address_subclass_label
+            else:
+                subclass_label = "Unknown"
+            g.add((a, RDFS.label,
+                   Literal('Address ' + self.id + ' of ' + subclass_label + ' type', datatype=XSD.string)))
+
             g.add((a, RDFS.comment,
                    Literal(self.address_string, datatype=XSD.string)))
             # RDF: geometry
@@ -765,7 +771,11 @@ class Address(GNAFModel):
                 lot_number = BNode()
                 g.add((lot_number, RDF.type, GNAF.Number))
                 g.add((lot_number, GNAF.gnafType, URIRef('http://linked.data.gov.au/def/gnaf/code/NumberTypes#Lot')))
-                g.add((lot_number, PROV.value, Literal(str(self.number_lot), datatype=XSD.integer)))
+                try:
+                    lot_literal = Literal(int(self.number_lot), datatype=XSD.integer)
+                except ValueError:
+                    lot_literal = Literal(str(self.number_lot), datatype=XSD.string)
+                g.add((lot_number, PROV.value, lot_literal))
                 g.add((a, GNAF.hasNumber, lot_number))
                 if self.number_lot_prefix is not None:
                     g.add((lot_number, GNAF.hasPrefix, Literal(str(self.number_lot_prefix), datatype=XSD.string)))
