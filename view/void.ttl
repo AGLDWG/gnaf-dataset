@@ -28,6 +28,8 @@
     dct:license <https://data.gov.au/dataset/19432f89-dc3a-4ef3-b943-5326ef1dbecc/resource/09f74802-08b1-4214-a6ea-3591b2753d30> ;
     dct:title "Geocoded National Address File" ;
     dcat:contactPoint _:ncar ;
+    dct:publisher <http://catalogue.linked.data.gov.au/org/psma> ;
+    dc:publisher "PSMA Australia" .
     dcat:endpointDescription <http://linked.data.gov.au/dataset/gnaf.ttl> ;
     dcat:endpointURL <http://linked.data.gov.au/dataset/gnaf> ;
     dct:source <https://data.gov.au/dataset/geocoded-national-address-file-g-naf> ;
