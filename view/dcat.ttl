@@ -21,7 +21,9 @@
     dcat:contactPoint _:ncar ;
     dcat:endpointDescription <http://linked.data.gov.au/dataset/gnaf.ttl> ;
     dcat:endpointURL <http://linked.data.gov.au/dataset/gnaf> ;
-    dcat:servesDataset <https://data.gov.au/dataset/geocoded-national-address-file-g-naf> .
+    dcat:servesDataset <https://data.gov.au/dataset/geocoded-national-address-file-g-naf> ;
+    dct:publisher <http://catalogue.linked.data.gov.au/org/psma> ;
+    dc:publisher "PSMA Australia" .
 
 :sparql a dcat:DataDistributionService ;
     dc:contributor "Ashley Sommer" ;
@@ -34,7 +36,9 @@
     dcat:contactPoint _:ncar ;
     dcat:endpointDescription :sparql.ttl ;
     dcat:endpointURL :sparql ;
-    dcat:servesDataset <https://data.gov.au/dataset/geocoded-national-address-file-g-naf> .
+    dcat:servesDataset <https://data.gov.au/dataset/geocoded-national-address-file-g-naf> ;
+    dct:publisher <http://catalogue.linked.data.gov.au/org/psma> ;
+    dc:publisher "PSMA Australia" .
 
 <https://data.gov.au/dataset/geocoded-national-address-file-g-naf> a dcat:Dataset ;
     dct:description """The Geocoded National Address File (referred to as G-NAF) is Australia’s authoritative, geocoded address file.
@@ -54,7 +58,9 @@ For further information on G-NAF, including FAQs on the data, see: www.psma.com.
     dct:updated "2018-08-27"^^xsd:date ;
     dcat:contactPoint [ a vcard:Organization ;
             vcard:fn "Department of Industry, Innovation and Science" ;
-            vcard:hasEmail <http://linked.data.gov.au/dataset/spatial@industry.gov.au> ] .
+            vcard:hasEmail <http://linked.data.gov.au/dataset/spatial@industry.gov.au> ] ;
+    dct:publisher <http://catalogue.linked.data.gov.au/org/psma> ;
+    dc:publisher "PSMA Australia" .
 
 _:ncar a vcard:Individual ;
     vcard:fn "Nicholas Car" ;
