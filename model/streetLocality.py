@@ -269,7 +269,6 @@ class StreetLocality(GNAFModel):
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
             cursor = self.cursor
-            # get just IDs, ordered, from the address_detail table, paginated by class init args
             cursor.execute(s)
             for record in cursor:
                 self.street_name = record[0].title()
@@ -281,8 +280,10 @@ class StreetLocality(GNAFModel):
                 longitude = record[4]
                 if latitude is not None:
                     geometry_wkt = self.make_wkt_literal(latitude=latitude, longitude=longitude)
+                else:
+                    geometry_wkt = None
                 self.locality_pid = record[6]
-
+                break
             RDFS = Namespace('http://www.w3.org/2000/01/rdf-schema#')
             g.bind('rdfs', RDFS)
 
