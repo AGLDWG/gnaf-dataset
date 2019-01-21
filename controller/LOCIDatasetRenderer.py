@@ -5,7 +5,7 @@ from rdflib import Graph
 import _config as config
 
 
-class LOCIDatasetRenderer(pyldapi.Renderer):
+class LOCIDatasetRenderer(pyldapi.RegisterOfRegistersRenderer):
     """
     Specialised implementation of the Renderer for displaying DCAT v2, VOID & Reg properties for the GNAF dataset as a
     whole. All content is contained in static HTML & RDT (turtle) files
@@ -20,13 +20,13 @@ class LOCIDatasetRenderer(pyldapi.Renderer):
                 'text/html',
                 namespace='http://www.w3.org/ns/dcat'
             ),
-            'reg': pyldapi.View(
-                'Registry Ontology view',
-                'A \'core ontology for registry services\': items are listed in Registers with acceptance statuses',
-                ['text/html'] + pyldapi.Renderer.RDF_MIMETYPES,
-                'text/html',
-                namespace='http://purl.org/linked-data/registry'
-            ),
+            # 'reg': pyldapi.View(
+            #     'Registry Ontology view',
+            #     'A \'core ontology for registry services\': items are listed in Registers with acceptance statuses',
+            #     ['text/html'] + pyldapi.Renderer.RDF_MIMETYPES,
+            #     'text/html',
+            #     namespace='http://purl.org/linked-data/registry'
+            # ),
             'void': pyldapi.View(
                 'Vocabulary of Interlinked Data Ontology view',
                 'VoID is \'an RDF Schema vocabulary for expressing metadata about RDF datasets\'',
@@ -38,7 +38,7 @@ class LOCIDatasetRenderer(pyldapi.Renderer):
         # push RofR properties up to the RofR constructor
         if url is None:
             url = request.url
-        super().__init__(request, url, views, 'dcat')
+        super().__init__(request, url, label="RofR", comment="RofR", rofr_file_path="./view/reg.ttl", views=views, default_view_token='dcat')
 
         # replace automatically-calculated view & format with specifically set ones
         if view is not None:
@@ -52,6 +52,8 @@ class LOCIDatasetRenderer(pyldapi.Renderer):
             return self._render_alternates_view()
             #
         elif self.view == 'reg':
+            if self.format == "_internal":
+                return self  # make the harvester work
             if self.format == 'text/html':
                 return render_template('page_home_reg.html')
             else:
