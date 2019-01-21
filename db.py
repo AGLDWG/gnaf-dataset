@@ -1,3 +1,4 @@
+import os
 from collections import defaultdict
 from psycopg2 import pool
 from contextlib import contextmanager
@@ -36,21 +37,35 @@ class ThrottledConnectionPool(pool.ThreadedConnectionPool):
 
 connect_str = "host='{}' port='{}' dbname='{}' user='{}' password='{}'" \
     .format(DB_HOST, DB_PORT, DB_DBNAME, DB_USR, DB_PWD)
-try:
-    tcp = ThrottledConnectionPool(minconn=8, maxconn=24, dsn=connect_str)
-except Exception as e:
-    print("Can't connect to DB {}".format(DB_DBNAME))
-    print(e)
+
+process_pools = {}
+
+def get_process_connection_pool():
+    pid = os.getpid()
+    if pid in process_pools:
+        return process_pools[pid]
+    else:
+        print("Attempting to create a new DB connection pool for PID {}".format(pid))
+        try:
+            tcp = ThrottledConnectionPool(minconn=4, maxconn=16, dsn=connect_str)
+        except Exception as e:
+            print("Can't connect to DB {}".format(DB_DBNAME))
+            print(e)
+            raise e
+        process_pools[pid] = tcp
+        print("Got it.")
+        return tcp
 
 
 @contextmanager
 def get_db_connection():
     con = None
+    tcp = get_process_connection_pool()
     try:
         try:
             con = tcp.getconn()
         except Exception as e:
-            print("Can't connect a db connection from the connection pool.".format(DB_DBNAME))
+            print("Can't get a db connection from the connection pool.".format(DB_DBNAME))
             raise e
         yield con
     finally:
@@ -63,11 +78,12 @@ cursor_pools = defaultdict(list)
 def get_db_cursor(con=None):
     put_con = False
     if con is None:
+        tcp = get_process_connection_pool()
         try:
             con = tcp.getconn()
             put_con = True
         except Exception as e:
-            print("Can't connect a db connection from the connection pool.")
+            print("Can't get a db cursor from the cursor pool.")
             raise e
 
     con_id = id(con)
