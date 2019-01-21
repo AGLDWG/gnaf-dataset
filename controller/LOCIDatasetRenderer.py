@@ -38,7 +38,9 @@ class LOCIDatasetRenderer(pyldapi.RegisterOfRegistersRenderer):
         # push RofR properties up to the RofR constructor
         if url is None:
             url = request.url
-        super().__init__(request, url, label="RofR", comment="RofR", rofr_file_path="./view/reg.ttl", views=views, default_view_token='dcat')
+
+        reg_file_path = os.path.join(config.APP_DIR, 'view', 'reg.ttl')
+        super().__init__(request, url, label="RofR", comment="RofR", rofr_file_path=reg_file_path, views=views, default_view_token='dcat')
 
         # replace automatically-calculated view & format with specifically set ones
         if view is not None:
