@@ -8,15 +8,15 @@ from db import get_db_cursor
 
 DCTView = pyldapi.View('dct',
                        "Dublin Core Terms from the Dublin Core Metadata Initiative",
-                       ["text/html", "text/turtle", "application/rdf+xml", "application/ld+json", "application/xml"],
+                       ["text/html", "text/turtle", "application/rdf+xml", "application/ld+json", "application/n-triples", "application/xml", "_internal", "_rdflib_graph"],
                        "text/html", namespace="http://purl.org/dc/terms/")
 GNAFView = pyldapi.View('gnaf',
                         "G-NAF web page view. A simple human-readable, web page-only view, based on the data model of PSMA's G-NAF as of August, 2017",
-                        ["text/html", "text/turtle", "application/rdf+xml", "application/ld+json", "application/xml"],
+                        ["text/html", "text/turtle", "application/rdf+xml", "application/ld+json", "application/n-triples", "application/xml", "_internal", "_rdflib_graph"],
                         "text/html", namespace="http://reference.data.gov.au/def/ont/gnaf/")
 ISOView = pyldapi.View('ISO19160',
                        "The OWL ontology view of the ISO 19160-1:2015 Address standard from the OGC's TC211 UML to OWL mapping: https://github.com/ISO-TC211/GOM/tree/master/isotc211_GOM_harmonizedOntology/19160-1/2015",
-                       ["text/turtle", "application/rdf+xml", "application/ld+json"],
+                       ["text/turtle", "application/rdf+xml", "application/ld+json", "application/n-triples"],
                         "text/turtle", namespace="http://reference.data.gov.au/def/ont/iso19160-1-address")
 SchemaOrgView = pyldapi.View('schemaorg',
                              "An initiative by Bing, Google and Yahoo! to create and support a common set of schemas for structured data markup on web pages. It is serialised in JSON-LD",
@@ -113,7 +113,9 @@ class GNAFClassRenderer(pyldapi.Renderer):
             return self._render_gnaf_view_html()
         elif self.format == 'application/xml':
             return self._render_gnaf_view_xml()
-        elif self.format in GNAFClassRenderer.RDF_MIMETYPES:
+        elif self.format == "_internal":
+            return self
+        elif self.format in GNAFClassRenderer.RDF_MIMETYPES or self.format == "_rdflib_graph":
             return self._render_gnaf_view_rdf()
         else:
             raise RuntimeError("Cannot render 'gnaf' View with format '{}'.".format(self.format))
@@ -133,6 +135,8 @@ class GNAFClassRenderer(pyldapi.Renderer):
 
     def _render_gnaf_view_rdf(self):
         g = self.instance.export_rdf('gnaf')
+        if self.format == "_rdflib_graph":
+            return g
         return self._make_rdf_response(g)
 
     def _render_dct_view(self):
@@ -140,7 +144,9 @@ class GNAFClassRenderer(pyldapi.Renderer):
             return self._render_dct_view_html()
         elif self.format == 'application/xml':
             return self._render_dct_view_xml()
-        elif self.format in GNAFClassRenderer.RDF_MIMETYPES:
+        elif self.format == "_internal":
+            return self
+        elif self.format in GNAFClassRenderer.RDF_MIMETYPES or self.format == "_rdflib_graph":
             return self._render_dct_view_rdf()
         else:
             raise RuntimeError("Cannot render 'dct' View with format '{}'.".format(self.format))
@@ -150,6 +156,8 @@ class GNAFClassRenderer(pyldapi.Renderer):
 
     def _render_dct_view_rdf(self):
         g = self.instance.export_rdf('dct')
+        if self.format == "_rdflib_graph":
+            return g
         return self._make_rdf_response(g)
 
     def _render_dct_view_html(self):
