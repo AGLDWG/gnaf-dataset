@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from model import NotFoundError
 from model.address import Address
 from view.ldapi import GNAFClassRenderer, SchemaOrgRendererMixin, ISO19160RendererMixin
 import _config as config
@@ -17,7 +18,10 @@ class AddressRenderer(SchemaOrgRendererMixin, ISO19160RendererMixin, GNAFClassRe
         if self.view == 'alternates':
             self.instance = None
         else:
-            self.instance = Address(self.identifier, focus=True)
+            try:
+                self.instance = Address(self.identifier, focus=True)
+            except NotFoundError as nfe:
+                self.instance = nfe
 
     def _render_dct_view_xml(self):
         raise NotImplementedError("DCT XML view of Address is not yet implemented.")

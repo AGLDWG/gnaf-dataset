@@ -5,6 +5,7 @@ import pyldapi
 
 import _config as config
 from db import get_db_cursor
+from model import NotFoundError
 
 DCTView = pyldapi.View('dct',
                        "Dublin Core Terms from the Dublin Core Metadata Initiative",
@@ -32,15 +33,19 @@ def render_error(request, e):
     if isinstance(e, pyldapi.ViewsFormatsException):
         error_type = 'Internal View Format Error'
         error_code = 406
-        error_message = e.args[0] or "No message"
+        error_message = e.args[0] if len(e.args) > 0 else "No message"
+    elif isinstance(e, NotFoundError):
+        error_type = 'Not Found'
+        error_code = 404
+        error_message = e.args[0] if len(e.args) > 0 else "Instance of that Class not found"
     elif isinstance(e, NotImplementedError):
         error_type = 'Not Implemented'
         error_code = 406
-        error_message = e.args[0] or "No message"
+        error_message = e.args[0] if len(e.args) > 0 else "No message"
     elif isinstance(e, RuntimeError):
         error_type = 'Server Error'
         error_code = 500
-        error_message = e.args[0] or "No message"
+        error_message = e.args[0] if len(e.args) > 0 else "No message"
     else:
         error_type = 'Unknown'
         error_code = 500
@@ -84,6 +89,8 @@ class GNAFClassRenderer(pyldapi.Renderer):
         if response is not None:
             return response
         try:
+            if isinstance(self.instance, NotFoundError):
+                raise self.instance  # we have a 404, send it to the render_error catcher below.
             if self.view == 'gnaf':
                 return self._render_gnaf_view()
             elif self.view == 'dct':

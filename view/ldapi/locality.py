@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from model import NotFoundError
 from model.locality import Locality
 from view.ldapi import GNAFClassRenderer
 import _config as config
@@ -17,7 +18,10 @@ class LocalityRenderer(GNAFClassRenderer):
         if self.view == 'alternates':
             self.instance = None
         else:
-            self.instance = Locality(self.identifier)
+            try:
+                self.instance = Locality(self.identifier)
+            except NotFoundError as nfe:
+                self.instance = nfe
 
     def _render_dct_view_xml(self):
         raise NotImplementedError("DCT XML view of Locality is not yet implemented.")
