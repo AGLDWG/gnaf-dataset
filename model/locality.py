@@ -114,7 +114,7 @@ class Locality(GNAFModel):
                 latitude=self.latitude,
                 longitude=self.longitude,
                 geocode_type=self.geocode_type,
-                geometry_wkt=self.make_wkt_literal(longitude=self.longitude, latitude=self.latitude),
+                geometry_wkt=self.geometry_wkt,
                 state_uri=self.state_uri,
                 state_label=self.state_label,
                 geocode_uri='http://linked.data.gov.au/def/gnaf/code/GeocodeTypes#Locality',
@@ -151,7 +151,10 @@ class Locality(GNAFModel):
                 geocode_type = record[3].title()
                 locality_pid = record[4]
                 state_pid = record[5]
-                geometry_wkt = self.make_wkt_literal(longitude=longitude, latitude=latitude)
+                if longitude is not None and latitude is not None:
+                    geometry_wkt = self.make_wkt_literal(longitude=longitude, latitude=latitude)
+                else:
+                    geometry_wkt = None
                 break
             else:
                 raise NotFoundError()
@@ -194,7 +197,10 @@ class Locality(GNAFModel):
                 ac_locality_value = record[0].title()
                 latitude = record[1]
                 longitude = record[2]
-                geometry_wkt = self.make_wkt_literal(longitude=longitude, latitude=latitude)
+                if longitude is not None and latitude is not None:
+                    geometry_wkt = self.make_wkt_literal(longitude=longitude, latitude=latitude)
+                else:
+                    geometry_wkt = None
                 break
             else:
                 raise NotFoundError()
@@ -215,20 +221,20 @@ class Locality(GNAFModel):
             g.add((ac_locality, ISO.valueInformation, Literal(ac_locality_value, datatype=XSD.string)))
             g.add((ac_locality, ISO.type, URIRef(AddressComponentTypeUriBase + 'locality')))
             g.add((a, ISO.addressComponent, ac_locality))
+            if geometry_wkt:
+                geometry = BNode()
+                g.add((geometry, RDF.type, GEO.Geometry))
+                g.add((geometry, GEO.asWKT, Literal(geometry_wkt, datatype=GEO.wktLiteral)))
 
-            geometry = BNode()
-            g.add((geometry, RDF.type, GEO.Geometry))
-            g.add((geometry, GEO.asWKT, Literal(geometry_wkt, datatype=GEO.wktLiteral)))
+                position_geometry = BNode()
+                g.add((position_geometry, RDF.type, ISO.GM_Object))
+                g.add((position_geometry, GEO.hasGeometry, geometry))
 
-            position_geometry = BNode()
-            g.add((position_geometry, RDF.type, ISO.GM_Object))
-            g.add((position_geometry, GEO.hasGeometry, geometry))
-
-            position = BNode()
-            g.add((position, RDF.type, ISO.AddressPosition))
-            g.add((position, ISO.geometry, position_geometry))
-            g.add((position, ISO.type, URIRef(AddressPositionTypeUriBase + 'centroid')))
-            g.add((a, ISO.position, position))
+                position = BNode()
+                g.add((position, RDF.type, ISO.AddressPosition))
+                g.add((position, ISO.geometry, position_geometry))
+                g.add((position, ISO.type, URIRef(AddressPositionTypeUriBase + 'centroid')))
+                g.add((a, ISO.position, position))
 
         elif view == 'gnaf':
             RDFS = Namespace('http://www.w3.org/2000/01/rdf-schema#')
@@ -256,15 +262,13 @@ class Locality(GNAFModel):
                 g.add((a, GNAF.hasDateRetired, Literal(self.date_retired, datatype=XSD.date)))
             g.add((l, GNAF.hasState, URIRef(self.state_uri)))
             # RDF: geometry
-            geocode = BNode()
-            g.add((geocode, RDF.type, GNAF.Geocode))
-            g.add((geocode, GNAF.gnafType, URIRef('http://linked.data.gov.au/def/gnaf/code/GeocodeTypes#Locality')))
-            g.add((geocode, RDFS.label, Literal('Locality', datatype=XSD.string)))
-            g.add((geocode, GEO.asWKT,
-                   Literal(self.make_wkt_literal(
-                       longitude=self.longitude, latitude=self.latitude
-                   ), datatype=GEO.wktLiteral)))
-            g.add((a, GEO.hasGeometry, geocode))
+            if self.geometry_wkt:
+                geocode = BNode()
+                g.add((geocode, RDF.type, GNAF.Geocode))
+                g.add((geocode, GNAF.gnafType, URIRef('http://linked.data.gov.au/def/gnaf/code/GeocodeTypes#Locality')))
+                g.add((geocode, RDFS.label, Literal('Locality', datatype=XSD.string)))
+                g.add((geocode, GEO.asWKT, Literal(self.geometry_wkt, datatype=GEO.wktLiteral)))
+                g.add((a, GEO.hasGeometry, geocode))
 
             if hasattr(self, 'alias_localities'):
                 for k, v in self.alias_localities.items():
