@@ -39,16 +39,16 @@ class Locality(GNAFModel):
 
         # get data from DB
         s = sql.SQL('''SELECT 
-                            locality_name, 
+                            l.locality_name, 
                             l.date_created,
                             l.date_retired,
-                            primary_postcode,
-                            latitude,
-                            longitude,
+                            l.primary_postcode,
+                            lp.latitude,
+                            lp.longitude,
                             s.uri AS state_uri, 
                             s.prefLabel AS state_label
                         FROM {dbschema}.locality l
-                        INNER JOIN {dbschema}.locality_point lp on l.locality_pid = lp.locality_pid
+                        LEFT JOIN {dbschema}.locality_point lp on l.locality_pid = lp.locality_pid
                         LEFT JOIN codes.state s ON CAST(l.state_pid AS text) = s.code
                         WHERE l.locality_pid = {id}''') \
             .format(dbschema=sql.Identifier(config.DB_SCHEMA), id=sql.Literal(self.id))
