@@ -2,7 +2,7 @@
 from db import get_db_cursor
 from model import GNAFModel, NotFoundError
 from flask import render_template
-from rdflib import Graph, URIRef, RDF, XSD, Namespace, Literal, BNode
+from rdflib import Graph, URIRef, RDF, XSD, Namespace, Literal, BNode, RDFS
 import _config as config
 from psycopg2 import sql
 
@@ -34,37 +34,37 @@ class AddressSite(GNAFModel):
         cursor = self.cursor
 
         if view == 'gnaf':
-            # make a human-readable address
-            s = sql.SQL('''SELECT 
-                        address_type, 
-                        address_site_name                       
-                    FROM {dbschema}.address_site
-                    WHERE address_site_pid = {id}''') \
+            s = sql.SQL('''SELECT
+                a.address_type, a.address_site_name, gv.address_site_geocode_pid, gv.geocode_type                   
+                FROM {dbschema}.address_site as a
+                LEFT JOIN {dbschema}.address_site_geocode_view as gv on a.address_site_pid = gv.address_site_pid
+                WHERE a.address_site_pid = {id};''') \
                 .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
 
-            # get just IDs, ordered, from the address_detail table, paginated by class init args
             cursor.execute(s)
             rows = cursor.fetchall()
+            found = False
             for row in rows:
+                found = True
                 address_type = row[0]
                 address_site_name = row[1]
-                break
-            else:
+                geocode_pid = row[2]
+                if geocode_pid is not None:
+                    self.address_site_geocode_ids[geocode_pid] = row[3].title()
+            if not found:
                 raise NotFoundError()
-
-            # get a list of addressSiteGeocodeIds from the address_site_geocode table
-            s2 = sql.SQL('''SELECT 
-                        address_site_geocode_pid,
-                        geocode_type                
-                    FROM {dbschema}.address_site_geocode_view
-                    WHERE address_site_pid = {id}''') \
-                .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
-
-            # get just IDs, ordered, from the address_detail table, paginated by class init args
-            cursor.execute(s2)
-            rows = cursor.fetchall()
-            for row in rows:
-                self.address_site_geocode_ids[row[0]] = row[1].title()
+            #
+            # s2 = sql.SQL('''SELECT
+            #             address_site_geocode_pid,
+            #             geocode_type
+            #         FROM {dbschema}.address_site_geocode_view
+            #         WHERE address_site_pid = {id}''') \
+            #     .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
+            #
+            # cursor.execute(s2)
+            # rows = cursor.fetchall()
+            # for row in rows:
+            #     self.address_site_geocode_ids[row[0]] = row[1].title()
 
             view_html = render_template(
                 'class_addressSite_gnaf.html',
@@ -146,8 +146,61 @@ class AddressSite(GNAFModel):
             g.add((a, ISO.addressComponent, ac_site_name))
 
         elif view == 'gnaf':
-            raise NotImplementedError("RDF Representation of the GNAF View of an addressSite is not yet implemented.")
-            # TODO: implement DCT RDF
+            GNAF = Namespace('http://linked.data.gov.au/def/gnaf#')
+            g.bind('gnaf', GNAF)
+            GEO = Namespace('http://www.opengis.net/ont/geosparql#')
+            g.bind('geo', GEO)
+            s = sql.SQL('''SELECT
+                a.address_type, a.address_site_name, coa.uri, coa.preflabel, gc.address_site_geocode_pid, gc.geocode_type_code, gc.longitude, gc.latitude, cog.uri, cog.preflabel 
+                FROM {dbschema}.address_site as a
+                LEFT JOIN {dbschema}.address_site_geocode as gc on a.address_site_pid = gc.address_site_pid
+                LEFT JOIN codes.address as coa on a.address_type = coa.code
+                LEFT JOIN codes.geocode as cog on gc.geocode_type_code = cog.code
+                WHERE a.address_site_pid = {id};''') \
+                .format(id=sql.Literal(self.id), dbschema=sql.Identifier(config.DB_SCHEMA))
+            cursor = self.cursor
+            cursor.execute(s)
+            rows = cursor.fetchall()
+            found = False
+            for row in rows:
+                found = True
+                address_type = row[0]
+                address_site_name = row[1]
+                address_type_uri = row[2]
+                address_type_label = row[3]
+                geocode_pid = row[4]
+                if geocode_pid is not None:
+                    self.address_site_geocode_ids[geocode_pid] = row[5]
+                longitude = row[6]
+                latitude = row[7]
+                geocode_uri = row[8]
+                geocode_preflabel = row[9]
+            if not found:
+                raise NotFoundError()
+            g.add((a, RDF.type, GNAF.AddressSite))
+            desc = 'AddressSite {}'.format(self.id)
+            if address_site_name:
+                desc = "{} \"{}\"".format(desc, address_site_name)
+                g.add((a, RDFS.label, Literal(address_site_name, datatype=XSD.string)))
+            if address_type and address_type_label:
+                desc = "{} of {} type".format(desc, address_type_label)
+            if address_type and address_type_uri:
+                g.add((a, GNAF.gnafType, URIRef(address_type_uri)))
+            else:
+                g.add((a, GNAF.gnafType, URIRef("http://gnafld.net/def/gnaf/code/AddressTypes#Unknown")))
+            g.add((a, RDFS.comment, Literal(desc, lang="en")))
+            if geocode_uri or (latitude and longitude):
+                geocode = BNode()
+                g.add((geocode, RDF.type, GNAF.Geocode))
+                if geocode_uri:
+                    g.add((geocode, GNAF.gnafType, URIRef(geocode_uri)))
+                if geocode_preflabel:
+                    g.add((geocode, RDFS.label, Literal(geocode_preflabel, datatype=XSD.string)))
+                if longitude and latitude:
+                    g.add((geocode, GEO.asWKT,
+                           Literal(self.make_wkt_literal(longitude=longitude, latitude=latitude),
+                                   datatype=GEO.wktLiteral)))
+                g.add((a, GEO.hasGeometry, geocode))
         elif view == 'dct':
             raise NotImplementedError("RDF Representation of the DCT View of an addressSite is not yet implemented.")
             # TODO: implement DCT RDF

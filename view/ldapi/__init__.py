@@ -8,11 +8,11 @@ from db import get_db_cursor
 
 DCTView = pyldapi.View('dct',
                        "Dublin Core Terms from the Dublin Core Metadata Initiative",
-                       ["text/html", "text/turtle", "application/rdf+xml", "application/ld+json", "application/n-triples", "application/xml", "_internal", "_rdflib_graph"],
+                       ["text/html", "text/turtle", "application/rdf+xml", "application/ld+json", "application/n-triples", "application/xml", "_internal"],
                        "text/html", namespace="http://purl.org/dc/terms/")
 GNAFView = pyldapi.View('gnaf',
                         "G-NAF web page view. A simple human-readable, web page-only view, based on the data model of PSMA's G-NAF as of August, 2017",
-                        ["text/html", "text/turtle", "application/rdf+xml", "application/ld+json", "application/n-triples", "application/xml", "_internal", "_rdflib_graph"],
+                        ["text/html", "text/turtle", "application/rdf+xml", "application/ld+json", "application/n-triples", "application/xml", "_internal"],
                         "text/html", namespace="http://reference.data.gov.au/def/ont/gnaf/")
 ISOView = pyldapi.View('ISO19160',
                        "The OWL ontology view of the ISO 19160-1:2015 Address standard from the OGC's TC211 UML to OWL mapping: https://github.com/ISO-TC211/GOM/tree/master/isotc211_GOM_harmonizedOntology/19160-1/2015",
@@ -115,7 +115,7 @@ class GNAFClassRenderer(pyldapi.Renderer):
             return self._render_gnaf_view_xml()
         elif self.format == "_internal":
             return self
-        elif self.format in GNAFClassRenderer.RDF_MIMETYPES or self.format == "_rdflib_graph":
+        elif self.format in GNAFClassRenderer.RDF_MIMETYPES:
             return self._render_gnaf_view_rdf()
         else:
             raise RuntimeError("Cannot render 'gnaf' View with format '{}'.".format(self.format))
@@ -135,8 +135,6 @@ class GNAFClassRenderer(pyldapi.Renderer):
 
     def _render_gnaf_view_rdf(self):
         g = self.instance.export_rdf('gnaf')
-        if self.format == "_rdflib_graph":
-            return g
         return self._make_rdf_response(g)
 
     def _render_dct_view(self):
@@ -146,7 +144,7 @@ class GNAFClassRenderer(pyldapi.Renderer):
             return self._render_dct_view_xml()
         elif self.format == "_internal":
             return self
-        elif self.format in GNAFClassRenderer.RDF_MIMETYPES or self.format == "_rdflib_graph":
+        elif self.format in GNAFClassRenderer.RDF_MIMETYPES:
             return self._render_dct_view_rdf()
         else:
             raise RuntimeError("Cannot render 'dct' View with format '{}'.".format(self.format))
@@ -156,8 +154,6 @@ class GNAFClassRenderer(pyldapi.Renderer):
 
     def _render_dct_view_rdf(self):
         g = self.instance.export_rdf('dct')
-        if self.format == "_rdflib_graph":
-            return g
         return self._make_rdf_response(g)
 
     def _render_dct_view_html(self):
@@ -254,7 +250,7 @@ class GNAFRegisterRenderer(pyldapi.RegisterRenderer):
         kwargs.setdefault('register_template', 'class_register.html')
         super(GNAFRegisterRenderer, self).__init__(
             _request, uri, label, comment, None, contained_item_classes,
-            register_total_count, *args, views=views,
+            register_total_count, *args, views=views, page_size_max=10000,
             default_view_token=default_view_token, **kwargs)
         try:
             vf_error = self.vf_error
