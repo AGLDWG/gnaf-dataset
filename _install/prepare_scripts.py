@@ -49,7 +49,7 @@ def create_state_sql_files(PSV_FOLDERS_DIR):
 		template += os.path.join(f"COPY gnaf.mb_2011 FROM '{PSV_FOLDERS_DIR}Standard", f"{STATE}_MB_2011_psv.psv' WITH (format csv, header true, delimiter E'|', NULL '');\n")
 		template += os.path.join(f"COPY gnaf.mb_2016 FROM '{PSV_FOLDERS_DIR}Standard", f"{STATE}_MB_2016_psv.psv' WITH (format csv, header true, delimiter E'|', NULL '');\n")
 		template += os.path.join(f"COPY gnaf.primary_secondary FROM '{PSV_FOLDERS_DIR}Standard", f"{STATE}_PRIMARY_SECONDARY_psv.psv' WITH (format csv, header true, delimiter E'|', NULL '');\n")
-		template += os.path.join(f"COPY gnaf.state FROM '{PSV_FOLDERS_DIR}Standard", f"{STATE}_STATE_psv.psv' WITH (format csv, header true, delimiter E'|', NULL '');")
+		template += os.path.join(f"COPY gnaf.state FROM '{PSV_FOLDERS_DIR}Standard", f"{STATE}_STATE_psv.psv' WITH (format csv, header true, delimiter E'|', NULL '');\n")
 		template += os.path.join(f"COPY gnaf.street_locality_alias FROM '{PSV_FOLDERS_DIR}Standard", f"{STATE}_STREET_LOCALITY_ALIAS_psv.psv' WITH (format csv, header true, delimiter E'|', NULL '');\n")
 		template += os.path.join(f"COPY gnaf.street_locality_point FROM '{PSV_FOLDERS_DIR}Standard", f"{STATE}_STREET_LOCALITY_POINT_psv.psv' WITH (format csv, header true, delimiter E'|', NULL '');\n")
 		template += os.path.join(f"COPY gnaf.street_locality FROM '{PSV_FOLDERS_DIR}Standard", f"{STATE}_STREET_LOCALITY_psv.psv' WITH (format csv, header true, delimiter E'|', NULL '');\n")
