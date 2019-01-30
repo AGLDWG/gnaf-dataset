@@ -47,7 +47,7 @@ def get_process_connection_pool():
     else:
         print("Attempting to create a new DB connection pool for PID {}".format(pid))
         try:
-            tcp = ThrottledConnectionPool(minconn=4, maxconn=16, dsn=connect_str)
+            tcp = ThrottledConnectionPool(minconn=4, maxconn=24, dsn=connect_str)
         except Exception as e:
             print("Can't connect to DB {}".format(DB_DBNAME))
             print(e)
