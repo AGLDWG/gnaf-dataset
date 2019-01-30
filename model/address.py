@@ -90,7 +90,7 @@ class Address(GNAFModel):
                        INNER JOIN {dbschema}.address_site a ON d.address_site_pid = a.address_site_pid
                        LEFT JOIN codes.address u4 ON a.address_type = u4.code 
                        LEFT JOIN codes.flat u5 ON d.flat_type_code = u5.code 
-                       LEFT JOIN codes.state u6 ON TRIM(BOTH '0123456789' FROM d.locality_pid) = u6.code 
+                       LEFT JOIN codes.state u6 ON TRIM(BOTH '0123456789' FROM d.street_locality_pid) = u6.code 
                        WHERE d.address_detail_pid = {id};
                        ''').format(dbschema=sql.Identifier(config.DB_SCHEMA), id=sql.Literal(self.id))
 
