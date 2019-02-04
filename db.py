@@ -2,8 +2,8 @@ import os
 from collections import defaultdict
 from psycopg2 import pool
 from contextlib import contextmanager
-
 from psycopg2.pool import PoolError
+from threading import Lock
 
 from _config import DB_HOST, DB_PORT, DB_DBNAME, DB_USR, DB_PWD
 
@@ -38,49 +38,63 @@ class ThrottledConnectionPool(pool.ThreadedConnectionPool):
 connect_str = "host='{}' port='{}' dbname='{}' user='{}' password='{}'" \
     .format(DB_HOST, DB_PORT, DB_DBNAME, DB_USR, DB_PWD)
 
-process_pools = {}
+per_process_pools = {}
+per_process_mutexes = {}
 
 def get_process_connection_pool():
     pid = os.getpid()
-    if pid in process_pools:
-        return process_pools[pid]
+    if pid in per_process_pools:
+        return per_process_pools[pid]
     else:
-        print("Attempting to create a new DB connection pool for PID {}".format(pid))
+        if pid in per_process_mutexes:
+            m = per_process_mutexes[pid]
+        else:
+            per_process_mutexes[pid] = m = Lock()
+        acquired = m.acquire(blocking=True)
+        assert acquired
         try:
-            tcp = ThrottledConnectionPool(minconn=4, maxconn=24, dsn=connect_str)
+            # Now we have the lock, we need to check again to see if another thread didn't create
+            # the pool while we were waiting.
+            if pid in per_process_pools:
+                return per_process_pools[pid]
+            print("Attempting to create a new DB connection pool for PID {}".format(pid))
+            con_pool = ThrottledConnectionPool(minconn=4, maxconn=24, dsn=connect_str)
         except Exception as e:
             print("Can't connect to DB {}".format(DB_DBNAME))
             print(e)
             raise e
-        process_pools[pid] = tcp
+        finally:
+            m.release()
+        per_process_pools[pid] = con_pool
         print("Got it.")
-        return tcp
+        return con_pool
 
 
 @contextmanager
 def get_db_connection():
     con = None
-    tcp = get_process_connection_pool()
+    con_pool = get_process_connection_pool()
     try:
         try:
-            con = tcp.getconn()
+            con = con_pool.getconn()
         except Exception as e:
             print("Can't get a db connection from the connection pool.".format(DB_DBNAME))
             raise e
         yield con
     finally:
         if con is not None:
-            tcp.putconn(con)
+            con_pool.putconn(con)
 
 cursor_pools = defaultdict(list)
 
 @contextmanager
 def get_db_cursor(con=None):
     put_con = False
+    con_pool = None
     if con is None:
-        tcp = get_process_connection_pool()
+        con_pool = get_process_connection_pool()
         try:
-            con = tcp.getconn()
+            con = con_pool.getconn()
             put_con = True
         except Exception as e:
             print("Can't get a db cursor from the cursor pool.")
@@ -102,8 +116,8 @@ def get_db_cursor(con=None):
     finally:
         if cur is not None:
             cursor_pool.append(cur)
-        if put_con:
-            tcp.putconn(con)
+        if put_con and con_pool:
+            con_pool.putconn(con)
 
 
 class reg(object):
