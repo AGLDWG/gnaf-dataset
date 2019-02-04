@@ -4,18 +4,24 @@ import logging
 import os
 import sys
 import pickle
+import math
 from threading import Thread
 import rdflib
 import pyldapi
+import time
 from pyldapi.exceptions import RegOfRegTtlError
 from model import NotFoundError
 from app import app
 
 # --- CONFIGURABLE OPTIONS
+OUTPUT_DIRECTORY = "./instance"  # Relative path from pwd
+INSTANCES_PER_FILE = 1000
 HARVESTABLE_INSTANCE_VIEW = "gnaf"
 MULTI_PROCESSING = True
 MULTI_THREADING = True
 USE_SAVED_REGISTER_INDEX = True
+DEBUG_MODE = False # Does nothing for now.
+VERBOSE_MODE = True
 #TODO: Automate this, somehow.
 INSTANCE_URI_TO_LOCAL_ROUTE = {
     "http://linked.data.gov.au/dataset/gnaf/locality/": "/locality/",
@@ -23,10 +29,54 @@ INSTANCE_URI_TO_LOCAL_ROUTE = {
     "http://linked.data.gov.au/dataset/gnaf/streetLocality/": "/streetLocality/",
     "http://linked.data.gov.au/dataset/gnaf/addressSite/": "/addressSite/",
 }
-
-
 # -- END CONFIGURABLE OPTIONS
 # ---------------------------
+
+
+LOGGER = logging.getLogger("ldapi-harvester")
+logging.basicConfig()
+for h in LOGGER.handlers:
+    LOGGER.removeHandler(h)
+LOGGER.propagate = False
+
+class ReverseLevelLogFilter(logging.Filter):
+    def __init__(self, name="", level=logging.INFO):
+        super(ReverseLevelLogFilter, self).__init__(name)
+        self._level = level
+
+    def filter(self, record):
+        return record.levelno <= self._level
+
+
+STD_FORMATTER = logging.Formatter(style='{')
+STDOUT_H = logging.StreamHandler(sys.stdout)
+STDOUT_H.setFormatter(STD_FORMATTER)
+STDOUT_H.setLevel(logging.DEBUG)
+STDOUT_H.addFilter(ReverseLevelLogFilter(level=logging.INFO))
+STDERR_H = logging.StreamHandler(sys.stderr)
+STDERR_H.setFormatter(STD_FORMATTER)
+STDERR_H.setLevel(logging.WARNING)
+LOGGER.addHandler(STDOUT_H)
+LOGGER.addHandler(STDERR_H)
+if DEBUG_MODE:
+    LOGGER.setLevel(logging.DEBUG)
+elif VERBOSE_MODE:
+    LOGGER.setLevel(logging.INFO)
+else:
+    LOGGER.setLevel(logging.WARNING)
+
+def info(message, *args, **kwargs):
+    return LOGGER.info(message, *args, **kwargs)
+
+def warn(message, *args, **kwargs):
+    return LOGGER.warning(message, *args, **kwargs)
+
+def err(message, *args, **kwargs):
+    return LOGGER.error(message, *args, **kwargs)
+
+def debug(message, *args, **kwargs):
+    return LOGGER.debug(message, *args, **kwargs)
+
 
 APP_ROFR = list()  # uri, rule, endpoint_func
 APP_REGISTERS = list()  # uri, rule, endpoint_func
@@ -87,11 +137,11 @@ def find_app_registers():
 def harvest_rofr():
     try:
         (r_uri, r_rule, r_endpoint_func) = APP_ROFR[0]
-    except:
+    except KeyError:
         raise RuntimeError("No RofR found in the App.")
 
     dummy_request_uri = "http://localhost:5000" + str(r_rule) +\
-                     "?_view=reg&_format=_internal&per_page=500&page=1"
+                        "?_view=reg&_format=_internal&per_page=500&page=1"
     test_context = app.test_request_context(dummy_request_uri)
     with test_context:
         resp = r_endpoint_func()
@@ -105,23 +155,46 @@ def harvest_rofr():
 def reg_uri_to_filename(reg_uri):
     return str(reg_uri).rstrip('/').replace("http://", "http_").replace("https://", "http_").replace("/","_").replace('#','')
 
+def seconds_to_human_string(secs):
+    """
 
-def _harvest_register_worker_fn(worker_index, reg_uri, instances, serial_chunk_size=1000, **kwargs):
+    :param secs:
+    :type secs: float
+    :return:
+    :rtype: string
+    """
+    whole_hours = math.floor(secs) // 3600
+    secs = secs - (whole_hours*3600)
+    whole_mins = math.floor(secs) // 60
+    secs = secs - (whole_mins*60)
+    return "{:d}H {:00d}M {:.1f}S".format(int(whole_hours), int(whole_mins), secs)
+
+
+def _harvest_register_worker_fn(worker_index, reg_uri, instances, serial_chunk_size=INSTANCES_PER_FILE, **kwargs):
     endpoint_func = kwargs['endpoint_func']
     endpoint_rule = kwargs['endpoint_rule']
     replace_s = kwargs['replace_s']
     replace_r = kwargs['replace_r']
     n_instances = len(instances)
     assert n_instances > 0
-    extra = 1 if (n_instances % serial_chunk_size) > 0 else 0
-    serial_groups = list(grouper(instances, (n_instances // serial_chunk_size)+extra))
+    est_secs = -1
+    avg_inst_secs = -1
+    serial_groups = list(grouper(instances, serial_chunk_size))
+    first_group = True
+    total_instances_done = 0
     for iig, instance_s_group in enumerate(serial_groups):
-        with open("./instance/{}_p{}_s{}.nt".format(reg_uri_to_filename(reg_uri), str(worker_index), str(iig)),
+        start_serial_group_time = time.perf_counter()
+        info_message_pref = "P[{}] Wkr: {}  Set: {}/{},".format(str(os.getpid()), worker_index+1, iig+1, len(serial_groups))
+        total_in_group = len(instance_s_group)
+        with open("{}/{}_p{}_s{}.nt".format(OUTPUT_DIRECTORY, reg_uri_to_filename(reg_uri), str(worker_index+1), str(iig+1)),
                   'ab+') as inst_file:
-            for inst in instance_s_group:
+            for iiig, inst in enumerate(instance_s_group):
+                start_instance_time = 0 if first_group else time.perf_counter()
                 local_instance_url = str(inst).replace(replace_s, replace_r)
+                info_message = "{} Inst: {}/{}, ".format(info_message_pref, iiig+1, total_in_group)
+                est_sfx = " First group - No est remaining." if first_group else " Wkr est {}".format(seconds_to_human_string(est_secs))
+                info(info_message+local_instance_url+est_sfx)
                 m = endpoint_rule.match("|" + local_instance_url)
-
                 dummy_request_uri = "http://localhost:5000" + local_instance_url + \
                                     "?_view={:s}&_format=application/n-triples".format(HARVESTABLE_INSTANCE_VIEW)
                 test_context = app.test_request_context(dummy_request_uri)
@@ -160,12 +233,32 @@ def _harvest_register_worker_fn(worker_index, reg_uri, instances, serial_chunk_s
                 elif isinstance(resp, rdflib.Graph):
                     g = resp
                     g.serialize(destination=inst_file, format="nt")
+                if first_group:
+                    continue
+                end_instance_time = time.perf_counter()
+                instance_time = end_instance_time - start_instance_time
+                if instance_time > 0:
+                    avg_inst_secs = (avg_inst_secs + instance_time) / 2.0
+                    instances_left = n_instances - total_instances_done
+                    est_secs = avg_inst_secs * instances_left
+            # End of per-instance processing
+        end_serial_group_time = time.perf_counter()
+        serial_group_time = end_serial_group_time - start_serial_group_time
+        if first_group:
+            avg_inst_secs = serial_group_time / total_in_group
+            first_group = False
+        else:
+            this_avg = serial_group_time / total_in_group
+            if this_avg > 0:
+                avg_inst_secs = (avg_inst_secs + this_avg) / 2.0
+        instances_left = n_instances - total_instances_done
+        est_secs = avg_inst_secs * instances_left
     return True
 
 
 def harvest_register(reg_uri):
     instances = []
-    print("got here with reg_uri {}".format(reg_uri))
+    info("Process started harvesting: {}".format(reg_uri))
     if USE_SAVED_REGISTER_INDEX:
         try:
             with open("./index_{}.pickle".format(reg_uri_to_filename(reg_uri)), 'rb') as reg_pickle:
@@ -184,7 +277,7 @@ def harvest_register(reg_uri):
                 instances.extend([i[0] for i in new_instances])
                 page += 1
             except (NotFoundError, AssertionError) as e:
-                print(e)
+                err(repr(e))
                 break
         if len(instances) > 0 and save_register_index:
             with open("./index_{}.pickle".format(reg_uri_to_filename(reg_uri)), 'wb') as reg_pickle:
@@ -209,7 +302,7 @@ def harvest_register(reg_uri):
             break
     else:
         raise RuntimeError("No app rule matches that local route.")
-    os.makedirs("./instance", exist_ok=True)
+    os.makedirs(OUTPUT_DIRECTORY, exist_ok=True)
     if MULTI_THREADING:
         INSTANCE_PARALLEL = 8  # Running 8 threads in parallel
         n_instances = len(instances)
@@ -220,13 +313,13 @@ def harvest_register(reg_uri):
         t_workers = []
         for iig, instance_group in enumerate(instance_groups):
             _worker = Thread(target=_harvest_register_worker_fn, args=(iig, reg_uri, instance_group),
-                               kwargs={'serial_chunk_size':1000, 'endpoint_func':endpoint_func, 'endpoint_rule':endpoint_rule, 'replace_s': replace_s, 'replace_r': replace_r})
+                             kwargs={'serial_chunk_size': INSTANCES_PER_FILE, 'endpoint_func':endpoint_func, 'endpoint_rule':endpoint_rule, 'replace_s': replace_s, 'replace_r': replace_r})
             _worker.start()
             t_workers.append(_worker)
         results = [_w.join() for _w in t_workers]
     else:
         results = []
-        kwargs = {'serial_chunk_size': 1000, 'endpoint_func': endpoint_func, 'endpoint_rule': endpoint_rule,
+        kwargs = {'serial_chunk_size': INSTANCES_PER_FILE, 'endpoint_func': endpoint_func, 'endpoint_rule': endpoint_rule,
                   'replace_s': replace_s, 'replace_r': replace_r}
         _r = _harvest_register_worker_fn(0, reg_uri, instances, **kwargs)
         results.append(_r)
