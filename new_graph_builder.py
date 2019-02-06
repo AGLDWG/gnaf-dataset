@@ -15,13 +15,15 @@ from app import app
 
 # --- CONFIGURABLE OPTIONS
 OUTPUT_DIRECTORY = "./instance"  # Relative path from pwd
-INSTANCES_PER_FILE = 1000
+INSTANCES_PER_FILE = 60
 HARVESTABLE_INSTANCE_VIEW = "gnaf"
 MULTI_PROCESSING = True
 MULTI_THREADING = True
+NUM_THREADS = 4  # Only used with MULTI_THREADING turned on
 USE_SAVED_REGISTER_INDEX = True
-DEBUG_MODE = False # Does nothing for now.
+DEBUG_MODE = False
 VERBOSE_MODE = True
+
 #TODO: Automate this, somehow.
 INSTANCE_URI_TO_LOCAL_ROUTE = {
     "http://linked.data.gov.au/dataset/gnaf/locality/": "/locality/",
@@ -31,7 +33,6 @@ INSTANCE_URI_TO_LOCAL_ROUTE = {
 }
 # -- END CONFIGURABLE OPTIONS
 # ---------------------------
-
 
 LOGGER = logging.getLogger("ldapi-harvester")
 logging.basicConfig()
@@ -48,6 +49,7 @@ class ReverseLevelLogFilter(logging.Filter):
         return record.levelno <= self._level
 
 
+
 STD_FORMATTER = logging.Formatter(style='{')
 STDOUT_H = logging.StreamHandler(sys.stdout)
 STDOUT_H.setFormatter(STD_FORMATTER)
@@ -59,6 +61,9 @@ STDERR_H.setLevel(logging.WARNING)
 LOGGER.addHandler(STDOUT_H)
 LOGGER.addHandler(STDERR_H)
 if DEBUG_MODE:
+    from mem_top import mem_top
+    MULTI_THREADING = False
+    MULTI_PROCESSING = False
     LOGGER.setLevel(logging.DEBUG)
 elif VERBOSE_MODE:
     LOGGER.setLevel(logging.INFO)
@@ -176,21 +181,36 @@ def _harvest_register_worker_fn(worker_index, reg_uri, instances, serial_chunk_s
     replace_s = kwargs['replace_s']
     replace_r = kwargs['replace_r']
     n_instances = len(instances)
-    assert n_instances > 0
+    if n_instances < 1:
+        return True
     est_secs = -1
     avg_inst_secs = -1
-    serial_groups = list(grouper(instances, serial_chunk_size))
+    serial_groups = grouper(instances, serial_chunk_size, mutable=True)
     first_group = True
     total_instances_done = 0
-    for iig, instance_s_group in enumerate(serial_groups):
+    iig = -1
+    n_serial_groups = len(serial_groups)
+    while True:
+        try:
+            instance_s_group = serial_groups.pop()
+        except IndexError:
+            break
+        iig += 1
         start_serial_group_time = time.perf_counter()
-        info_message_pref = "P[{}] Wkr: {}  Set: {}/{},".format(str(os.getpid()), worker_index+1, iig+1, len(serial_groups))
+        info_message_pref = "P[{}] Wkr: {}  Set: {}/{},".format(str(os.getpid()), worker_index+1, iig+1, n_serial_groups)
         total_in_group = len(instance_s_group)
         with open("{}/{}_p{}_s{}.nt".format(OUTPUT_DIRECTORY, reg_uri_to_filename(reg_uri), str(worker_index+1), str(iig+1)),
                   'ab+') as inst_file:
-            for iiig, inst in enumerate(instance_s_group):
+            iiig = -1
+            while True:
+                try:
+                    inst = instance_s_group.pop()
+                except IndexError:
+                    break
+                iiig += 1
                 start_instance_time = 0 if first_group else time.perf_counter()
-                local_instance_url = str(inst).replace(replace_s, replace_r)
+                local_instance_url = inst.replace(replace_s, replace_r)
+                del inst
                 info_message = "{} Inst: {}/{}, ".format(info_message_pref, iiig+1, total_in_group)
                 est_sfx = " First group - No est remaining." if first_group else " Wkr est {}".format(seconds_to_human_string(est_secs))
                 info(info_message+local_instance_url+est_sfx)
@@ -198,6 +218,7 @@ def _harvest_register_worker_fn(worker_index, reg_uri, instances, serial_chunk_s
                 m = endpoint_rule.match("|" + local_instance_url)
                 dummy_request_uri = "http://localhost:5000" + local_instance_url + \
                                     "?_view={:s}&_format=application/n-triples".format(HARVESTABLE_INSTANCE_VIEW)
+                del local_instance_url
                 test_context = app.test_request_context(dummy_request_uri)
                 try:
                     if len(m) < 1:
@@ -244,6 +265,9 @@ def _harvest_register_worker_fn(worker_index, reg_uri, instances, serial_chunk_s
                     est_secs = avg_inst_secs * instances_left
             # End of per-instance processing
         end_serial_group_time = time.perf_counter()
+        del instance_s_group
+        if DEBUG_MODE:
+            debug(mem_top())
         serial_group_time = end_serial_group_time - start_serial_group_time
         if first_group:
             avg_inst_secs = serial_group_time / total_in_group
@@ -305,12 +329,12 @@ def harvest_register(reg_uri):
         raise RuntimeError("No app rule matches that local route.")
     os.makedirs(OUTPUT_DIRECTORY, exist_ok=True)
     if MULTI_THREADING:
-        INSTANCE_PARALLEL = 8  # Running 8 threads in parallel
+        INSTANCE_PARALLEL = NUM_THREADS  # Running 8 threads in parallel
         n_instances = len(instances)
         extra = 1 if (n_instances % INSTANCE_PARALLEL) > 0 else 0
         # Each parallel thread gets total_instances / threads.
         # if there is remainder, give each thread one more.
-        instance_groups = list(grouper(instances, (n_instances//INSTANCE_PARALLEL)+extra))
+        instance_groups = grouper(instances, (n_instances//INSTANCE_PARALLEL)+extra)
         t_workers = []
         for iig, instance_group in enumerate(instance_groups):
             _worker = Thread(target=_harvest_register_worker_fn, args=(iig, reg_uri, instance_group),
@@ -329,14 +353,22 @@ def harvest_register(reg_uri):
 
 
 ##UTILS##
-def grouper(iterable, n):
+def grouper(iterable, n, mutable=False, collect=True):
     assert is_iterable(iterable)
     if isinstance(iterable, (list, tuple)):
-        return list_grouper(iterable, n)
+        _g = list_grouper(iterable, n, mutable=mutable)
     elif isinstance(iterable, (set, frozenset)):
-        return set_grouper(iterable, n)
+        _g = set_grouper(iterable, n, mutable=mutable)
+    else:
+        raise ValueError()
+    if not collect:
+        return _g
+    if mutable:
+        return list(_g)
+    else:
+        return tuple(_g)
 
-def list_grouper(iterable, n):
+def list_grouper(iterable, n, mutable=False):
     assert isinstance(iterable, (list, tuple))
     assert n > 0
     iterable = iter(iterable)
@@ -347,16 +379,22 @@ def list_grouper(iterable, n):
             group.append(next(iterable))
             count += 1
             if count % n == 0:
-                yield tuple(group)
+                if mutable:
+                    yield group
+                else:
+                    yield tuple(group)
                 group = list()
         except StopIteration:
             if len(group) < 1:
                 raise StopIteration()
             else:
-                yield tuple(group)
+                if mutable:
+                    yield group
+                else:
+                    yield tuple(group)
             break
 
-def set_grouper(iterable, n):
+def set_grouper(iterable, n, mutable=False):
     assert isinstance(iterable, (set, frozenset))
     assert n > 0
     iterable = iter(iterable)
@@ -367,13 +405,19 @@ def set_grouper(iterable, n):
             group.add(next(iterable))
             count += 1
             if count % n == 0:
-                yield frozenset(group)
+                if mutable:
+                    yield group
+                else:
+                    yield frozenset(group)
                 group = set()
         except StopIteration:
             if len(group) < 1:
                 raise StopIteration()
             else:
-                yield frozenset(group)
+                if mutable:
+                    yield group
+                else:
+                    yield frozenset(group)
             break
 
 def first(i):
