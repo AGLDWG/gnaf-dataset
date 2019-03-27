@@ -3,7 +3,7 @@ import requests
 import re
 import pytest
 
-SYSTEM_URI = 'http://gnafld.net'
+SYSTEM_URI = 'https://gnafld.net'
 #SYSTEM_URI = 'http://localhost:5000'
 
 def valid_endpoint_content(uri, headers, pattern):
