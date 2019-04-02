@@ -10,7 +10,7 @@
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<http://linked.data.gov.au/dataset/gnaf> a dcat:DataDistributionService ;
+<http://linked.data.gov.au/dataset/gnaf> a dcat:DataService ;
     dc:contributor "Ashley Sommer" ;
     dc:creator "Joseph Abhayaratna",
         "Nicholas Car"@en ;
@@ -25,7 +25,7 @@
     dct:publisher <http://catalogue.linked.data.gov.au/org/psma> ;
     dc:publisher "PSMA Australia" .
 
-:sparql a dcat:DataDistributionService ;
+:sparql a dcat:DataService ;
     dc:contributor "Ashley Sommer" ;
     dc:creator "Joseph Abhayaratna",
         "Nicholas Car"@en ;
