@@ -1,6 +1,7 @@
 # GNAF Linked Data dataset
 A Linked Data version of PSMA's G-NAF dataset.
 
+## *This repo is archived in this account, see the active repo for this project at https://github.com/CSIRO-enviro-informatics/gnaf-dataset*
 
 ## About
 ### API
@@ -31,10 +32,10 @@ This code is licensed using the GPL v3 (see the [LICENSE file](LICENSE) for the 
 
 
 ## Contacts
-Product Owner:
+Product Owner:  
 **Joseph Abhayaratna**  
 *Chief Technical Officer*  
-PSMA Australia Ltd.
+PSMA Australia Ltd.  
 <Joseph.Abhayaratna@psma.com.au>  
 
 Developer:  
